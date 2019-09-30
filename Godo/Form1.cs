@@ -78,7 +78,7 @@ namespace Godo
             byte[] nameBytes = Encoding.ASCII.GetBytes(pickName); // Encodes the string into ASCII byte values
             for (int i = 0; i < nameBytes.Length; i++)
             {
-                nameBytes[i] = +0x20; // Adjusts the ASCII byte values to match the FF7 ASCII byte values
+                //nameBytes[i] -= 0x20; // Adjusts the ASCII byte values to match the FF7 ASCII byte values
             }
             return nameBytes;
         }
@@ -160,6 +160,9 @@ namespace Godo
                         charRecord[o] = nameBytes[5]; o++;
                         charRecord[o] = nameBytes[6]; o++;
                         charRecord[o] = nameBytes[7]; o++;
+                        charRecord[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
+                        charRecord[o] = 0; o++;   // Empty - For instance, Ex-Soldier prints as 'Ex-Soldie' if his name is called by field script
+                        charRecord[o] = 255; o++; // Empty - Use FF to terminate the string
 
                         // Equipped Weapon ID
                         /* Characters have a varying range for weapons, so this switch-case assigns the
@@ -168,7 +171,7 @@ namespace Godo
                          */
                         #region Switch-Case for Weapon Ranges
                         switch (r)
-                        {
+                        { //TODO: Sort out the valid ranges
                             case 0:
                                 c = 0;  // Cloud
                                 k = 10;
