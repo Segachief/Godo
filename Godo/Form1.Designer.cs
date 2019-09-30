@@ -30,6 +30,7 @@
         {
             this.btnRandomise = new System.Windows.Forms.Button();
             this.btnOpen = new System.Windows.Forms.Button();
+            this.lblFileName = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // btnRandomise
@@ -52,16 +53,27 @@
             this.btnOpen.UseVisualStyleBackColor = true;
             this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
+            // lblFileName
+            // 
+            this.lblFileName.AutoSize = true;
+            this.lblFileName.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
+            this.lblFileName.Location = new System.Drawing.Point(119, 22);
+            this.lblFileName.Name = "lblFileName";
+            this.lblFileName.Size = new System.Drawing.Size(2, 15);
+            this.lblFileName.TabIndex = 2;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.lblFileName);
             this.Controls.Add(this.btnOpen);
             this.Controls.Add(this.btnRandomise);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -69,6 +81,7 @@
 
         private System.Windows.Forms.Button btnRandomise;
         private System.Windows.Forms.Button btnOpen;
+        private System.Windows.Forms.Label lblFileName;
     }
 }
 

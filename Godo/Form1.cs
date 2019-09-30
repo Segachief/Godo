@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -39,7 +40,21 @@ namespace Godo
 
         private void BtnOpen_Click(object sender, EventArgs e)
         {
+            // Temporary test method, open files to check randomiser sections
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
 
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(openFileDialog1.FileName)));
+                    lblFileName.Text = openFileDialog1.FileName;
+                }
+                catch
+                {
+                    MessageBox.Show("An error has occurred; please check that a valid file was loaded", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
         }
 
         private void BtnRandomise_Click(object sender, EventArgs e)
