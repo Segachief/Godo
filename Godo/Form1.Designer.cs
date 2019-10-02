@@ -28,20 +28,21 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnRandomise = new System.Windows.Forms.Button();
+            this.btnRandoKernel = new System.Windows.Forms.Button();
             this.btnOpen = new System.Windows.Forms.Button();
             this.lblFileName = new System.Windows.Forms.Label();
+            this.btnRandoScene = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
-            // btnRandomise
+            // btnRandoKernel
             // 
-            this.btnRandomise.Location = new System.Drawing.Point(37, 42);
-            this.btnRandomise.Name = "btnRandomise";
-            this.btnRandomise.Size = new System.Drawing.Size(75, 23);
-            this.btnRandomise.TabIndex = 0;
-            this.btnRandomise.Text = "Test";
-            this.btnRandomise.UseVisualStyleBackColor = true;
-            this.btnRandomise.Click += new System.EventHandler(this.BtnRandomise_Click);
+            this.btnRandoKernel.Location = new System.Drawing.Point(37, 42);
+            this.btnRandoKernel.Name = "btnRandoKernel";
+            this.btnRandoKernel.Size = new System.Drawing.Size(75, 23);
+            this.btnRandoKernel.TabIndex = 0;
+            this.btnRandoKernel.Text = "Test Kernel";
+            this.btnRandoKernel.UseVisualStyleBackColor = true;
+            this.btnRandoKernel.Click += new System.EventHandler(this.BtnRandoKernel_Click);
             // 
             // btnOpen
             // 
@@ -62,14 +63,25 @@
             this.lblFileName.Size = new System.Drawing.Size(2, 15);
             this.lblFileName.TabIndex = 2;
             // 
+            // btnRandoScene
+            // 
+            this.btnRandoScene.Location = new System.Drawing.Point(37, 72);
+            this.btnRandoScene.Name = "btnRandoScene";
+            this.btnRandoScene.Size = new System.Drawing.Size(75, 23);
+            this.btnRandoScene.TabIndex = 3;
+            this.btnRandoScene.Text = "Test Scene";
+            this.btnRandoScene.UseVisualStyleBackColor = true;
+            this.btnRandoScene.Click += new System.EventHandler(this.BtnRandoScene_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnRandoScene);
             this.Controls.Add(this.lblFileName);
             this.Controls.Add(this.btnOpen);
-            this.Controls.Add(this.btnRandomise);
+            this.Controls.Add(this.btnRandoKernel);
             this.Name = "Form1";
             this.Text = "Form1";
             this.ResumeLayout(false);
@@ -79,9 +91,10 @@
 
         #endregion
 
-        private System.Windows.Forms.Button btnRandomise;
+        private System.Windows.Forms.Button btnRandoKernel;
         private System.Windows.Forms.Button btnOpen;
         private System.Windows.Forms.Label lblFileName;
+        private System.Windows.Forms.Button btnRandoScene;
     }
 }
 
