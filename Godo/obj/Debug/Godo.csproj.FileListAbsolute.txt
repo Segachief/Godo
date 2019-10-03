@@ -8,3 +8,6 @@ D:\Practice\Godo\Godo\obj\Debug\Godo.csproj.GenerateResource.cache
 D:\Practice\Godo\Godo\obj\Debug\Godo.csproj.CoreCompileInputs.cache
 D:\Practice\Godo\Godo\obj\Debug\Godo.exe
 D:\Practice\Godo\Godo\obj\Debug\Godo.pdb
+D:\Practice\Godo\Godo\bin\Debug\ICSharpCode.SharpZipLib.dll
+D:\Practice\Godo\Godo\bin\Debug\ICSharpCode.SharpZipLib.pdb
+D:\Practice\Godo\Godo\obj\Debug\Godo.csproj.CopyComplete

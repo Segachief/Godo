@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ICSharpCode.SharpZipLib.Core;
+using ICSharpCode.SharpZipLib.GZip;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -47,8 +49,81 @@ namespace Godo
             {
                 try
                 {
-                    BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(openFileDialog1.FileName)));
-                    lblFileName.Text = openFileDialog1.FileName;
+                    //var kernelblock = new byte[64];
+                    //for (int i = 0; i < kernelblock.Length; i++)
+                    //{
+                    //    kernelblock[i] = 0xFF;
+                    //}
+                    //BinaryReader SCENEBINContents = new BinaryReader(new MemoryStream(File.ReadAllBytes(openFileDialog1.FileName)));
+                    //byte Scene = 0;
+                    //int Scenefile = 0;
+                    //int SceneBlock = 8192;
+                    //int SceneData = 0;
+                    //int NextSceneData = 0;
+                    //byte CompressedSceneFile = 0;
+                    //byte CompressedScenes = 255;
+                    //do
+                    //{
+                    //    kernelblock[Scene] = (byte)Scenefile;
+
+                    //    //Array.Copy(SCENEBINContents, (Scene * 8192), SceneBlock, 0, 8192);
+                    //    for (int Sceneplace = 0; Sceneplace <= 63; Sceneplace+=4)
+                    //    {
+                    //        if (SceneBlock + (Sceneplace + 1) > 7)
+                    //        {
+                    //            break;
+                    //        }
+                    //        SceneData = SceneBlock + (Sceneplace + 1) * 256;
+                    //        SceneData += SceneBlock + Sceneplace;
+                    //        SceneData *= 4;
+
+                    //        NextSceneData = 8192;
+                    //        if(Sceneplace < 60 && SceneBlock + (Sceneplace + 5) < 8)
+                    //        {
+                    //            NextSceneData = SceneBlock + (Sceneplace + 5) * 256;
+                    //            NextSceneData += SceneBlock + (Sceneplace + 4);
+                    //            NextSceneData *= 4;                 
+                    //        }
+
+                    //        CompressedSceneFile = (byte)(NextSceneData - SceneData - 1);
+                    //        //Array.Copy(SceneBlock, SceneData, CompressedSceneFile, 0, NextSceneData - SceneData);
+
+                    //        do
+                    //        {
+                    //            CompressedSceneFile = (byte)(CompressedSceneFile.ToString().Length - 2);
+                    //        }
+                    //        while ((CompressedSceneFile.ToString().Length - 1) == 255);
+
+                    //        CompressedSceneFile = CompressedScenes + Scenefile;
+                    //        Scenefile += 1;
+                    //    }
+                    //    Scene += 1;
+                    //}
+                    //while (Scenefile < 256 && Scene * 8192 < SCENEBINContents.ToString().Length);
+
+
+
+
+
+                    //string gzipFileName = openFileDialog1.FileName;
+                    //string targetDir = Path.GetDirectoryName(openFileDialog1.FileName);
+                    //byte[] dataBuffer = new byte[4096];
+
+                    //using (Stream fs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read))
+                    //{
+                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
+                    //    {
+                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName));
+
+                    //        using (FileStream fsOut = File.Create(fnOut))
+                    //        {
+                    //            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
+
+                    //        }
+                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
+                    //        lblFileName.Text = fnOut;
+                    //    }
+                    //}
                 }
                 catch
                 {
