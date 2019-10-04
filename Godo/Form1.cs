@@ -54,6 +54,7 @@ namespace Godo
                     //byte[] dataBuffer = new byte[4096]; // data buffer, may not be needed here as we know exact file size
                     //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(gzipFileName))); // unused     
                     string kernelSectionFile = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName)); // Creates a new file in targetdir that will receive section1 code
+                    string kernelSectionFileB = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("output"));
 
                     FileStream afs = File.OpenRead(gzipFileName);
                     byte[] size = new byte[1];
@@ -62,7 +63,7 @@ namespace Godo
 
                     using (BinaryReader reader = new BinaryReader(new FileStream(gzipFileName, FileMode.Open))) // Opens the filename and reads its bytes
                     {
-                        byte[] test = new byte[size[0] - 6]; // Byte array we'll use to store section 1, compressed it is 122bytes in length
+                        byte[] test = new byte[size[0] - 5]; // Byte array we'll use to store section 1, compressed it is 122bytes in length
                         reader.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from 0x6 which is where Gzip file starts
                         reader.Read(test, 0, test.Length); // From specified offset of 0x06 above, reads from 0 and reads for 122 bytes.
                         using (var fs = new FileStream(kernelSectionFile, FileMode.Create, FileAccess.Write))
@@ -81,8 +82,6 @@ namespace Godo
                                 using (MemoryStream outputStream = new MemoryStream())
                                 {
                                     byte[] buffer = new byte[256];
-                                    while (true)
-                                    {
                                         int sizeB = decompressStream.Read(buffer, 0, buffer.Length);
                                         if (sizeB > 0)
                                         {
@@ -93,18 +92,30 @@ namespace Godo
                                                 fs.Close();
                                             }
                                         }
-                                        else
-                                        {
-                                            break;
-                                        }
-                                    }
                                     decompressStream.Close();
                                     outputStream.ToArray();
-                                    
+
+                                    FileStream srcFile = File.OpenRead(kernelSectionFile);
+                                    GZipOutputStream zipFile = new GZipOutputStream(File.Open(kernelSectionFileB, FileMode.Create));
+                                    try
+                                    {
+                                        byte[] FileData = new byte[srcFile.Length];
+                                        srcFile.Read(FileData, 0, (int)srcFile.Length);
+                                        zipFile.Write(FileData, 0, FileData.Length);
+                                    }
+                                    catch
+                                    {
+                                        MessageBox.Show("Failed to compress", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    }
+                                    finally
+                                    {
+                                        srcFile.Close();
+                                        zipFile.Close();
+                                    }
+
                                 }
                             }
                         }
-
                     }
 
 
