@@ -49,6 +49,108 @@ namespace Godo
             {
                 try
                 {
+                    string gzipFileName = openFileDialog1.FileName; // Get the filename
+                    string targetDir = Path.GetDirectoryName(openFileDialog1.FileName); // Get directory where the filename resides
+                    //byte[] dataBuffer = new byte[4096]; // data buffer, may not be needed here as we know exact file size
+                    //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(gzipFileName))); // unused     
+                    string kernelSectionFile = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName)); // Creates a new file in targetdir that will receive section1 code
+
+                    FileStream afs = File.OpenRead(gzipFileName);
+                    byte[] size = new byte[1];
+                    afs.Read(size, 0, 1);
+                    afs.Close();
+
+                    using (BinaryReader reader = new BinaryReader(new FileStream(gzipFileName, FileMode.Open))) // Opens the filename and reads its bytes
+                    {
+                        byte[] test = new byte[size[0] - 6]; // Byte array we'll use to store section 1, compressed it is 122bytes in length
+                        reader.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from 0x6 which is where Gzip file starts
+                        reader.Read(test, 0, test.Length); // From specified offset of 0x06 above, reads from 0 and reads for 122 bytes.
+                        using (var fs = new FileStream(kernelSectionFile, FileMode.Create, FileAccess.Write))
+                        {
+                            fs.Write(test, 0, test.Length);
+                            fs.Close();
+                        }
+
+                        using (MemoryStream inputStream = new MemoryStream())
+                        {
+                            inputStream.Write(test, 0, test.Length);
+                            inputStream.Position = 0;
+
+                            using (Stream decompressStream = new GZipInputStream(inputStream))
+                            {
+                                using (MemoryStream outputStream = new MemoryStream())
+                                {
+                                    byte[] buffer = new byte[256];
+                                    while (true)
+                                    {
+                                        int sizeB = decompressStream.Read(buffer, 0, buffer.Length);
+                                        if (sizeB > 0)
+                                        {
+                                            outputStream.Write(buffer, 0, sizeB);
+                                            using (var fs = new FileStream(kernelSectionFile, FileMode.Create, FileAccess.Write))
+                                            {
+                                                fs.Write(buffer, 0, buffer.Length);
+                                                fs.Close();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            break;
+                                        }
+                                    }
+                                    decompressStream.Close();
+                                    outputStream.ToArray();
+                                    
+                                }
+                            }
+                        }
+
+                    }
+
+
+
+
+                    //using (Stream fs = new FileStream(kernelSectionFile, FileMode.Open, FileAccess.Read))
+                    //{
+                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
+                    //    {
+                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("testgzipsection1"));
+
+                    //        using (FileStream fsOut = File.Create(fnOut))
+                    //        {
+                    //            StreamUtils.Copy(gzipStream, fsOut, test);
+                    //        }
+                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
+                    //        lblFileName.Text = fnOut;
+                    //    }
+                    //}
+
+
+
+                    //using (BinaryWriter bw = new BinaryWriter(File.Open(kernelSectionFile, FileMode.Open)))
+                    //{
+                    //    byte[] arrayKernelSection;
+                    //    arrayKernelSection = test.Select(b => (byte)b).ToArray(); // Takes test and pushes it into byte array
+                    //    bw.BaseStream.Position = 0x00000; // Prepare to write to file from 0x00 position
+                    //    bw.Write(arrayKernelSection, 0, arrayKernelSection.Length); // Write in array's contents, starting from 0 until its entire length
+                    //    MessageBox.Show("Reached end of fileopen code with no error", "Success", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //}
+
+                    //using (Stream fs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read))
+                    //{
+                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
+                    //    {
+                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName));
+
+                    //        using (FileStream fsOut = File.Create(fnOut))
+                    //        {
+                    //            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
+                    //        }
+                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
+                    //        lblFileName.Text = fnOut;
+                    //    }
+                    //}
+
                     //var kernelblock = new byte[64];
                     //for (int i = 0; i < kernelblock.Length; i++)
                     //{
@@ -101,29 +203,6 @@ namespace Godo
                     //}
                     //while (Scenefile < 256 && Scene * 8192 < SCENEBINContents.ToString().Length);
 
-
-
-
-
-                    //string gzipFileName = openFileDialog1.FileName;
-                    //string targetDir = Path.GetDirectoryName(openFileDialog1.FileName);
-                    //byte[] dataBuffer = new byte[4096];
-
-                    //using (Stream fs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read))
-                    //{
-                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
-                    //    {
-                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName));
-
-                    //        using (FileStream fsOut = File.Create(fnOut))
-                    //        {
-                    //            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
-
-                    //        }
-                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
-                    //        lblFileName.Text = fnOut;
-                    //    }
-                    //}
                 }
                 catch
                 {
@@ -624,7 +703,7 @@ namespace Godo
                     byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                     Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
 
-                   
+
                     while (r <= 0) // Iterates 256 times for each scene, temporarily disabled as only editing 1 file at a time currently
                     {
                         #region Enemy IDs
@@ -666,16 +745,16 @@ namespace Godo
 
                         // Battle Square - Possible Next Battles (4x 2-byte formation IDs, one is selected at random; default value for no battle is 03E7
                         battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03;  o++; // Value of 03E7h
+                        battleSetup[o] = 03; o++; // Value of 03E7h
 
                         battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03;  o++;
+                        battleSetup[o] = 03; o++;
 
                         battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03;  o++;
+                        battleSetup[o] = 03; o++;
 
                         battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03;  o++;
+                        battleSetup[o] = 03; o++;
 
                         // Escapable Flag (misc flags such as disabling pre-emptive)
                         battleSetup[o] = 253; o++;
@@ -779,7 +858,7 @@ namespace Godo
                         #endregion
 
                         #region Battle Formation Data
-                        
+
                         // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
                         int enemyA1 = enemyIDs[o]; o++; // First byte of the ID
                         int enemyA2 = enemyIDs[o]; o++; // Second byte of the ID
