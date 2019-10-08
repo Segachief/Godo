@@ -40,200 +40,28 @@ namespace Godo
             toolTip1.ShowAlways = true;
         }
 
-        private void BtnOpen_Click(object sender, EventArgs e)
+        // This converts the little endian values to int, typically for declaring array sizes from size values derived from headers
+        int GetLittleEndianInt(byte[] data, int startIndex)
         {
-            // Temporary test method, open files to check randomiser sections
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-
-            if (openFileDialog1.ShowDialog() == DialogResult.OK)
-            {
-                try
-                {
-                    string gzipFileName = openFileDialog1.FileName; // Get the filename
-                    string targetDir = Path.GetDirectoryName(openFileDialog1.FileName); // Get directory where the filename resides
-                    //byte[] dataBuffer = new byte[4096]; // data buffer, may not be needed here as we know exact file size
-                    //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(gzipFileName))); // unused     
-                    string kernelSectionFile = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName)); // Creates a new file in targetdir that will receive section1 code
-                    string kernelSectionFileB = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("output"));
-
-                    FileStream afs = File.OpenRead(gzipFileName);
-                    byte[] size = new byte[1];
-                    afs.Read(size, 0, 1);
-                    afs.Close();
-
-                    using (BinaryReader reader = new BinaryReader(new FileStream(gzipFileName, FileMode.Open))) // Opens the filename and reads its bytes
-                    {
-                        byte[] test = new byte[size[0] - 5]; // Byte array we'll use to store section 1, compressed it is 122bytes in length
-                        reader.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from 0x6 which is where Gzip file starts
-                        reader.Read(test, 0, test.Length); // From specified offset of 0x06 above, reads from 0 and reads for 122 bytes.
-                        using (var fs = new FileStream(kernelSectionFile, FileMode.Create, FileAccess.Write))
-                        {
-                            fs.Write(test, 0, test.Length);
-                            fs.Close();
-                        }
-
-                        using (MemoryStream inputStream = new MemoryStream())
-                        {
-                            inputStream.Write(test, 0, test.Length);
-                            inputStream.Position = 0;
-
-                            using (Stream decompressStream = new GZipInputStream(inputStream))
-                            {
-                                using (MemoryStream outputStream = new MemoryStream())
-                                {
-                                    byte[] buffer = new byte[256];
-                                        int sizeB = decompressStream.Read(buffer, 0, buffer.Length);
-                                        if (sizeB > 0)
-                                        {
-                                            outputStream.Write(buffer, 0, sizeB);
-                                            using (var fs = new FileStream(kernelSectionFile, FileMode.Create, FileAccess.Write))
-                                            {
-                                                fs.Write(buffer, 0, buffer.Length);
-                                                fs.Close();
-                                            }
-                                        }
-                                    decompressStream.Close();
-                                    outputStream.ToArray();
-
-                                    FileStream srcFile = File.OpenRead(kernelSectionFile);
-                                    GZipOutputStream zipFile = new GZipOutputStream(File.Open(kernelSectionFileB, FileMode.Create));
-                                    try
-                                    {
-                                        byte[] FileData = new byte[srcFile.Length];
-                                        srcFile.Read(FileData, 0, (int)srcFile.Length);
-                                        zipFile.Write(FileData, 0, FileData.Length);
-                                    }
-                                    catch
-                                    {
-                                        MessageBox.Show("Failed to compress", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    }
-                                    finally
-                                    {
-                                        srcFile.Close();
-                                        zipFile.Close();
-                                    }
-
-                                }
-                            }
-                        }
-                    }
-
-
-
-
-                    //using (Stream fs = new FileStream(kernelSectionFile, FileMode.Open, FileAccess.Read))
-                    //{
-                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
-                    //    {
-                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("testgzipsection1"));
-
-                    //        using (FileStream fsOut = File.Create(fnOut))
-                    //        {
-                    //            StreamUtils.Copy(gzipStream, fsOut, test);
-                    //        }
-                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
-                    //        lblFileName.Text = fnOut;
-                    //    }
-                    //}
-
-
-
-                    //using (BinaryWriter bw = new BinaryWriter(File.Open(kernelSectionFile, FileMode.Open)))
-                    //{
-                    //    byte[] arrayKernelSection;
-                    //    arrayKernelSection = test.Select(b => (byte)b).ToArray(); // Takes test and pushes it into byte array
-                    //    bw.BaseStream.Position = 0x00000; // Prepare to write to file from 0x00 position
-                    //    bw.Write(arrayKernelSection, 0, arrayKernelSection.Length); // Write in array's contents, starting from 0 until its entire length
-                    //    MessageBox.Show("Reached end of fileopen code with no error", "Success", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    //}
-
-                    //using (Stream fs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read))
-                    //{
-                    //    using (GZipInputStream gzipStream = new GZipInputStream(fs))
-                    //    {
-                    //        string fnOut = Path.Combine(targetDir, Path.GetFileNameWithoutExtension(gzipFileName));
-
-                    //        using (FileStream fsOut = File.Create(fnOut))
-                    //        {
-                    //            StreamUtils.Copy(gzipStream, fsOut, dataBuffer);
-                    //        }
-                    //        //BinaryReader br = new BinaryReader(new MemoryStream(File.ReadAllBytes(fnOut)));
-                    //        lblFileName.Text = fnOut;
-                    //    }
-                    //}
-
-                    //var kernelblock = new byte[64];
-                    //for (int i = 0; i < kernelblock.Length; i++)
-                    //{
-                    //    kernelblock[i] = 0xFF;
-                    //}
-                    //BinaryReader SCENEBINContents = new BinaryReader(new MemoryStream(File.ReadAllBytes(openFileDialog1.FileName)));
-                    //byte Scene = 0;
-                    //int Scenefile = 0;
-                    //int SceneBlock = 8192;
-                    //int SceneData = 0;
-                    //int NextSceneData = 0;
-                    //byte CompressedSceneFile = 0;
-                    //byte CompressedScenes = 255;
-                    //do
-                    //{
-                    //    kernelblock[Scene] = (byte)Scenefile;
-
-                    //    //Array.Copy(SCENEBINContents, (Scene * 8192), SceneBlock, 0, 8192);
-                    //    for (int Sceneplace = 0; Sceneplace <= 63; Sceneplace+=4)
-                    //    {
-                    //        if (SceneBlock + (Sceneplace + 1) > 7)
-                    //        {
-                    //            break;
-                    //        }
-                    //        SceneData = SceneBlock + (Sceneplace + 1) * 256;
-                    //        SceneData += SceneBlock + Sceneplace;
-                    //        SceneData *= 4;
-
-                    //        NextSceneData = 8192;
-                    //        if(Sceneplace < 60 && SceneBlock + (Sceneplace + 5) < 8)
-                    //        {
-                    //            NextSceneData = SceneBlock + (Sceneplace + 5) * 256;
-                    //            NextSceneData += SceneBlock + (Sceneplace + 4);
-                    //            NextSceneData *= 4;                 
-                    //        }
-
-                    //        CompressedSceneFile = (byte)(NextSceneData - SceneData - 1);
-                    //        //Array.Copy(SceneBlock, SceneData, CompressedSceneFile, 0, NextSceneData - SceneData);
-
-                    //        do
-                    //        {
-                    //            CompressedSceneFile = (byte)(CompressedSceneFile.ToString().Length - 2);
-                    //        }
-                    //        while ((CompressedSceneFile.ToString().Length - 1) == 255);
-
-                    //        CompressedSceneFile = CompressedScenes + Scenefile;
-                    //        Scenefile += 1;
-                    //    }
-                    //    Scene += 1;
-                    //}
-                    //while (Scenefile < 256 && Scene * 8192 < SCENEBINContents.ToString().Length);
-
-                }
-                catch
-                {
-                    MessageBox.Show("An error has occurred; please check that a valid file was loaded", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-            }
+            return (data[startIndex + 3] << 24)
+                 | (data[startIndex + 2] << 16)
+                 | (data[startIndex + 1] << 8)
+                 | data[startIndex];
         }
 
-        private void BtnRandoKernel_Click(object sender, EventArgs e)
+        public static byte[] GetLittleEndianConvert(ulong value)
         {
-            string fileName = lblFileName.Text;
-            RandomiseKernel(fileName);
+            // Value in bytes
+            byte[] bytes = BitConverter.GetBytes(value);
+
+            // If it was big endian, reverse it
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+
+            return bytes;
         }
 
-        private void BtnRandoScene_Click(object sender, EventArgs e)
-        {
-            string fileName = lblFileName.Text;
-            RandomiseScene(fileName);
-        }
-
+        // This method generates a random name using two 4-letter words
         public byte[] NameGenerate(Random rnd)
         {
             string[] nameArray = {"AAHS", "AALS", "ABAC", "ABAS", "ABBA", "ABBE", "ABBS", "ABED", "ABET", "ABID", "ABLE", "ABLY", "ABOS", "ABRI", "ABUT", "ABYE", "ABYS", "ACAI", "ACCA", "ACED", "ACER", "ACES", "ACHE", "ACHY", "ACID", "ACME", "ACNE", "ACRE", "ACTA", "ACTS", "ACYL", "ADAW", "ADDS", "ADDY", "ADIT", "ADOS", "ADRY", "ADZE", "AEON", "AERO", "AERY", "AESC", "AFAR", "AFFY", "AFRO", "AGAR", "AGAS", "AGED", "AGEE", "AGEN", "AGER", "AGES", "AGHA", "AGIN", "AGIO", "AGLU", "AGLY", "AGMA", "AGOG", "AGON", "AGUE", "AHED", "AHEM", "AHIS", "AHOY", "AIAS", "AIDE", "AIDS", "AIGA", "AILS", "AIMS", "AINE", "AINS", "AIRN", "AIRS", "AIRT", "AIRY", "AITS", "AITU", "AJAR", "AJEE", "AKED", "AKEE", "AKES", "AKIN", "ALAE", "ALAN", "ALAP", "ALAR", "ALAS", "ALAY", "ALBA", "ALBE", "ALBS", "ALCO", "ALEC", "ALEE", "ALEF", "ALES", "ALEW", "ALFA", "ALFS", "ALGA", "ALIF", "ALIT", "ALKO", "ALKY", "ALLS", "ALLY", "ALMA", "ALME", "ALMS", "ALOD", "ALOE", "ALOW", "ALPS", "ALSO", "ALTO", "ALTS", "ALUM", "AMAH", "AMAS", "AMBO", "AMEN", "AMIA", "AMID", "AMIE", "AMIN", "AMIR", "AMIS", "AMLA", "AMMO", "AMOK", "AMPS", "AMUS", "AMYL", "ANAL", "ANAN", "ANAS", "ANCE", "ANDS", "ANES", "ANEW", "ANGA", "ANIL", "ANIS", "ANKH", "ANNA", "ANNO", "ANNS", "ANOA", "ANON", "ANOW", "ANSA", "ANTA", "ANTE", "ANTI", "ANTS", "ANUS", "APAY", "APED", "APER", "APES", "APEX", "APOD", "APOS", "APPS", "APSE", "APSO", "APTS", "AQUA", "ARAK", "ARAR", "ARBA", "ARBS", "ARCH", "ARCO", "ARCS", "ARDS", "AREA", "ARED", "AREG", "ARES", "ARET", "AREW", "ARFS", "ARIA", "ARID", "ARIL", "ARIS", "ARKS", "ARLE", "ARMS", "ARMY", "ARNA", "AROW", "ARPA", "ARSE", "ARSY", "ARTI", "ARTS", "ARTY", "ARUM", "ARVO", "ARYL", "ASAR", "ASCI", "ASEA", "ASHY", "ASKS", "ASPS", "ATAP", "ATES", "ATMA", "ATOC", "ATOK", "ATOM", "ATOP", "ATUA", "AUFS", "AUKS", "AULA", "AULD", "AUNE", "AUNT", "AURA", "AUTO", "AVAL", "AVAS", "AVEL", "AVER", "AVES", "AVID", "AVOS", "AVOW", "AWAY", "AWDL", "AWED", "AWEE", "AWES", "AWLS", "AWNS", "AWNY", "AWOL", "AWRY", "AXAL", "AXED", "AXEL", "AXES", "AXIL", "AXIS", "AXLE", "AXON", "AYAH", "AYES", "AYIN", "AYRE", "AYUS", "AZAN", "AZON", "AZYM", "BAAL", "BAAS", "BABA", "BABE", "BABU", "BABY", "BACH", "BACK", "BACS", "BADE", "BADS", "BAEL", "BAFF", "BAFT", "BAGH", "BAGS", "BAHT", "BAIL", "BAIT", "BAJU", "BAKE", "BALD", "BALE", "BALK", "BALL", "BALM", "BALS", "BALU", "BAMS", "BANC", "BAND", "BANE", "BANG", "BANI", "BANK", "BANS", "BANT", "BAPS", "BAPU", "BARB", "BARD", "BARE", "BARF", "BARK", "BARM", "BARN", "BARP", "BARS", "BASE", "BASH", "BASK", "BASS", "BAST", "BATE", "BATH", "BATS", "BATT", "BAUD", "BAUK", "BAUR", "BAWD", "BAWL", "BAWN", "BAWR", "BAYE", "BAYS", "BAYT", "BEAD", "BEAK", "BEAM", "BEAN", "BEAR", "BEAT", "BEAU", "BECK", "BEDE", "BEDS", "BEDU", "BEEF", "BEEN", "BEEP", "BEER", "BEES", "BEET", "BEGO", "BEGS", "BEIN", "BELL", "BELS", "BELT", "BEMA", "BEND", "BENE", "BENI", "BENJ", "BENS", "BENT", "BERE", "BERG", "BERK", "BERM", "BEST", "BETA", "BETE", "BETH", "BETS", "BEVY", "BEYS", "BHAT", "BHEL", "BHUT", "BIAS", "BIBB", "BIBS", "BICE", "BIDE", "BIDI", "BIDS", "BIEN", "BIER", "BIFF", "BIGA", "BIGG", "BIGS", "BIKE", "BILE", "BILK", "BILL", "BIMA", "BIND", "BINE", "BING", "BINK", "BINS", "BINT", "BIOG", "BIOS", "BIRD", "BIRK", "BIRL", "BIRO", "BIRR", "BISE", "BISH", "BISK", "BIST", "BITE", "BITO", "BITS", "BITT", "BIZE", "BLAB", "BLAD", "BLAE", "BLAG", "BLAH", "BLAM", "BLAT", "BLAW", "BLAY", "BLEB", "BLED", "BLEE", "BLET", "BLEW", "BLEY", "BLIN", "BLIP", "BLOB", "BLOC", "BLOG", "BLOT", "BLOW", "BLUB", "BLUE", "BLUR", "BOAB", "BOAK", "BOAR", "BOAS", "BOAT", "BOBA", "BOBS", "BOCK", "BODE", "BODS", "BODY", "BOEP", "BOET", "BOFF", "BOGS", "BOGY", "BOHO", "BOHS", "BOIL", "BOIS", "BOKE", "BOKO", "BOKS", "BOLA", "BOLD", "BOLE", "BOLL", "BOLO", "BOLT", "BOMA", "BOMB", "BONA", "BOND", "BONE", "BONG", "BONK", "BONY", "BOOB", "BOOH", "BOOK", "BOOL", "BOOM", "BOON", "BOOR", "BOOS", "BOOT", "BOPS", "BORA", "BORD", "BORE", "BORK", "BORM", "BORN", "BORS", "BORT", "BOSH", "BOSK", "BOSS", "BOTA", "BOTH", "BOTS", "BOTT", "BOUK", "BOUN", "BOUT", "BOWL", "BOWR", "BOWS", "BOXY", "BOYF", "BOYG", "BOYO", "BOYS", "BOZO", "BRAD", "BRAE", "BRAG", "BRAK", "BRAN", "BRAS", "BRAT", "BRAW", "BRAY", "BRED", "BREE", "BREI", "BREN", "BRER", "BREW", "BREY", "BRIE", "BRIG", "BRIK", "BRIM", "BRIN", "BRIO", "BRIS", "BRIT", "BROD", "BROG", "BROO", "BROS", "BROW", "BRRR", "BRUS", "BRUT", "BRUX", "BUAT", "BUBA", "BUBO", "BUBS", "BUBU", "BUCK", "BUDA", "BUDI", "BUDO", "BUDS", "BUFF", "BUFO", "BUGS", "BUHL", "BUHR", "BUIK", "BUKE", "BULB", "BULK", "BULL", "BUMF", "BUMP", "BUMS", "BUNA", "BUND", "BUNG", "BUNK", "BUNN", "BUNS", "BUNT", "BUOY", "BURA", "BURB", "BURD", "BURG", "BURK", "BURL", "BURN", "BURP", "BURR", "BURS", "BURY", "BUSH", "BUSK", "BUSS", "BUST", "BUSY", "BUTE", "BUTS", "BUTT", "BUYS", "BUZZ", "BYDE", "BYES", "BYKE", "BYRE", "BYRL", "BYTE", "CAAS", "CABA", "CABS", "CACA", "CADE", "CADI", "CADS", "CAFE", "CAFF", "CAGE", "CAGS", "CAGY", "CAID", "CAIN", "CAKE", "CAKY", "CALF", "CALK", "CALL", "CALM", "CALO", "CALP", "CALX", "CAMA", "CAME", "CAMO", "CAMP", "CAMS", "CANE", "CANG", "CANN", "CANS", "CANT", "CANY", "CAPA", "CAPE", "CAPH", "CAPI", "CAPO", "CAPS", "CARB", "CARD", "CARE", "CARK", "CARL", "CARN", "CARP", "CARR", "CARS", "CART", "CASA", "CASE", "CASH", "CASK", "CAST", "CATE", "CATS", "CAUF", "CAUK", "CAUL", "CAUM", "CAUP", "CAVA", "CAVE", "CAVY", "CAWK", "CAWS", "CAYS", "CEAS", "CECA", "CEDE", "CEDI", "CEES", "CEIL", "CELL", "CELS", "CELT", "CENS", "CENT", "CEPE", "CEPS", "CERE", "CERO", "CERT", "CESS", "CETE", "CHAD", "CHAI", "CHAL", "CHAM", "CHAO", "CHAP", "CHAR", "CHAS", "CHAT", "CHAV", "CHAW", "CHAY", "CHEF", "CHER", "CHEW", "CHEZ", "CHIA", "CHIB", "CHIC", "CHID", "CHIK", "CHIN", "CHIP", "CHIS", "CHIT", "CHIV", "CHIZ", "CHOC", "CHOG", "CHON", "CHOP", "CHOU", "CHOW", "CHUB", "CHUG", "CHUM", "CHUT", "CIAO", "CIDE", "CIDS", "CIEL", "CIGS", "CILL", "CINE", "CION", "CIRE", "CIRL", "CIST", "CITE", "CITO", "CITS", "CITY", "CIVE", "CLAD", "CLAG", "CLAM", "CLAN", "CLAP", "CLAT", "CLAW", "CLAY", "CLEF", "CLEG", "CLEM", "CLEW", "CLIP", "CLOD", "CLOG", "CLON", "CLOP", "CLOT", "CLOU", "CLOW", "CLOY", "CLUB", "CLUE", "COAL", "COAT", "COAX", "COBB", "COBS", "COCA", "COCH", "COCK", "COCO", "CODA", "CODE", "CODS", "COED", "COFF", "COFT", "COGS", "COHO", "COIF", "COIL", "COIN", "COIR", "COIT", "COKE", "COKY", "COLA", "COLD", "COLE", "COLL", "COLS", "COLT", "COLY", "COMA", "COMB", "COME", "COMM", "COMP", "COMS", "COND", "CONE", "CONF", "CONI", "CONK", "CONN", "CONS", "CONY", "COOF", "COOK", "COOL", "COOM", "COON", "COOP", "COOS", "COOT", "COPE", "COPS", "COPY", "CORD", "CORE", "CORF", "CORK", "CORM", "CORN", "CORS", "CORY", "COSE", "COSH", "COSS", "COST", "COSY", "COTE", "COTH", "COTS", "COTT", "COUP", "COUR", "COVE", "COWK", "COWL", "COWP", "COWS", "COWY", "COXA", "COXY", "COYS", "COZE", "COZY", "CRAB", "CRAG", "CRAM", "CRAN", "CRAP", "CRAW", "CRAY", "CRED", "CREE", "CREM", "CREW", "CRIB", "CRIM", "CRIS", "CRIT", "CROC", "CROG", "CROP", "CROW", "CRUD", "CRUE", "CRUS", "CRUX", "CUBE", "CUBS", "CUDS", "CUED", "CUES", "CUFF", "CUIF", "CUIT", "CUKE", "CULL", "CULM", "CULT", "CUNT", "CUPS", "CURB", "CURD", "CURE", "CURF", "CURL", "CURN", "CURR", "CURS", "CURT", "CUSH", "CUSK", "CUSP", "CUSS", "CUTE", "CUTS", "CWMS", "CYAN", "CYMA", "CYME", "CYST", "CYTE", "CZAR", "DABS", "DACE", "DACK", "DADA", "DADO", "DADS", "DAES", "DAFF", "DAFT", "DAGO", "DAGS", "DAHL", "DAHS", "DAIS", "DAKS", "DALE", "DALI", "DALS", "DALT", "DAME", "DAMN", "DAMP", "DAMS", "DANG", "DANK", "DANS", "DANT", "DAPS", "DARB", "DARE", "DARG", "DARI", "DARK", "DARN", "DART", "DASH", "DATA", "DATE", "DATO", "DAUB", "DAUD", "DAUR", "DAUT", "DAVY", "DAWD", "DAWK", "DAWN", "DAWS", "DAWT", "DAYS", "DAZE", "DEAD", "DEAF", "DEAL", "DEAN", "DEAR", "DEAW", "DEBE", "DEBS", "DEBT", "DECK", "DECO", "DEED", "DEEK", "DEEM", "DEEN", "DEEP", "DEER", "DEES", "DEET", "DEEV", "DEFI", "DEFT", "DEFY", "DEGS", "DEID", "DEIF", "DEIL", "DEKE", "DELE", "DELF", "DELI", "DELL", "DELO", "DELS", "DELT", "DEME", "DEMO", "DEMY", "DENE", "DENI",
@@ -252,6 +80,166 @@ namespace Godo
                 //nameBytes[i] -= 0x20; // Adjusts the ASCII byte values to match the FF7 ASCII byte values
             }
             return nameBytes;
+        }
+
+        // Opens the file - will be replaced with an 'open folder/directory' to patch game files en-masse
+        private void BtnOpen_Click(object sender, EventArgs e)
+        {
+            //WorkFlow
+            // Target the Kernel.bin file
+            // From the header, store the compressed size, uncompressed size, and section ID
+            // 
+            // Decompressing; Use the compressed size to get the full target section.
+            // Recompressing; Uncompressed size should be a constant and not need to be changed.
+            // After recompressing, add the section header.
+
+            // Temporary test method, open files to check randomiser sections
+            OpenFileDialog openFileDialog1 = new OpenFileDialog();
+
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
+            {
+                try
+                {
+                    string gzipFileName = openFileDialog1.FileName;                     // Opens the specified file; to be replaced with automation
+                    string targetDir = Path.GetDirectoryName(openFileDialog1.FileName); // Get directory where the target file resides
+
+                    // Obtains the header data
+                    FileStream hfs = File.OpenRead(gzipFileName); // Opens the target file as a filestream, intent is to get the section header
+
+                    byte[] header = new byte[6]; // Stores the section header
+                    hfs.Read(header, 0, 5);
+                    /*
+                     * [0][1] = Compressed Size
+                     * [2][3] = uncompressed Size
+                     * [4][5] = Section ID - in practice, only [4] will be used as section ID never exceeds 255
+                     */
+                    hfs.Close();
+
+                    byte[] compressedSize = new byte[6];    // Stores the compressed size of the file
+                    byte[] uncompressedSize = new byte[6];  // Stores the uncompressed size of the file
+                    byte[] sectionID = new byte[6];         // Stores the section ID of the file
+
+                    // Copies header byte data into these separate arrays so they can be parsed to int easier
+                    compressedSize[0] = header[0];
+                    compressedSize[1] = header[1];
+                    uncompressedSize[0] = header[2];
+                    uncompressedSize[1] = header[3];
+                    sectionID[0] = header[4];
+                    sectionID[1] = header[5];
+
+                    // Creates three new files; one is the uncompressed data, a mid-step to recompression, and finally the recompressed data + header
+                    string kernelSectionUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed"));
+                    string kernelSectionInterim = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("interim"));
+                    string kernelSectionRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed"));
+
+                    // Opens the file and reads its bytes
+                    using (BinaryReader brg = new BinaryReader(new FileStream(gzipFileName, FileMode.Open)))
+                    {
+                        // Calls method to convert little endian values into an integer
+                        int compressedIntSize = GetLittleEndianInt(uncompressedSize, 0);
+                        // This said 5 before, but surely it's 6?
+                        byte[] compressedSection = new byte[compressedIntSize - 6]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)
+
+                        brg.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from offset 0x6, past the header, which is where Gzip file starts
+                        brg.Read(compressedSection, 0, compressedSection.Length); // From specified offset of 0x06 above, reads from 0 and reads for length of the section.
+
+                        // Opens a FileStream to the file where we will put out Compressed Kernel Section bytes
+                        using (var fs = new FileStream(kernelSectionUncompressed, FileMode.Create, FileAccess.Write))
+                        {
+                            fs.Write(compressedSection, 0, compressedSection.Length); // Writes in the bytes to the file
+                            fs.Close();
+                        }
+
+                        // This is where the Compressed file is used to create an Uncompressed file
+                        using (MemoryStream msi = new MemoryStream())
+                        {
+                            msi.Write(compressedSection, 0, compressedSection.Length);
+                            msi.Position = 0;
+
+                            // SharpZipLib GZip method called
+                            using (Stream decompressStream = new GZipInputStream(msi))
+                            {
+                                int uncompressedIntSize = GetLittleEndianInt(uncompressedSize, 0); // Gets little endian value of uncompressed size into an integer
+                                byte[] uncompressBuffer = new byte[uncompressedIntSize]; // Buffer is set to uncompressed size
+                                int size = decompressStream.Read(uncompressBuffer, 0, uncompressBuffer.Length); // Stream is decompressed and read
+
+                                // Uncompressed bytes written out here using SharpZipLib's GZipInputStream
+                                using (var fs = new FileStream(kernelSectionUncompressed, FileMode.Create, FileAccess.Write))
+                                {
+                                    fs.Write(uncompressBuffer, 0, uncompressBuffer.Length);
+                                    fs.Close();
+                                }
+                                decompressStream.Close();
+
+                                FileStream srcFile = File.OpenRead(kernelSectionUncompressed);
+                                GZipOutputStream zipFile = new GZipOutputStream(File.Open(kernelSectionInterim, FileMode.Create));
+                                try
+                                {
+                                    byte[] FileData = new byte[srcFile.Length];
+                                    srcFile.Read(FileData, 0, (int)srcFile.Length);
+                                    zipFile.Write(FileData, 0, FileData.Length);
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("Failed to compress", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                                finally
+                                {
+                                    zipFile.Close();
+                                    FileStream comFile = File.OpenRead(kernelSectionInterim);
+                                    // Adjusts the header's held values for compressed section size ([0][1])
+                                    long newCompressedSize = comFile.Length;
+                                    byte[] bytes = BitConverter.GetBytes(newCompressedSize);
+                                    header[0] = bytes[0];
+                                    header[1] = bytes[1];
+
+                                    // Adjusts the header's held values for uncompressed section size ([2][3])
+                                    long newUncompressedSize = srcFile.Length;
+                                    bytes = BitConverter.GetBytes(newUncompressedSize);
+                                    header[2] = bytes[0];
+                                    header[3] = bytes[1];
+
+                                    comFile.Close();
+                                    srcFile.Close();
+                                }
+
+                                int headerLen = header.Length;
+
+                                using (var newFile = new FileStream(kernelSectionRecompressed, FileMode.CreateNew, FileAccess.Write))
+                                {
+                                    for (var i = 0; i < headerLen; i++)
+                                    {
+                                        newFile.WriteByte(header[i]);
+                                    }
+                                    using (var oldFile = new FileStream(kernelSectionInterim, FileMode.Open, FileAccess.Read))
+                                    {
+                                        oldFile.CopyTo(newFile);
+                                        oldFile.Close();
+                                    }
+                                    newFile.Close();
+                                }
+                            }
+                        }
+                        brg.Close();
+                    }
+                }
+                catch
+                {
+                    MessageBox.Show("An error has occurred; please check that a valid file was loaded", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+        }
+
+        private void BtnRandoKernel_Click(object sender, EventArgs e)
+        {
+            string fileName = lblFileName.Text;
+            RandomiseKernel(fileName);
+        }
+
+        private void BtnRandoScene_Click(object sender, EventArgs e)
+        {
+            string fileName = lblFileName.Text;
+            RandomiseScene(fileName);
         }
 
         public void RandomiseKernel(string fileName)
