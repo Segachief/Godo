@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace Godo
 {
-    public class GZipper
+    public class GZipperOld
     {
         public static void PrepareKernel(string filename)
         {
