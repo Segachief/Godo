@@ -24,11 +24,6 @@ namespace Godo
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
             FileStream tfs = File.OpenRead("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"); // Test Kernel for overwrites
 
-            // Creates three new file paths; one is the uncompressed data, a mid-step to recompression, and finally the recompressed data + header
-            string kernelSectionUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed"));
-            string kernelSectionInterim = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("interim"));
-            string kernelSectionRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed"));
-
             byte[] header = new byte[6]; /* Stores the section header
                                           * [0][1] = Compressed Size
                                           * [2][3] = uncompressed Size
@@ -39,6 +34,7 @@ namespace Godo
             byte[] uncompressedSize = new byte[6];  // Stores the uncompressed size of the file
             byte[] sectionID = new byte[6];         // Stores the section ID of the file
             int absoluteHeaderOffset = 0;           // Stores the absolute offset value for each section's header (updated on each loop)
+            int absoluteSectionOffset = 0;          // Stores the absolute offset value for each section's GZIP contents (updated on each loop)
 
             int sectionCount = 0;
             while (sectionCount < 2)
@@ -57,11 +53,17 @@ namespace Godo
                     // Now each section must add its offset to reach the intended destination in original Kernel.bin
                     int headerOffset = AllMethods.GetLittleEndianInt(compressedSize, 0);
                     absoluteHeaderOffset = absoluteHeaderOffset + headerOffset + 6; // Adds 6 as compressedSize in header doesn't account for header size (6 bytes)
+                    absoluteSectionOffset = absoluteHeaderOffset + 6; // Takes the absolute header offset and adds 6 to reach GZIP of this section
                     FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
                     hfs.Seek(absoluteHeaderOffset, SeekOrigin.Begin);
                     hfs.Read(header, 0, 5);
                     hfs.Close();
                 }
+
+                // Creates three new file paths; one is the uncompressed data, a mid-step to recompression, and finally the recompressed data + header
+                string kernelSectionUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
+                string kernelSectionInterim = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("interim" + sectionCount));
+                string kernelSectionRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed" + sectionCount));
 
                 // Copies header byte data into these separate arrays so they can be parsed to int easier
                 compressedSize[0] = header[0];
@@ -78,7 +80,14 @@ namespace Godo
                     int compressedIntSize = AllMethods.GetLittleEndianInt(uncompressedSize, 0);
                     byte[] compressedSection = new byte[compressedIntSize - 6]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)
 
-                    brg.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from offset 0x6, past the header, which is where Gzip file starts
+                    if(sectionCount == 0)
+                    {
+                        brg.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from offset 0x6, past the header, which is where Gzip file starts
+                    }
+                    else
+                    {
+                        brg.BaseStream.Seek(absoluteSectionOffset, SeekOrigin.Begin); // Starts a new reading from offset 0x6, past the header, which is where Gzip file starts
+                    }
                     brg.Read(compressedSection, 0, compressedSection.Length); // From specified offset of 0x06 above, reads from 0 and reads for length of the section.
 
                     // Opens a FileStream to the file where we will put out Compressed Kernel Section bytes
