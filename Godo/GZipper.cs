@@ -22,7 +22,6 @@ namespace Godo
 
             string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
-            //FileStream tfs = File.OpenRead("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"); // Test Kernel for overwrites
             string[] inputFilePaths = new string[27];
 
             byte[] header = new byte[6]; /* Stores the section header
@@ -37,7 +36,7 @@ namespace Godo
             int absoluteHeaderOffset = 0;           // Stores the absolute offset value for each section's header (updated on each loop)
             int absoluteSectionOffset = 0;          // Stores the absolute offset value for each section's GZIP contents (updated on each loop)
 
-            int sectionCount = 0;
+            int sectionCount = 0; // Iteration of Section within Kernel
             while (sectionCount < 27)
             {
 
@@ -83,7 +82,7 @@ namespace Godo
                     int compressedIntSize = AllMethods.GetLittleEndianInt(uncompressedSize, 0);
                     byte[] compressedSection = new byte[compressedIntSize - 6]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)
 
-                    if(sectionCount == 0)
+                    if (sectionCount == 0)
                     {
                         brg.BaseStream.Seek(6, SeekOrigin.Begin); // Starts a new reading from offset 0x6, past the header, which is where Gzip file starts
                     }
@@ -183,11 +182,202 @@ namespace Godo
                             {
                                 // Buffer size can be passed as the second argument.
                                 inputStream.CopyTo(outputStream);
+                                inputStream.Close();
+                                File.Delete(inputFilePath);
                             }
                         }
                     }
                 }
+                File.Delete(kernelSectionInterim);
+                File.Delete(kernelSectionUncompressed);
                 sectionCount++;
+            }
+        }
+
+        public static void PrepareScene(string filename)
+        {
+            /* WorkFlow
+             * Target the Scene.bin file.
+             * Get the full header and store in an array to be referred to by [i]
+             * Decompressing; Use header to get the target origin and where to stop reading
+             * Recompressing; Needs to update the value in header array with its new value(s) - FF FF FF FF needs allocated for block ends
+             */
+
+            string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
+            string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
+            string[] inputFilePaths = new string[256];
+
+            byte[] header = new byte[40]; /* Stores the block header
+                                          * [0-4] = Offset for first GZipped data file (3 enemies per file)
+                                          * Header total size must be 40h, FF padded
+                                          */
+
+            byte[] currentScene = new byte[4];      // Pointer to current file
+            byte[] nextScene = new byte[4];         // Pointer to next file - used with currentScene to work out size of current file
+
+            int currentOffset = 0;                  // Int converted value of currentScene  
+            int nextOffset = 0;                     // Int converted value of nextScene
+            int compressedSize = 0;                 // Stores the compressed size of the current target section
+
+            int absoluteOffset = 0;                 // Stores the absolute offset value for section's header
+            int absoluteSectionOffset = 0;          // Stores the absolute offset value for section's GZIP contents
+
+            int headerOffset = 0;                   // Offset of the current block header; goes up in 2000h increments
+
+            // Another check for 20 blocks, 2000h each  (8192d), 40,000h total)
+            while (headerOffset < 8192)
+            {
+                int sectionCount = 0; // Iteration of Section within Block
+                while (sectionCount < 16)
+                {
+                    FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
+                    hfs.Seek(sectionCount * 4, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
+                    hfs.Read(header, headerOffset, 8);
+                    hfs.Close();
+
+                    // Creates three new file paths; one is the uncompressed data, a mid-step to recompression, and finally the recompressed data + header
+                    string sceneFileUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
+                    string sceneFileRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("interim" + sectionCount)); // probably not needed anymore - no header to append to each section
+
+                    inputFilePaths[sectionCount] = sceneFileRecompressed;
+
+                    // Copies header byte data into these separate arrays so they can be parsed to int easier
+                    currentScene[0] = header[0];
+                    currentScene[1] = header[1];
+                    currentScene[2] = header[2];
+                    currentScene[3] = header[3];
+                    nextScene[0] = header[4];
+                    nextScene[1] = header[5];
+                    nextScene[2] = header[6];
+                    nextScene[3] = header[7];
+
+                    currentOffset = AllMethods.GetLittleEndianInt(currentScene, 0);
+                    nextOffset = AllMethods.GetLittleEndianInt(nextScene, 0);
+                    compressedSize = nextOffset - currentOffset;
+                    absoluteOffset = currentOffset * 4; // Gets the starting offset of the GZipped file
+
+                    if (currentScene[0] == 0xFF && currentScene[1] == 0xFF && currentScene[2] == 0xFF && currentScene[3] == 0xFF)
+                    {
+                        // If the current header has somehow become FF FF FF FF then this terminates, but indicates a flaw in logic
+                        break;
+                    }
+
+                    if (nextScene[0] == 0xFF && nextScene[1] == 0xFF && nextScene[2] == 0xFF && nextScene[3] == 0xFF)
+                    {
+                        // If next header is FF FF FF FF then we're dealing with the last file and should deduct 2000h to get its size
+                        compressedSize = 0x2000 - currentOffset;
+                    }
+
+                    // STAGE 1: Opens the file, reads its bytes, creates an interim compressed file of a single section
+                    using (BinaryReader brg = new BinaryReader(new FileStream(gzipFileName, FileMode.Open)))
+                    {
+                        // Calls method to convert little endian values into an integer
+                        byte[] compressedSection = new byte[compressedSize]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)        
+                        brg.BaseStream.Seek(absoluteSectionOffset, SeekOrigin.Begin); // Starts reading the compressed scene file
+                        brg.Read(compressedSection, 0, compressedSection.Length);
+
+                        // Opens a FileStream to the file where we will put out Compressed Kernel Section bytes
+                        using (var fs = new FileStream(sceneFileUncompressed, FileMode.Create, FileAccess.Write))
+                        {
+                            fs.Write(compressedSection, 0, compressedSection.Length); // Writes in the bytes to the file
+                            fs.Close();
+                        }
+
+                        // STAGE 2: This is where the compressed file is used to create an Uncompressed file
+                        using (MemoryStream msi = new MemoryStream())
+                        {
+                            msi.Write(compressedSection, 0, compressedSection.Length);
+                            msi.Position = 0;
+
+                            // SharpZipLib GZip method called
+                            using (Stream decompressStream = new GZipInputStream(msi))
+                            {
+                                //int uncompressedIntSize = AllMethods.GetLittleEndianInt(uncompressedSize, 0); // Gets little endian value of uncompressed size into an integer
+                                byte[] uncompressBuffer = new byte[4096]; // Buffer is set to uncompressed size
+                                int size = decompressStream.Read(uncompressBuffer, 0, uncompressBuffer.Length); // Stream is decompressed and read
+
+                                // Uncompressed bytes written out here using SharpZipLib's GZipInputStream
+                                using (var fs = new FileStream(sceneFileUncompressed, FileMode.Create, FileAccess.Write))
+                                {
+                                    fs.Write(uncompressBuffer, 0, uncompressBuffer.Length);
+                                    fs.Close();
+                                }
+                                decompressStream.Close();
+
+                                // STAGE 3: After edits are made (if applicable) the file is recompressed
+                                FileStream srcFile = File.OpenRead(sceneFileUncompressed);
+                                GZipOutputStream zipFile = new GZipOutputStream(File.Open(sceneFileRecompressed, FileMode.Create));
+                                try
+                                {
+                                    byte[] FileData = new byte[srcFile.Length];
+                                    srcFile.Read(FileData, 0, (int)srcFile.Length);
+                                    zipFile.Write(FileData, 0, FileData.Length);
+                                }
+                                catch
+                                {
+                                    MessageBox.Show("Failed to compress", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                                finally
+                                {
+                                    zipFile.Close();
+                                    FileStream comFile = File.OpenRead(sceneFileRecompressed);
+                                    // Adjusts the header's held values for compressed section size ([0-3])
+                                    long newCompressedSize = comFile.Length;
+                                    byte[] bytes = BitConverter.GetBytes(newCompressedSize);
+                                    header[0] = bytes[0];
+                                    header[1] = bytes[1];
+                                    header[2] = bytes[2];
+                                    header[3] = bytes[3];
+
+                                    comFile.Close();
+                                    srcFile.Close();
+                                }
+
+                                // STAGE 4: Updated offset value is calculated and written to the block header
+                                int headerLen = header.Length;
+                                using (var newFile = new FileStream(gzipFileName, FileMode.CreateNew, FileAccess.Write))
+                                {
+                                    FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
+                                    hfs.Seek(sectionCount * 4, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
+                                    hfs.Read(header, headerOffset, 8);
+                                    hfs.Close();
+
+                                    for (var i = 0; i < headerLen; i++)
+                                    {
+                                        newFile.WriteByte(header[i]);
+                                    }
+                                    using (var oldFile = new FileStream(kernelSectionInterim, FileMode.Open, FileAccess.Read))
+                                    {
+                                        oldFile.CopyTo(newFile);
+                                        oldFile.Close();
+                                    }
+                                    newFile.Close();
+                                }
+                            }
+                        }
+                        brg.Close();
+                    }
+                    if (sectionCount == 26)
+                    {
+                        using (var outputStream = File.Create("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"))
+                        {
+                            foreach (var inputFilePath in inputFilePaths)
+                            {
+                                using (var inputStream = File.OpenRead(inputFilePath))
+                                {
+                                    // Buffer size can be passed as the second argument.
+                                    inputStream.CopyTo(outputStream);
+                                    inputStream.Close();
+                                    //File.Delete(inputFilePath);
+                                }
+                            }
+                        }
+                    }
+                    //File.Delete(sceneFileUncompressed);
+                    //File.Delete(sceneFileRecompressed);
+                    sectionCount++;
+                }
+                headerOffset += 8192;
             }
         }
     }
