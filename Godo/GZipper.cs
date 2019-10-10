@@ -37,7 +37,7 @@ namespace Godo
             int absoluteSectionOffset = 0;          // Stores the absolute offset value for each section's GZIP contents (updated on each loop)
 
             int sectionCount = 0;
-            while (sectionCount < 2)
+            while (sectionCount < 27)
             {
 
                 if (sectionCount == 0)
