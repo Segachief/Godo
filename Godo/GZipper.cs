@@ -22,7 +22,8 @@ namespace Godo
 
             string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
-            FileStream tfs = File.OpenRead("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"); // Test Kernel for overwrites
+            //FileStream tfs = File.OpenRead("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"); // Test Kernel for overwrites
+            string[] inputFilePaths = new string[27];
 
             byte[] header = new byte[6]; /* Stores the section header
                                           * [0][1] = Compressed Size
@@ -64,6 +65,8 @@ namespace Godo
                 string kernelSectionUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
                 string kernelSectionInterim = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("interim" + sectionCount));
                 string kernelSectionRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed" + sectionCount));
+
+                inputFilePaths[sectionCount] = kernelSectionRecompressed;
 
                 // Copies header byte data into these separate arrays so they can be parsed to int easier
                 compressedSize[0] = header[0];
@@ -169,6 +172,20 @@ namespace Godo
                         }
                     }
                     brg.Close();
+                }
+                if (sectionCount == 26)
+                {
+                    using (var outputStream = File.Create("C:\\Users\\stewart.melville\\Documents\\GZip\\gzip\\ff7_gzip\\SharpZipLibTest\\TARGET.BIN"))
+                    {
+                        foreach (var inputFilePath in inputFilePaths)
+                        {
+                            using (var inputStream = File.OpenRead(inputFilePath))
+                            {
+                                // Buffer size can be passed as the second argument.
+                                inputStream.CopyTo(outputStream);
+                            }
+                        }
+                    }
                 }
                 sectionCount++;
             }
