@@ -205,75 +205,100 @@ namespace Godo
 
             string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
-            string[] inputFilePaths = new string[256];
+            string[] inputFilePaths = new string[256];          // Stores all the recompressed files, so that they can be built into a new scene.bin
 
             byte[] header = new byte[40]; /* Stores the block header
                                           * [0-4] = Offset for first GZipped data file (3 enemies per file)
                                           * Header total size must be 40h, FF padded
                                           */
 
-            byte[] currentScene = new byte[4];      // Pointer to current file
-            byte[] nextScene = new byte[4];         // Pointer to next file - used with currentScene to work out size of current file
-            byte[] padder = new byte[2];
-            padder[0] = 255;
-            padder[1] = 255;
+            byte[] thisSceneOffset = new byte[4];   // Pointer to current file
+            byte[] nextSceneOffset = new byte[4];   // Pointer to next file - used with currentScene to work out size of current file
+            byte[] prevSceneOffset = new byte[4];   // Pointer of the previous offset, used to derive current pointer for header adjustment
 
-            int currentOffset;                  // Int converted value of currentScene  
-            int nextOffset;                     // Int converted value of nextScene
-            int compressedSize;                 // Stores the compressed size of the current target section
-            int absoluteOffset;                 // Stores the absolute offset value for section's header
-            int headerOffset = 0;                   // Offset of the current block header; goes up in 2000h increments
+            int thisSceneInt;                       // Int converted value of currentSceneOffset
+            int nextSceneInt;                       // Int converted value of nextSceneOffset
+            int prevSceneInt;                       // Int converted value of previousSceneOffset
 
-            // Another check for 20 blocks, 2000h each  (8192d), 40,000h total)
+            int compressedSceneSize = 0;                // Stores the compressed size of the current target section
+            int absoluteOffset;                     // Stores the absolute offset value for section's header
+
+            long newCompressedSize = 0;             // Used to calculate, in bytes, the offset to be read into header
+
+            int thisHeaderCounter = 0;                  // Used to determine location offset of where to write in 4-byte header value for current scene pointer
+            int prevHeaderCounter = 0;                       // Header values for the previous section; used to calculate size
+
+            byte[] padder = new byte[3];            // Scene files, after compression, need to be FF padded to make them multiplicable by 4
+            padder[0] = 255; padder[1] = 255; padder[2] = 255;
+            long adjustedCompressedSize;            // Compression size after padding is added
+
+
+            int headerOffset = 0; // Offset of the current block header; goes up in 2000h (8192) increments
             while (headerOffset < 8192)
             {
-                int sectionCount = 0; // Iteration of Section within Block
+                int blockCount = 0;
+                string sceneNewHeader = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("header" + blockCount));
+
+                int sectionCount = 0; // Iteration of Section within Block - There are up to 16 sections within a block but can be less due to varying size of Scenes
                 while (sectionCount < 16)
                 {
                     FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
                     hfs.Seek(sectionCount * 4, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
-                    hfs.Read(header, headerOffset, 8);
+                    hfs.Read(header, headerOffset, 40);
                     hfs.Close();
 
                     // For storing uncompressed scene, recompressed scene, and an updated header
                     string sceneFileUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
                     string sceneFileRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed" + sectionCount));
-                    string sceneNewHeader = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("header" + sectionCount));
 
                     inputFilePaths[sectionCount] = sceneFileRecompressed;
 
                     // Copies header byte data into these separate arrays so they can be parsed to int easier
-                    currentScene[0] = header[0];
-                    currentScene[1] = header[1];
-                    currentScene[2] = header[2];
-                    currentScene[3] = header[3];
-                    nextScene[0] = header[4];
-                    nextScene[1] = header[5];
-                    nextScene[2] = header[6];
-                    nextScene[3] = header[7];
 
-                    currentOffset = AllMethods.GetLittleEndianInt(currentScene, 0);
-                    nextOffset = AllMethods.GetLittleEndianInt(nextScene, 0);
-                    compressedSize = (nextOffset - currentOffset) * 4;
-                    absoluteOffset = currentOffset * 4; // Gets the starting offset of the GZipped file
+                    // TODO - Need logic where we can get the correct header index on each pass, this doesn't work
+                    thisSceneOffset[0] = header[thisHeaderCounter];
+                    thisSceneOffset[1] = header[thisHeaderCounter + 1];
+                    thisSceneOffset[2] = header[thisHeaderCounter + 2];
+                    thisSceneOffset[3] = header[thisHeaderCounter + 3];
 
-                    if (currentScene[0] == 0xFF && currentScene[1] == 0xFF && currentScene[2] == 0xFF && currentScene[3] == 0xFF)
+                    nextSceneOffset[0] = header[thisHeaderCounter + 4];
+                    nextSceneOffset[1] = header[thisHeaderCounter + 5];
+                    nextSceneOffset[2] = header[thisHeaderCounter + 6];
+                    nextSceneOffset[3] = header[thisHeaderCounter + 7];
+
+                    if (sectionCount != 0) // Plan is to get the prev offsets here to keep everything together
+                    {
+                        prevSceneOffset[0] = header[prevHeaderCounter];
+                        prevSceneOffset[1] = header[prevHeaderCounter + 1];
+                        prevSceneOffset[2] = header[prevHeaderCounter + 2];
+                        prevSceneOffset[3] = header[prevHeaderCounter + 3];
+                        prevHeaderCounter += 4;
+                    }
+
+                    thisSceneInt = AllMethods.GetLittleEndianInt(thisSceneOffset, 0);
+                    nextSceneInt = AllMethods.GetLittleEndianInt(nextSceneOffset, 0);
+                    compressedSceneSize = (nextSceneInt - thisSceneInt) * 4;
+                    absoluteOffset = thisSceneInt * 4; // Gets the starting offset of the GZipped file
+
+                    if (thisSceneOffset[0] == 0xFF && thisSceneOffset[1] == 0xFF && thisSceneOffset[2] == 0xFF && thisSceneOffset[3] == 0xFF)
                     {
                         // If the current header has somehow become FF FF FF FF then this terminates, but indicates a flaw in logic
+                        sectionCount++;
                         break;
                     }
 
-                    if (nextScene[0] == 0xFF && nextScene[1] == 0xFF && nextScene[2] == 0xFF && nextScene[3] == 0xFF)
+                    if (nextSceneOffset[0] == 0xFF && nextSceneOffset[1] == 0xFF && nextSceneOffset[2] == 0xFF && nextSceneOffset[3] == 0xFF)
                     {
-                        // If next header is FF FF FF FF then we're dealing with the last file and should deduct 2000h to get its size
-                        compressedSize = 0x2000 - currentOffset;
+                        // If next header is FF FF FF FF then we're dealing with the prev file and should deduct 2000h to get its size
+                        //sectionCount = 15;
+                        compressedSceneSize = 0x2000 - thisSceneInt;
                     }
 
                     // STAGE 1: Opens the file, reads its bytes, creates an interim compressed file of a single section
                     using (BinaryReader brg = new BinaryReader(new FileStream(gzipFileName, FileMode.Open)))
                     {
                         // Calls method to convert little endian values into an integer
-                        byte[] compressedSection = new byte[compressedSize]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)        
+                        byte[] compressedSection = new byte[compressedSceneSize]; // Array that uses the compressed size of section with the header trimmed off (6 bytes)        
                         brg.BaseStream.Seek(absoluteOffset, SeekOrigin.Begin); // Starts reading the compressed scene file
                         brg.Read(compressedSection, 0, compressedSection.Length);
 
@@ -321,58 +346,84 @@ namespace Godo
                                 {
                                     zipFile.Close();
                                     FileStream comFile = File.OpenRead(sceneFileRecompressed);
-                                    // Adjusts the header's held values for compressed section size ([0-3])
-                                    long newCompressedSize = comFile.Length;
-                                    byte[] bytes = BitConverter.GetBytes(newCompressedSize);
-                                    header[sectionCount]     = bytes[0];
-                                    header[sectionCount + 1] = bytes[1];
-                                    header[sectionCount + 2] = bytes[2];
-                                    header[sectionCount + 3] = bytes[3];
+
+                                    
+                                    if (sectionCount == 0)
+                                    {
+                                        newCompressedSize = 16; // First offset in a header block is always 10h
+                                    }
+                                    else
+                                    {
+                                        //prevSceneOffset[0] = header[prevHeaderCounter];
+                                        //prevSceneOffset[1] = header[prevHeaderCounter + 1];
+                                        //prevSceneOffset[2] = header[prevHeaderCounter + 2];
+                                        //prevSceneOffset[3] = header[prevHeaderCounter + 3];
+                                        //prevHeaderCounter += 4;
+
+                                        prevSceneInt = AllMethods.GetLittleEndianInt(prevSceneOffset, 0);
+                                        newCompressedSize = compressedSceneSize - prevSceneInt;
+                                    }
 
                                     comFile.Close();
                                     srcFile.Close();
 
-                                    // The compressed file must be a multiple of 4, so FF bytes are added to end to make it so
-                                    if (newCompressedSize % 4 == 1)
+                                    // The compressed file must be a multiple of 4, so FF bytes are added to end
+                                    if (newCompressedSize % 4 == 3)  // Remainder of 3, add 1 FF
                                     {
                                         using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
                                         {
                                             append.Write(padder, 0, 1);
+                                            adjustedCompressedSize = newCompressedSize + 1;
                                         }
                                     }
-                                    else if (newCompressedSize % 4 == 2)
+                                    else if (newCompressedSize % 4 == 2) // Remainder of 2, add 2 FFs
                                     {
                                         using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
                                         {
                                             append.Write(padder, 0, 2);
+                                            adjustedCompressedSize = newCompressedSize + 2;
                                         }
                                     }
+                                    else if (newCompressedSize % 4 == 1) // Remainder of 1, add 3 FFs
+                                    {
+                                        using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
+                                        {
+                                            append.Write(padder, 0, 3);
+                                            adjustedCompressedSize = newCompressedSize + 3;
+                                        }
+                                    }
+                                    byte[] bytes = BitConverter.GetBytes(newCompressedSize);
+                                    header[headerCounter] = bytes[0];
+                                    header[headerCounter + 1] = bytes[1];
+                                    header[headerCounter + 2] = bytes[2];
+                                    header[headerCounter + 3] = bytes[3];
                                 }
                             }
                         }
                         brg.Close();
                     }
-                    if (sectionCount == 16)
-                    {
-                        using (var outputStream = File.Create(sceneNewHeader))
-                        {
-                            outputStream.Write(header, 0, 40);
-
-                            foreach (var inputFilePath in inputFilePaths)
-                            {
-                                using (var inputStream = File.OpenRead(inputFilePath))
-                                {
-                                    // Buffer size can be passed as the second argument.
-                                    inputStream.CopyTo(outputStream);
-                                    inputStream.Close();
-                                    //File.Delete(inputFilePath);
-                                }
-                            }
-                        }
-                    }
                     //File.Delete(sceneFileUncompressed);
                     //File.Delete(sceneFileRecompressed);
                     sectionCount++;
+                    headerCounter += 4;
+                }
+                if (sectionCount == 16)
+                {
+                    using (var outputStream = File.Create(sceneNewHeader))
+                    {
+                        outputStream.Write(header, 0, 40);
+
+                        foreach (var inputFilePath in inputFilePaths)
+                        {
+                            using (var inputStream = File.OpenRead(inputFilePath))
+                            {
+                                // Buffer size can be passed as the second argument.
+                                inputStream.CopyTo(outputStream);
+                                inputStream.Close();
+                                //File.Delete(inputFilePath);
+                            }
+                        }
+                    }
                 }
                 headerOffset += 8192;
             }
