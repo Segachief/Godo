@@ -58,8 +58,10 @@ namespace Godo
                 {
                     lblFileName.Text = openFileDialog1.FileName;
                     string fileName = lblFileName.Text;
-                    GZipper.PrepareKernel(fileName);
-                    MessageBox.Show("Kernel Prep Complete: DEBUG");
+                    //GZipper.PrepareKernel(fileName);
+                    GZipper.PrepareScene(fileName);
+                    //MessageBox.Show("Kernel Prep Complete: DEBUG");
+                    MessageBox.Show("Scene Prep Complete: DEBUG");
                 }
                 catch
                 {
