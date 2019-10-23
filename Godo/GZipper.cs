@@ -254,8 +254,6 @@ namespace Godo
                     inputFilePaths[sectionCount] = sceneFileRecompressed;
 
                     // Copies header byte data into these separate arrays so they can be parsed to int easier
-
-                    // TODO - Need logic where we can get the correct header index on each pass, this doesn't work
                     thisSceneOffset[0] = header[thisHeaderCounter];
                     thisSceneOffset[1] = header[thisHeaderCounter + 1];
                     thisSceneOffset[2] = header[thisHeaderCounter + 2];
@@ -352,51 +350,50 @@ namespace Godo
                                     if (sectionCount == 0)
                                     {
                                         newSceneOffset = 16; // First offset in a header block is always 10h
+                                        prevSceneSize = comFile.Length;
                                     }
                                     else
                                     {
                                         prevSceneInt = AllMethods.GetLittleEndianInt(prevSceneOffset, 0);
-                                        newSceneOffset = prevSceneInt + (prevSceneSize / 4);
-
-                                        byte[] bytes = BitConverter.GetBytes(newSceneOffset);
-                                        header[thisHeaderCounter] = bytes[0];
-                                        header[thisHeaderCounter + 1] = bytes[1];
-                                        header[thisHeaderCounter + 2] = bytes[2];
-                                        header[thisHeaderCounter + 3] = bytes[3];
+                                        newSceneOffset = ((prevSceneInt * 4) + prevSceneSize) / 4;
+                                        prevSceneSize = comFile.Length;
                                     }
-                                    prevSceneSize = comFile.Length;
+
                                     comFile.Close();
-                                    // The compressed file must be a multiple of 4, so FF bytes are added to end
-                                    if (newSceneOffset % 4 == 3)  // Remainder of 3, add 1 FF
+
+                                    byte[] bytes = BitConverter.GetBytes(newSceneOffset);
+                                    header[thisHeaderCounter] = bytes[0];
+                                    header[thisHeaderCounter + 1] = bytes[1];
+                                    header[thisHeaderCounter + 2] = bytes[2];
+                                    header[thisHeaderCounter + 3] = bytes[3];
+
+                                    //The compressed file must be a multiple of 4, so FF bytes are added to end
+                                    if (prevSceneSize % 4 == 3)  // Remainder of 3, add 1 FF
                                     {
                                         using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
                                         {
                                             append.Write(padder, 0, 1);
-                                            prevSceneSize = append.Length;
-                                            //paddedSceneOffset = newSceneOffset + 1;
+                                            prevSceneSize += 1;
                                         }
                                     }
-                                    else if (newSceneOffset % 4 == 2) // Remainder of 2, add 2 FFs
+                                    else if (prevSceneSize % 4 == 2) // Remainder of 2, add 2 FFs
                                     {
                                         using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
                                         {
                                             append.Write(padder, 0, 2);
-                                            prevSceneSize = append.Length;
-                                            //paddedSceneOffset = newSceneOffset + 2;
+                                            prevSceneSize += 2;
                                         }
                                     }
-                                    else if (newSceneOffset % 4 == 1) // Remainder of 1, add 3 FFs
+                                    else if (prevSceneSize % 4 == 1) // Remainder of 1, add 3 FFs
                                     {
                                         using (var append = new FileStream(sceneFileRecompressed, FileMode.Append))
                                         {
                                             append.Write(padder, 0, 3);
-                                            prevSceneSize = append.Length;
-                                            //paddedSceneOffset = newSceneOffset + 3;
+                                            prevSceneSize += 3;
                                         }
                                     }
                                     else
                                     {
-                                        //paddedSceneOffset = newSceneOffset;
                                     }
                                     srcFile.Close();
                                 }
