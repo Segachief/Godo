@@ -205,7 +205,9 @@ namespace Godo
 
             string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
-            string[] inputFilePaths = new string[16];          // Stores all the recompressed files, so that they can be built into a new scene.bin
+            string[] inputFilePaths = new string[16];           // Stores all the recompressed files, so that they can be built into a new scene.bin
+            string[] inputFinalPaths = new string[32];          // Stores all the block sections for generating the final scene.bin
+            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene"));
 
             byte[] header = new byte[64]; /* Stores the block header
                                           * [0-4] = Offset for first GZipped data file (3 enemies per file)
@@ -230,18 +232,18 @@ namespace Godo
 
             byte[] padder = new byte[3];            // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255; padder[1] = 255; padder[2] = 255;
-            long paddedSceneOffset;            // Compression size after padding is added
 
-
+            int blockCount = 0; // Counts how many blocks have been produced, there should be 32
             int headerOffset = 0; // Offset of the current block header; goes up in 2000h (8192) increments
-            while (headerOffset < 8192)
+
+            while (headerOffset < 262144) // This is the total number of bytes a scene.bin will be (32 potential blocks of 8192 bytes a-piece)
             {
-                int blockCount = 0;
                 string sceneNewHeader = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("header" + blockCount));
+                inputFinalPaths[blockCount] = sceneNewHeader;
 
                 FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
-                hfs.Seek(0, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
-                hfs.Read(header, headerOffset, 64);
+                hfs.Seek(headerOffset, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
+                hfs.Read(header, 0, 64);
                 hfs.Close();
 
                 int sectionCount = 0; // Iteration of Section within Block - There are up to 16 sections within a block but can be less due to varying size of Scenes
@@ -259,10 +261,20 @@ namespace Godo
                     thisSceneOffset[2] = header[thisHeaderCounter + 2];
                     thisSceneOffset[3] = header[thisHeaderCounter + 3];
 
-                    nextSceneOffset[0] = header[thisHeaderCounter + 4];
-                    nextSceneOffset[1] = header[thisHeaderCounter + 5];
-                    nextSceneOffset[2] = header[thisHeaderCounter + 6];
-                    nextSceneOffset[3] = header[thisHeaderCounter + 7];
+                    if (sectionCount < 15)
+                    {
+                        nextSceneOffset[0] = header[thisHeaderCounter + 4];
+                        nextSceneOffset[1] = header[thisHeaderCounter + 5];
+                        nextSceneOffset[2] = header[thisHeaderCounter + 6];
+                        nextSceneOffset[3] = header[thisHeaderCounter + 7];
+                    }
+                    else
+                    {
+                        nextSceneOffset[0] = 255;
+                        nextSceneOffset[1] = 255;
+                        nextSceneOffset[2] = 255;
+                        nextSceneOffset[3] = 255;
+                    }
 
                     if (sectionCount != 0) // Plan is to get the prev offsets here to keep everything together
                     {
@@ -275,21 +287,20 @@ namespace Godo
 
                     thisSceneInt = AllMethods.GetLittleEndianInt(thisSceneOffset, 0);
                     nextSceneInt = AllMethods.GetLittleEndianInt(nextSceneOffset, 0);
-                    if (nextSceneOffset[0] == 0xFF && nextSceneOffset[1] == 0xFF && nextSceneOffset[2] == 0xFF && nextSceneOffset[3] == 0xFF)
+                    if ((nextSceneOffset[0] == 0xFF && nextSceneOffset[1] == 0xFF && nextSceneOffset[2] == 0xFF && nextSceneOffset[3] == 0xFF) || sectionCount == 15)
                     {
-                        // If next header is FF FF FF FF then we're dealing with the prev file and should deduct 2000h to get its size
-                        //sectionCount = 15;
+                        // If next header is FF FF FF FF, or if we're on last section header, then we're dealing with the prev file and should deduct 2000h to get its size
                         compressedSceneSize = 8192 - (thisSceneInt * 4);
                     }
                     else
                     {
                         compressedSceneSize = (nextSceneInt - thisSceneInt) * 4;
                     }
-                    absoluteOffset = thisSceneInt * 4; // Gets the starting offset of the GZipped file
+                    absoluteOffset = (thisSceneInt * 4) + headerOffset; // Gets the starting offset of the GZipped file
 
                     if (thisSceneOffset[0] == 0xFF && thisSceneOffset[1] == 0xFF && thisSceneOffset[2] == 0xFF && thisSceneOffset[3] == 0xFF)
                     {
-                        // If the current header has somehow become FF FF FF FF then this terminates, but indicates a flaw in logic
+                        // If the current header has somehow become FF FF FF FF then this terminates everything, but indicates a flaw in logic
                         sectionCount++;
                         break;
                     }
@@ -398,6 +409,7 @@ namespace Godo
                                     srcFile.Close();
                                 }
                             }
+                            msi.Close();
                         }
                         brg.Close();
                     }
@@ -433,9 +445,25 @@ namespace Godo
                         {
                             outputStream.Write(padder, 0, 1);
                         }
+                        outputStream.Close();
                     }
                 }
+                Array.Clear(inputFilePaths, 0, 16);
+                thisHeaderCounter = 0;
+                prevHeaderCounter = 0;
+                blockCount++;
                 headerOffset += 8192;
+            }
+            using (var outputStream = File.Create(finalScene))
+            {
+                foreach(var inputFinalPath in inputFinalPaths)
+                {
+                    using (var inputStream = File.OpenRead(inputFinalPath))
+                    {
+                        inputStream.CopyTo(outputStream);
+                        inputStream.Close();
+                    }
+                }
             }
         }
     }
