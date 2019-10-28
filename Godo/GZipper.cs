@@ -196,24 +196,18 @@ namespace Godo
 
         public static void PrepareScene(string filename)
         {
-            /* WorkFlow
-             * Target the Scene.bin file.
-             * Get the full header and store in an array to be referred to by [i]
-             * Decompressing; Use header to get the target origin and where to stop reading
-             * Recompressing; Needs to update the value in header array with its new value(s) - FF FF FF FF needs allocated for block ends
-             */
-
             string gzipFileName = filename;                     // Opens the specified file; to be replaced with automation
             string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
             string[] inputFilePaths = new string[16];           // Stores all the recompressed files, so that they can be built into a new scene.bin
             string[] inputFinalPaths = new string[32];          // Stores all the block sections for generating the final scene.bin
-            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene"));
+            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene")); // This is the finished scene.bin
 
-            byte[] header = new byte[64]; /* Stores the block header
-                                          * [0-4] = Offset for first GZipped data file (3 enemies per file)
-                                          * Header total size must be 40h, FF padded
-                                          */
+            byte[] header = new byte[64];                       /* Stores the block header
+                                                                 * [0-4] = Offset for first GZipped data file (3 enemies per file)
+                                                                 * Header total size must be 40h, FF padded
+                                                                 */
 
+            // In order to calculate the new header values, math needs to be performed with known values to derive all the correct values
             byte[] thisSceneOffset = new byte[4];   // Pointer to current file
             byte[] nextSceneOffset = new byte[4];   // Pointer to next file - used with currentScene to work out size of current file
             byte[] prevSceneOffset = new byte[4];   // Pointer of the previous offset, used to derive current pointer for header adjustment
@@ -224,24 +218,26 @@ namespace Godo
 
             int compressedSceneSize;                // Stores the compressed size of the current target section
             int absoluteOffset;                     // Stores the absolute offset value for section's header
-            long newSceneOffset;             // Used to calculate, in bytes, the offset to be read into header
-            long prevSceneSize = 0;
+            long newSceneOffset;                    // Used to calculate, in bytes, the offset to be read into header
+            long prevSceneSize = 0;                 // Stores the size of the previous scene
 
-            int thisHeaderCounter = 0;                  // Used to determine location offset of where to write in 4-byte header value for current scene pointer
-            int prevHeaderCounter = 0;                       // Header values for the previous section; used to calculate size
+            int thisHeaderCounter = 0;              // Used to determine location offset of where to write in 4-byte header value for current scene pointer
+            int prevHeaderCounter = 0;              // Header values for the previous section; used to calculate size
 
             byte[] padder = new byte[3];            // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255; padder[1] = 255; padder[2] = 255;
 
-            int blockCount = 0; // Counts how many blocks have been produced, there should be 32
-            int headerOffset = 0; // Offset of the current block header; goes up in 2000h (8192) increments
+            int blockCount = 0;                     // Counts how many blocks have been produced, there should be 32
+            int headerOffset = 0;                   // Offset of the current block header; goes up in 2000h (8192) increments
 
-            while (headerOffset < 262144) // This is the total number of bytes a scene.bin will be (32 potential blocks of 8192 bytes a-piece)
+
+            // Scene decompression/recompression begins here
+            while (headerOffset < 262144)           // This is the total number of bytes a scene.bin will be (32 potential blocks of 8192 bytes a-piece)
             {
-                string sceneNewHeader = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("header" + blockCount));
-                inputFinalPaths[blockCount] = sceneNewHeader;
+                string sceneNewHeader = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("header" + blockCount)); // Produces a temporary file we'll use to store our recompressed block
+                inputFinalPaths[blockCount] = sceneNewHeader; // Sets the header path into an array so we can produce a final scene.bin at the end of this class
 
-                FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
+                FileStream hfs = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read); // Opens and reads the default scene.bin
                 hfs.Seek(headerOffset, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
                 hfs.Read(header, 0, 64);
                 hfs.Close();
@@ -261,7 +257,7 @@ namespace Godo
                     thisSceneOffset[2] = header[thisHeaderCounter + 2];
                     thisSceneOffset[3] = header[thisHeaderCounter + 3];
 
-                    if (sectionCount < 15)
+                    if (sectionCount < 15) // If we're at 15, then there are no more headers to record + we're at capacity of our 64-byte header array
                     {
                         nextSceneOffset[0] = header[thisHeaderCounter + 4];
                         nextSceneOffset[1] = header[thisHeaderCounter + 5];
@@ -340,6 +336,10 @@ namespace Godo
                                 }
                                 decompressStream.Close();
 
+                                // Edits - Current problem; compressed file is coming in at double size; 80k bytes instead of 40k bytes
+                                // File returns at correct size, however...
+                                Scene.RandomiseScene(sceneFileUncompressed);
+
                                 // STAGE 3: After edits are made (if applicable) the file is recompressed
                                 FileStream srcFile = File.OpenRead(sceneFileUncompressed);
                                 GZipOutputStream zipFile = new GZipOutputStream(File.Open(sceneFileRecompressed, FileMode.Create));
@@ -414,7 +414,6 @@ namespace Godo
                         brg.Close();
                     }
                     //File.Delete(sceneFileUncompressed);
-                    //File.Delete(sceneFileRecompressed);
                     sectionCount++;
                     thisHeaderCounter += 4;
                     if (nextSceneOffset[0] == 0xFF && nextSceneOffset[1] == 0xFF && nextSceneOffset[2] == 0xFF && nextSceneOffset[3] == 0xFF)
@@ -462,6 +461,7 @@ namespace Godo
                     {
                         inputStream.CopyTo(outputStream);
                         inputStream.Close();
+                        //File.Delete(inputFinalPath);
                     }
                 }
             }

@@ -20,250 +20,406 @@ namespace Godo
 
             try
             {
+                int[] enemyIDs = new int[8];                // 2 bytes per enemy ID, little endian so 260 would be 04 01 (104h), 3 enemies; includes 2 bytes of FF padding afterwards
+                int[] battleSetup = new int[80];            // 4 records of 20 bytes each for Formations; Battle Setup Flags
+                int[] cameraData = new int[192];            // 4 records of 38 bytes each for Formations; Camera Placement Data
+                int[] formationPlacement = new int[384];    // 4 records of 96 bytes each for Formations; Enemy Placement Data (6 enemies per formation)
+                int[] enemyData = new int[552];             // 3 records of 184 bytes each for Enemies; Enemy Data
+                int[] attackData = new int[896];            // 32 records of 28 bytes each for Attacks; Enemy Attack Data
+                int[] attackIDs = new int[64];              // 32 records of 2 bytes each for Attack IDs; Enemy Attack ID Data
+                int[] attackNames = new int[1024];          // 32 records of 32 bytes each for Attack Names; Enemy Attack Name Data
+                int[] formationAIOffset = new int[8];      // 8 bytes per formation AI script offset, 4 offsets
+                int[] formationAI = new int[504];           // 504 bytes for Formation AI, 4 sets
+                int[] enemyAIOffset = new int[6];           // 6 bytes per enemy AI script offset, 3 offsets
+                int[] enemyAI = new int[4096];              // 4096 bytes for Enemy AI, 3 sets
+
+                // Stores the current values in the file so they can be referred to for internal randomisation logic
+                byte[] enemyIDsCurrent = new byte[8];
+                byte[] battleSetupCurrent = new byte[80];
+                byte[] cameraDataCurrent = new byte[192];
+                byte[] formationPlacementCurrent = new byte[384];
+                byte[] enemyDataCurrent = new byte[552];
+                byte[] attackDataCurrent = new byte[896];
+                byte[] attackIDsCurrent = new byte[64];
+                byte[] attackNamesCurrent = new byte[1024];
+                byte[] formationAIOffsetCurrent = new byte[8];
+                byte[] formationAICurrent = new byte[504];
+                byte[] enemyAIOffsetCurrent = new byte[6];
+                byte[] enemyAICurrent = new byte[4096];
+
+                int rngID = 0; // Stores a randomly generated number
+
+                int r = 0; // For iterating scene records (256 of them)
+                int o = 0; // For iterating array indexes
+                int c = 0; // For iterating records
+                int k = 0; //
+
+                //Note: Remember to call the index in the array for repeating data, such as Enemy IDs in the formation placement data.
+
+                byte[] array; // For conversion of int array to byte array
+                byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
+                Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+
+                FileStream hfs = new FileStream(fileName, FileMode.Open, FileAccess.Read); // Opens and reads the default scene.bin
+                hfs.Seek(0, SeekOrigin.Begin);
+                hfs.Read(enemyIDsCurrent, 0, 8);
+
+                hfs.Seek(8, SeekOrigin.Begin);
+                hfs.Read(battleSetupCurrent, 0, 80);
+
+                hfs.Seek(88, SeekOrigin.Begin);
+                hfs.Read(cameraDataCurrent, 0, 192);
+
+                hfs.Seek(280, SeekOrigin.Begin);
+                hfs.Read(formationPlacementCurrent, 0, 384);
+
+                hfs.Seek(664, SeekOrigin.Begin);
+                hfs.Read(enemyDataCurrent, 0, 552);
+
+                hfs.Seek(1216, SeekOrigin.Begin);
+                hfs.Read(attackDataCurrent, 0, 896);
+
+                hfs.Seek(2112, SeekOrigin.Begin);
+                hfs.Read(attackIDsCurrent, 0, 64);
+
+                hfs.Seek(2176, SeekOrigin.Begin);
+                hfs.Read(attackNamesCurrent, 0, 1024);
+
+                hfs.Seek(3200, SeekOrigin.Begin);
+                hfs.Read(formationAIOffsetCurrent, 0, 8);
+
+                hfs.Seek(3208, SeekOrigin.Begin);
+                hfs.Read(formationAICurrent, 0, 504);
+
+                hfs.Seek(3712, SeekOrigin.Begin);
+                hfs.Read(enemyAIOffsetCurrent, 0, 6);
+
+                hfs.Seek(3718, SeekOrigin.Begin);
+                hfs.Read(enemyAICurrent, 0, 4096);
+                hfs.Close();
+
                 using (BinaryWriter bw = new BinaryWriter(File.Open(fileName, FileMode.Open)))
                 {
-                    int[] enemyIDs = new int[8];                // 2 bytes per enemy ID, little endian so 260 would be 04 01 (104h), 3 enemies; includes 2 bytes of FF padding afterwards
-                    int[] battleSetup = new int[80];            // 4 records of 20 bytes each for Formations; Battle Setup Flags
-                    int[] cameraData = new int[192];            // 4 records of 38 bytes each for Formations; Camera Placement Data
-                    int[] formationPlacement = new int[384];    // 4 records of 96 bytes each for Formations; Enemy Placement Data (6 enemies per formation)
-                    int[] enemyData = new int[552];             // 3 records of 184 bytes each for Enemies; Enemy Data
-                    int[] attackData = new int[896];            // 32 records of 28 bytes each for Attacks; Enemy Attack Data
-                    int[] attackIDs = new int[64];              // 32 records of 2 bytes each for Attack IDs; Enemy Attack ID Data
-                    int[] attackNames = new int[1024];          // 32 records of 32 bytes each for Attack Names; Enemy Attack Name Data
-                    int[] formationAIOffset = new int[8];      // 8 bytes per formation AI script offset, 4 offsets
-                    int[] formationAI = new int[504];           // 504 bytes for Formation AI, 4 sets
-                    int[] enemyAIOffset = new int[6];           // 6 bytes per enemy AI script offset, 3 offsets
-                    int[] enemyAI = new int[4096];              // 4096 bytes for Enemy AI, 3 sets
-                                                                //TODO Consider using an array of varying size to handle the AI, although probably be better off leaving it alone
-                                                                // If need to change attack IDs in the AI then could use a Dictionary or something to search out the value of 61 ##ID or similar to make the change.
+                    #region Enemy IDs
 
-                    int r = 0; // For iterating scene records (256 of them)
-                    int o = 0; // For iterating array indexes
-                    int c = 0; // For iterating records
-                    int k = 0; //
-
-
-                    //Note: Remember to call the index in the array for repeating data, such as Enemy IDs in the formation placement data.
-
-                    byte[] array; // For conversion of int array to byte array
-                    byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
-                    Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
-
-
-                    while (r <= 0) // Iterates 256 times for each scene, temporarily disabled as only editing 1 file at a time currently
+                    // Enemy IDs
+                    while (r < 3)
                     {
-                        #region Enemy IDs
-                        // Enemy ID A
-                        enemyIDs[o] = rnd.Next(2); o++;
-                        enemyIDs[o] = rnd.Next(256); o++;
-
-                        // Enemy ID B
-                        enemyIDs[o] = rnd.Next(2); o++;
-                        enemyIDs[o] = rnd.Next(256); o++;
-
-                        // Enemy ID C
-                        enemyIDs[o] = rnd.Next(2); o++;
-                        enemyIDs[o] = rnd.Next(256); o++;
-                        //o += 6;
-
-                        array = enemyIDs.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00000;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
-
-                        #region Battle Setup Flags
-                        // Battle Location
-                        battleSetup[o] = rnd.Next(60); o++;
-                        battleSetup[o] = 0; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
-
-                        // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
-                        battleSetup[o] = 255; o++; // FFFF by default, no new battle will load
-                        battleSetup[o] = 255; o++;
-
-                        // Escape Counter; value of 0009 makes battle unescapable; 2-byte but value never exceeds 0009
-                        battleSetup[o] = 01; o++;
-                        battleSetup[o] = 00; o++;
-
-                        // Unused - 2byte
-                        battleSetup[o] = 255; o++;
-                        battleSetup[o] = 255; o++;
-
-                        // Battle Square - Possible Next Battles (4x 2-byte formation IDs, one is selected at random; default value for no battle is 03E7
-                        battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03; o++; // Value of 03E7h
-
-                        battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03; o++;
-
-                        battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03; o++;
-
-                        battleSetup[o] = 231; o++;
-                        battleSetup[o] = 03; o++;
-
-                        // Escapable Flag (misc flags such as disabling pre-emptive)
-                        battleSetup[o] = 253; o++;
-                        battleSetup[o] = 255; o++; // Value of FDFF; FE F9 would prevent pre-emptives
-
-                        // Battle Layout Type: Side attack, pincer, back attack, etc. 9 types.
-                        /*
-                            00 - Normal fight
-                            01 - Preemptive
-                            02 - Back attack
-                            03 - Side attack
-                            04 - Attacked from both sides (pincer attack, reverse side attack)
-                            05 - Another attack from both sides battle (different maybe?)
-                            06 - Another side attack
-                            07 - A third side attack
-                            08 - Normal battle that locks you in the front row, change command is disabled
-                        */
-                        battleSetup[o] = 0; o++;
-
-                        // Indexed pre-battle camera position (where the camera starts from when battle loads in)
-                        battleSetup[o] = rnd.Next(256); o++;
-
-                        array = battleSetup.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00008;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
-
-                        #region Camera Placement Data
-
-                        // Primary Battle Idle Camera Position
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Y Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera y Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-
-                        // Secondary Battle Idle Camera Position
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Y Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera y Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-
-                        // Tertiary Battle Idle Camera Position
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Y Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Position
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera X Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera y Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-                        cameraData[o] = rnd.Next(256); o++; // Camera Z Direction
-                        cameraData[o] = rnd.Next(256); o++;
-
-
-                        // Unused Battle Camera Position - FF Padding
-                        for (int i = 0; i < 12; i++)
+                        if (enemyIDsCurrent[o] != 255 && enemyIDsCurrent[o + 1] != 255) // Don't want to add an enemy if there's none here
                         {
-                            cameraData[o] = 256; o++;
+                            enemyIDs[o] = rnd.Next(2); o++;
+                            enemyIDs[o] = rnd.Next(256); o++;
                         }
-
-                        array = cameraData.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00058;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
-
-                        #region Battle Formation Data
-
-                        // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
-                        int enemyA1 = enemyIDs[o]; o++; // First byte of the ID
-                        int enemyA2 = enemyIDs[o]; o++; // Second byte of the ID
-                        int enemyB1 = enemyIDs[o]; o++; // Hacky? Byte me
-                        int enemyB2 = enemyIDs[o]; o++;
-                        int enemyC1 = enemyIDs[o]; o++;
-                        int enemyC2 = enemyIDs[o]; o++;
-                        int[] enemyIDList = new int[6];
-                        enemyIDList[0] = enemyA1;
-                        enemyIDList[1] = enemyA2;
-                        enemyIDList[2] = enemyB1;
-                        enemyIDList[3] = enemyB2;
-                        enemyIDList[4] = enemyC1;
-                        enemyIDList[5] = enemyC2;
-                        int rngID = 0;
-
-                        // Enemy ID for this placement (there are 6 possible placements total)
-                        rngID = rnd.Next(2);
-                        formationPlacement[o] = enemyIDList[rngID]; o++;
-
-                        // We don't want placement coordinates if the enemy ID is 'null' (FF FF)
-                        if (formationPlacement[o - 1] != 255 && formationPlacement[o - 2] != 255)
+                        else
                         {
-                            // X Coordinate
-                            formationPlacement[o] = rnd.Next(256); o++;
-                            formationPlacement[o] = rnd.Next(256); o++;
-
-                            // Y Coordinate
-                            formationPlacement[o] = rnd.Next(256); o++;
-                            formationPlacement[o] = rnd.Next(256); o++;
-
-                            // Z Coordinate
-                            formationPlacement[o] = rnd.Next(256); o++;
-                            formationPlacement[o] = rnd.Next(256); o++;
-
-                            // Row
-                            formationPlacement[o] = rnd.Next(256); o++;
-                            formationPlacement[o] = rnd.Next(256); o++;
-
-                            // Cover Flags (should be related to Row)
-                            formationPlacement[o] = rnd.Next(256); o++;
-                            formationPlacement[o] = rnd.Next(256); o++;
-
-                            // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                            formationPlacement[o] = 255; o++;
-                            formationPlacement[o] = 255; o++;
-                            formationPlacement[o] = 255; o++;
-                            formationPlacement[o] = 255; o++;
+                            enemyIDs[o] = enemyIDsCurrent[o]; o++;
+                            enemyIDs[o] = enemyIDsCurrent[o]; o++;
                         }
+                        r++;
+                    }
+                    r = 0;
 
-                        array = formationPlacement.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00118;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
+                    // FF padding
+                    enemyIDs[o] = 255; o++;
+                    enemyIDs[o] = 255; o++;
 
-                        #region Enemy Data
+                    array = enemyIDs.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00000;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    #endregion
 
-                        while (c < 3)
+                    #region Battle Setup Flags
+                    while (r < 4)
+                    {
+                        if (battleSetupCurrent[o] != 255)
+                        {
+                            // Battle Location
+                            battleSetup[o] = rnd.Next(60); o++;
+                            battleSetup[o] = 0; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
+
+                            // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
+                            battleSetup[o] = 255; o++; // FFFF by default, no new battle will load
+                            battleSetup[o] = 255; o++;
+
+                            // Escape Counter; value of 0009 makes battle unescapable; 2-byte but value never exceeds 0009
+                            battleSetup[o] = 01; o++;
+                            battleSetup[o] = 00; o++;
+
+                            // Unused - 2byte
+                            battleSetup[o] = 255; o++;
+                            battleSetup[o] = 255; o++;
+
+                            // Battle Square - Possible Next Battles (4x 2-byte formation IDs, one is selected at random; default value for no battle is 03E7
+                            battleSetup[o] = 231; o++;
+                            battleSetup[o] = 03; o++; // Value of 03E7h
+
+                            battleSetup[o] = 231; o++;
+                            battleSetup[o] = 03; o++;
+
+                            battleSetup[o] = 231; o++;
+                            battleSetup[o] = 03; o++;
+
+                            battleSetup[o] = 231; o++;
+                            battleSetup[o] = 03; o++;
+
+                            // Escapable Flag (misc flags such as disabling pre-emptive)
+                            battleSetup[o] = 253; o++;
+                            battleSetup[o] = 255; o++; // Value of FDFF; FE F9 would prevent pre-emptives
+
+                            // Battle Layout Type: Side attack, pincer, back attack, etc. 9 types.
+                            /*
+                                00 - Normal fight
+                                01 - Preemptive
+                                02 - Back attack
+                                03 - Side attack
+                                04 - Attacked from both sides (pincer attack, reverse side attack)
+                                05 - Another attack from both sides battle (different maybe?)
+                                06 - Another side attack
+                                07 - A third side attack
+                                08 - Normal battle that locks you in the front row, change command is disabled
+                            */
+                            battleSetup[o] = 0; o++;
+
+                            // Indexed pre-battle camera position (where the camera starts from when battle loads in)
+                            battleSetup[o] = rnd.Next(256); o++;
+                        }
+                        else
+                        {
+                            // Populate this entry with unaltered data
+                            while (c < 20)
+                            {
+                                battleSetup[o] = battleSetupCurrent[o]; o++;
+                                c++;
+                            }
+                            c = 0;
+                        }
+                        r++;
+                    }
+                    r = 0;
+
+                    array = battleSetup.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00008;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    #endregion
+
+                    #region Camera Placement Data
+
+                    while (r < 4)
+                    {
+                        if (cameraDataCurrent[o] != 255 && cameraDataCurrent[o + 1] != 255)
+                        {
+                            // Using the byte array to retain camera data
+                            // Primary Battle Idle Camera Position
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Y Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera y Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+
+                            // Secondary Battle Idle Camera Position
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Y Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera y Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+
+                            // Tertiary Battle Idle Camera Position
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Y Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Position
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera X Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera y Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+                            cameraData[o] = cameraDataCurrent[o]; o++; // Camera Z Direction
+                            cameraData[o] = cameraDataCurrent[o]; o++;
+
+
+                            // Unused Battle Camera Position - FF Padding
+                            for (int i = 0; i < 12; i++)
+                            {
+                                cameraData[o] = 255; o++;
+                            }
+                        }
+                        else
+                        {
+                            while (c < 48)
+                            {
+                                cameraData[o] = cameraDataCurrent[o]; o++;
+                                c++;
+                            }
+                            c = 0;
+                        }
+                        r++;
+                    }
+                    r = 0;
+
+                    array = cameraData.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00058;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    #endregion
+
+                    #region Battle Formation Data
+                    r = 0;
+                    while (r < 4)
+                    {
+                        // If first enemy ID is FF then this formation is blank/unused
+                        if (enemyIDsCurrent[o] != 255)
+                        {
+                            // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
+                            int[] enemyIDList = new int[6];
+                            enemyIDList[0] = enemyIDs[o]; o++;
+                            enemyIDList[1] = enemyIDs[o]; o++;
+                            enemyIDList[2] = enemyIDs[o]; o++;
+                            enemyIDList[3] = enemyIDs[o]; o++;
+                            enemyIDList[4] = enemyIDs[o]; o++;
+                            enemyIDList[5] = enemyIDs[o]; o++;
+
+                            int[] formationIDList = new int[12]; // Stores the current formation enemy IDs
+                            formationIDList[0] = formationPlacement[o]; o++; // 1st enemy
+                            formationIDList[1] = formationPlacement[o]; o++;
+
+                            formationIDList[2] = formationPlacement[o]; o++; // 2nd enemy
+                            formationIDList[3] = formationPlacement[o]; o++;
+
+                            formationIDList[4] = formationPlacement[o]; o++; // 3rd enemy
+                            formationIDList[5] = formationPlacement[o]; o++;
+
+                            formationIDList[6] = formationPlacement[o]; o++; // 4th enemy
+                            formationIDList[7] = formationPlacement[o]; o++;
+
+                            formationIDList[8] = formationPlacement[o]; o++; // 5th enemy
+                            formationIDList[9] = formationPlacement[o]; o++;
+
+                            formationIDList[10] = formationPlacement[o]; o++; // 6th enemy
+                            formationIDList[11] = formationPlacement[o]; o++;
+
+                            // Checks the 6 potential formation entries and changes enemy ID if it finds a non-null one
+                            while (k < 6)
+                            {
+                                rngID = rnd.Next(3);
+                                if (formationPlacement[o] != 255 && formationPlacement[o + 1] != 255)
+                                {
+                                    o += 2; // No entry is written as the enemy doesn't exist in the formation
+                                    if (rngID == 0)
+                                    {
+                                        // Sets enemy A as the formation enemy ID
+                                        formationPlacement[o] = enemyIDList[0]; o++;
+                                        formationPlacement[o] = enemyIDList[1]; o++;
+                                    }
+                                    else if (rngID == 1)
+                                    {
+                                        // Sets enemy B as the formation enemy ID
+                                        formationPlacement[o] = enemyIDList[2]; o++;
+                                        formationPlacement[o] = enemyIDList[3]; o++;
+                                    }
+                                    else
+                                    {
+                                        // Sets enemy C as the formation enemy ID
+                                        formationPlacement[o] = enemyIDList[4]; o++;
+                                        formationPlacement[o] = enemyIDList[5]; o++;
+                                    }
+                                }
+                                k++;
+                            }
+                            k = 0;
+                            //This randomises formation data for each enemy, but has been dummied out as it doesn't fit current project requirements
+                            while (k != 6)
+                            {
+                                // We don't want placement coordinates if the enemy ID is 'null' (FF FF)
+                                if (formationPlacement[o] != 255 && formationPlacement[o + 1] != 255)
+                                {
+                                    // X Coordinate
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                    // Y Coordinate
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                    // Z Coordinate
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                    // Row
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                    // Cover Flags (should be related to Row)
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                    // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
+                                    formationPlacement[o] = 255; o++;
+                                    formationPlacement[o] = 255; o++;
+                                    formationPlacement[o] = 255; o++;
+                                    formationPlacement[o] = 255; o++;
+                                }
+                                k++;
+                            }
+                        }
+                        else
+                        {
+                            c = 0;
+                            while (c < 16)
+                            {
+                                formationPlacement[o] = formationPlacementCurrent[o];
+                                o++;
+                                c++;
+                            }
+                        }
+                        r++;
+                    }
+                    array = formationPlacement.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00118;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    #endregion
+
+                    #region Enemy Data
+
+                    c = 0;
+                    while (c < 3)
+                    {
+                        // If enemy name is empty, assume no enemy is there and just retain pre-existing data
+                        if (enemyDataCurrent[o] != 200 || enemyDataCurrent[o] != 255)
                         {
                             // Enemy Name, 32 bytes ascii
                             nameBytes = AllMethods.NameGenerate(rnd);
@@ -271,10 +427,23 @@ namespace Godo
                             enemyData[o] = nameBytes[1]; o++;
                             enemyData[o] = nameBytes[2]; o++;
                             enemyData[o] = nameBytes[3]; o++;
-                            enemyData[o] = nameBytes[4]; o++;
-                            enemyData[o] = nameBytes[5]; o++;
-                            enemyData[o] = nameBytes[6]; o++;
-                            enemyData[o] = nameBytes[7]; o++;
+
+                            rngID = rnd.Next(2); // Chance to append a longer name
+                            if (rngID == 1)
+                            {
+                                enemyData[o] = nameBytes[4]; o++;
+                                enemyData[o] = nameBytes[5]; o++;
+                                enemyData[o] = nameBytes[6]; o++;
+                                enemyData[o] = nameBytes[7]; o++;
+                            }
+                            else
+                            {
+                                enemyData[o] = 0; o++;
+                                enemyData[o] = 0; o++;
+                                enemyData[o] = 0; o++;
+                                enemyData[o] = 0; o++;
+                            }
+
                             enemyData[o] = 0; o++;
                             enemyData[o] = 0; o++;
                             enemyData[o] = 0; o++;
@@ -300,7 +469,7 @@ namespace Godo
                             enemyData[o] = 0; o++;
                             enemyData[o] = 255; o++; // Empty - Use FF to terminate the string
 
-                            // Enemy Level
+                            // Enemy Level - This'll likely be set via AI
                             enemyData[o] = rnd.Next(10, 63); o++;
 
                             // Enemy Speed
@@ -312,17 +481,17 @@ namespace Godo
                             // Enemy Evade
                             enemyData[o] = rnd.Next(10, 256); o++;
 
-                            // Enemy Strength
-                            enemyData[o] = rnd.Next(10, 256); o++;
+                            // Enemy Strength  - This'll likely be set via AI
+                            enemyData[o] = rnd.Next(10, 127); o++;
 
-                            // Enemy Defence
-                            enemyData[o] = rnd.Next(10, 256); o++;
+                            // Enemy Defence  - This'll likely be set via AI
+                            enemyData[o] = rnd.Next(10, 127); o++;
 
-                            // Enemy Magic
-                            enemyData[o] = rnd.Next(10, 256); o++;
+                            // Enemy Magic  - This'll likely be set via AI
+                            enemyData[o] = rnd.Next(10, 127); o++;
 
-                            // Enemy Magic Defence
-                            enemyData[o] = rnd.Next(10, 256); o++;
+                            // Enemy Magic Defence  - This'll likely be set via AI
+                            enemyData[o] = rnd.Next(10, 127); o++;
 
                             // Enemy Elemental Types
                             /*
@@ -365,14 +534,15 @@ namespace Godo
                                 07h - Full Cure
                                 FFh - Nothing
                              */
-                            enemyData[o] = rnd.Next(0, 7); o++;
-                            enemyData[o] = rnd.Next(0, 7); o++;
-                            enemyData[o] = rnd.Next(0, 7); o++;
-                            enemyData[o] = rnd.Next(0, 7); o++;
+                            enemyData[o] = rnd.Next(2, 7); o++;
+                            enemyData[o] = rnd.Next(2, 7); o++;
+                            enemyData[o] = rnd.Next(2, 7); o++;
+                            enemyData[o] = rnd.Next(2, 7); o++;
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
+
 
                             // Action Animation Index
                             /* This needs a lot of logic to get running in a safe way. Each enemy Index needs to be loaded up with valid IDs for different types
@@ -380,67 +550,81 @@ namespace Godo
                                TODO: Pass the enemy ID from here to a method that can then check the valid animation indices, then return an array of values that can be
                                fed into our enemyData[] array for bytewriting.
                              */
-                            o += 16;
+                            k = 0;
+                            while (k < 16)
+                            {
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                k++;
+                            }
 
                             // Enemy Attack IDs for matching to Animation IDs - 2bytes per attack ID
-                            o += 32;
+                            k = 0;
+                            while (k < 16)
+                            {
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                k++;
+                            }
 
                             // Enemy Camera Override IDs for matching to Animation IDs - 2bytes per Camera Override ID - FFFF by default
-                            for (int i = 0; i < 32; i++)
+                            k = 0;
+                            while (k < 16)
                             {
-                                enemyData[o] = 255; o++;
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                k++;
                             }
 
                             // Obtain Rates
                             // 1 byte per item, 4 items. Values below 80 are Drop Items (#/63). Values above 80 are Steal Items (#63)
-                            enemyData[o] = 255; o++; // Item 1
+                            enemyData[o] = rnd.Next(2, 7); o++; // Item 1
                             enemyData[o] = 255; o++; // Item 2
                             enemyData[o] = 255; o++; // Item 3
                             enemyData[o] = 255; o++; // Item 4
 
                             // Item IDs to be matched to the above drop/steal rates
                             // Item 1
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 127; o++;
 
                             // Item 2
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 127; o++;
 
                             // Item 3
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 127; o++;
 
                             // Item 4
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 127; o++;
 
                             // Manipulate/Berserk Attack IDs
                             // The first listed attack is the Berserk option; all 3 attacks can be selected for use under Manipulate
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
 
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
 
-                            enemyData[o] = 255; o++;
-                            enemyData[o] = 255; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
+                            enemyData[o] = enemyDataCurrent[o]; o++;
 
                             // Unknown Data
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
 
                             // Enemy MP
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            enemyData[o] = rnd.Next(0, 11); o++;
+                            enemyData[o] = rnd.Next(0, 184); o++;
 
                             // Enemy AP
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = rnd.Next(0, 64); o++;
 
                             // Enemy Morph Item ID - FFFF means no morph
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = rnd.Next(0, 127); o++;
 
                             // Back Attack multiplier
                             enemyData[o] = rnd.Next(0, 33); o++;
@@ -448,23 +632,23 @@ namespace Godo
                             // Alignment FF
                             enemyData[o] = 255; o++;
 
-                            // Enemy HP
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            // Enemy HP - Should probbly be set by AI
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = rnd.Next(0, 27); o++;
                             enemyData[o] = rnd.Next(0, 256); o++;
 
                             // EXP Points
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = rnd.Next(0, 3); o++;
+                            enemyData[o] = rnd.Next(0, 232); o++;
 
                             // Gil
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
-                            enemyData[o] = rnd.Next(0, 256); o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = 0; o++;
+                            enemyData[o] = rnd.Next(0, 3); o++;
+                            enemyData[o] = rnd.Next(0, 232); o++;
 
 
                             // Status Immunities
@@ -478,208 +662,278 @@ namespace Godo
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
                             enemyData[o] = 255; o++;
-
-                            c++;
                         }
+                        else
+                        {
+                            k = 0;
+                            while (k < 184)
+                            {
+                                enemyData[o] = enemyDataCurrent[o];
+                                o++;
+                                k++;
+                            }
+                        }
+                        c++;
+                    }
 
-                        array = enemyIDs.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00298;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        c = 0;
-                        #endregion
+                    array = enemyIDs.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00298;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    c = 0;
+                    k = 0;
+                    #endregion
 
-                        #region Attack Data
-                        while (c < 32)
+                    #region Attack Data
+                    while (c < 32)
+                    {
+                        // If the target impact anim is FFFF we can assume the attack is blank and should be left alone
+                        // If the base power is 255 or 0 then we can assume it is not an attack, but a special action (i.e., animation handling)
+                        if (attackDataCurrent[o + 2] != 255 || attackDataCurrent[o + 15] != 255 || attackDataCurrent[o + 15] != 0)
                         {
                             // Attack %
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = rnd.Next(50, 150); o++;
 
                             // Impact Effect ID - Must be FF if Attack Effect ID is not FF
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Target Hurt Action Index
                             // 00 = Standard
                             // 01 = Stunned
                             // 02 = Heavy
                             // 03 = Ejected
-                            attackData[o] = rnd.Next(0, 4); o++;
+                            //attackData[o] = rnd.Next(0, 4); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Unknown
                             attackData[o] = 255; o++;
 
                             // Casting Cost
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = 0; o++;
                             attackData[o] = rnd.Next(0, 256); o++;
 
                             // Impact Sound - Must be FFFF if Attack Effect ID is not FF
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Camera Movement ID for single target - FFFF if none
-                            attackData[o] = 255; o++;
-                            attackData[o] = 255; o++;
+                            //attackData[o] = 255; o++;
+                            //attackData[o] = 255; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Camera Movement ID for multi target - FFFF if none
-                            attackData[o] = 255; o++;
-                            attackData[o] = 255; o++;
+                            //attackData[o] = 255; o++;
+                            //attackData[o] = 255; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Target Flags - Logic will be tough for this one; will depend on attack element + attack type as some aren't designed for multi-target
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Attack Effect ID - Must be FF if Impact Effect is not FF
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Damage Calculation
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Base Power
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Condition Sub-Menu Flags
                             // 00 = Party HP
                             // 01 = Party MP
                             // 02 = Party Status
                             // Other = None
-                            attackData[o] = rnd.Next(0, 4); o++;
+                            //attackData[o] = rnd.Next(0, 3); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Status Effect Change
                             // 00-3F = Chance to inflict/heal status (#/63)
                             // 40 = Remove Status
                             // 80 - Toggle Status
-                            attackData[o] = rnd.Next(0, 4); o++;
+                            //attackData[o] = rnd.Next(0, 4); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Attack Additional Effects
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Additional Effects Modifier Value
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+
+
+                            // Produce an enum class that holds the specific values for each status, then pick one of those or more and 
+                            // pipe it into the statuses/elements; true random here would be too much + death/imprisoned/petrify can creep in
 
                             // Statuses
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Elements
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
 
                             // Special Attack Flags
-                            attackData[o] = rnd.Next(0, 256); o++;
-                            attackData[o] = rnd.Next(0, 256); o++;
-
-                            c++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            //attackData[o] = rnd.Next(0, 256); o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
+                            attackData[o] = attackDataCurrent[o]; o++;
                         }
-
-                        array = attackData.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x004C0;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        c = 0;
-                        #endregion
-
-                        #region Attack IDs
-                        while (c < 32)
+                        else
                         {
-                            // Attack ID - These should match the ones referenced in AI and Animation Attack IDs
-                            attackIDs[o] = rnd.Next(0, 256); o++;
-                            c++;
+                            k = 0;
+                            while (k < 28)
+                            {
+                                attackData[o] = attackDataCurrent[o];
+                                o++;
+                                k++;
+                            }
                         }
-                        //array = attackIDs.Select(b => (byte)b).ToArray();
-                        //bw.BaseStream.Position = 0x00880;
-                        //bw.Write(array, 0, array.Length);
-                        o = 0;
-                        c = 0;
-                        #endregion
-
-                        #region Attack Names
-                        while (c < 32)
-                        {
-                            // Attack Name, 32 bytes ascii
-                            nameBytes = AllMethods.NameGenerate(rnd);
-                            attackNames[o] = nameBytes[0]; o++;
-                            attackNames[o] = nameBytes[1]; o++;
-                            attackNames[o] = nameBytes[2]; o++;
-                            attackNames[o] = nameBytes[3]; o++;
-                            attackNames[o] = nameBytes[4]; o++;
-                            attackNames[o] = nameBytes[5]; o++;
-                            attackNames[o] = nameBytes[6]; o++;
-                            attackNames[o] = nameBytes[7]; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 0; o++;
-                            attackNames[o] = 255; o++; // Empty - Use FF to terminate the string
-                            c++;
-                        }
-                        array = attackNames.Select(b => (byte)b).ToArray();
-                        bw.BaseStream.Position = 0x00880;
-                        bw.Write(array, 0, array.Length);
-                        o = 0;
-                        c = 0;
-                        #endregion
-
-                        #region Formation AI Script Offsets
-                        // These need to match the location of each one
-                        formationAIOffset[o] = 0; o++;
-                        formationAIOffset[o] = 0; o++;
-                        formationAIOffset[o] = 0; o++;
-                        formationAIOffset[o] = 0; o++;
-
-                        //array = formationAIOffsets.Select(b => (byte)b).ToArray();
-                        //bw.BaseStream.Position = 0x000C80;
-                        //bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
-
-                        #region Formation AI
-                        // This is likely best served from a notepad containing AI scripts, though formation AI itself is very rarely used (Final Sephiroth fight)
-                        //array = formationAI.Select(b => (byte)b).ToArray();
-                        //bw.BaseStream.Position = 0x0000C88;
-                        //bw.Write(array, 0, array.Length);
-                        #endregion
-
-                        #region Enemy AI Offsets
-                        // These need to match the location of each one
-                        enemyAIOffset[o] = 0; o++;
-                        enemyAIOffset[o] = 0; o++;
-                        enemyAIOffset[o] = 0; o++;
-
-                        //array = enemyAIOffset.Select(b => (byte)b).ToArray();
-                        //bw.BaseStream.Position = 0x000E80;
-                        //bw.Write(array, 0, array.Length);
-                        o = 0;
-                        #endregion
-
-                        #region Enemy AI
-                        // This is likely best served from a notepad containing AI scripts
-                        //array = formationAI.Select(b => (byte)b).ToArray();
-                        //bw.BaseStream.Position = 0x0000E86;
-                        //bw.Write(array, 0, array.Length);
-                        #endregion
-
-                        r++;
+                        c++;
                     }
+
+                    array = attackData.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x004C0;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    c = 0;
+                    #endregion
+
+                    #region Attack IDs
+                    while (c < 32)
+                    {
+                        // Attack ID - These should match the ones referenced in AI and Animation Attack IDs
+                        //attackIDs[o] = rnd.Next(0, 256); o++;
+                        attackIDs[o] = attackIDsCurrent[o]; o++;
+                        attackIDs[o] = attackIDsCurrent[o]; o++;
+                        c++;
+                    }
+
+                    array = attackIDs.Select(b => (byte)b).ToArray();
+                    bw.BaseStream.Position = 0x00840;
+                    bw.Write(array, 0, array.Length);
+                    o = 0;
+                    c = 0;
+                    #endregion
+
+                    #region Attack Names
+                    //while (c < 32)
+                    //{
+                    //    // Attack Name, 32 bytes ascii
+                    //    nameBytes = AllMethods.NameGenerate(rnd);
+                    //    attackNames[o] = nameBytes[0]; o++;
+                    //    attackNames[o] = nameBytes[1]; o++;
+                    //    attackNames[o] = nameBytes[2]; o++;
+                    //    attackNames[o] = nameBytes[3]; o++;
+                    //    rngID = rnd.Next(2); // Chance to append a longer name
+                    //    if (rngID == 1)
+                    //    {
+                    //        attackNames[o] = nameBytes[4]; o++;
+                    //        attackNames[o] = nameBytes[5]; o++;
+                    //        attackNames[o] = nameBytes[6]; o++;
+                    //        attackNames[o] = nameBytes[7]; o++;
+                    //    }
+                    //    else
+                    //    {
+                    //        attackNames[o] = 0; o++;
+                    //        attackNames[o] = 0; o++;
+                    //        attackNames[o] = 0; o++;
+                    //        attackNames[o] = 0; o++;
+                    //    }
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 0; o++;
+                    //    attackNames[o] = 255; o++; // Empty - Use FF to terminate the string
+                    //    c++;
+                    //}
+                    //array = attackNames.Select(b => (byte)b).ToArray();
+                    //bw.BaseStream.Position = 0x00880;
+                    //bw.Write(array, 0, array.Length);
+                    //o = 0;
+                    //c = 0;
+                    #endregion
+
+                    #region Formation AI Script Offsets
+                    // These need to match the location of each one
+                    //formationAIOffset[o] = 0; o++;
+                    //formationAIOffset[o] = 0; o++;
+                    //formationAIOffset[o] = 0; o++;
+                    //formationAIOffset[o] = 0; o++;
+                    //formationAIOffset[o] = formationAIOffsetCurrent[o]; o++;
+                    //formationAIOffset[o] = formationAIOffsetCurrent[o]; o++;
+                    //formationAIOffset[o] = formationAIOffsetCurrent[o]; o++;
+                    //formationAIOffset[o] = formationAIOffsetCurrent[o]; o++;
+
+                    //array = formationAIOffset.Select(b => (byte)b).ToArray();
+                    //bw.BaseStream.Position = 0x000C80;
+                    //bw.Write(array, 0, array.Length);
+                    //o = 0;
+                    #endregion
+
+                    #region Formation AI
+                    // This is likely best served from a notepad containing AI scripts, though formation AI itself is very rarely used (Final Sephiroth fight)
+                    //array = formationAI.Select(b => (byte)b).ToArray();
+                    //bw.BaseStream.Position = 0x000C88;
+                    //bw.Write(array, 0, array.Length);
+                    //o = 0;
+                    #endregion
+
+                    #region Enemy AI Offsets
+                    // These need to match the location of each one
+                    //enemyAIOffset[o] = 0; o++;
+                    //enemyAIOffset[o] = 0; o++;
+                    //enemyAIOffset[o] = 0; o++;
+
+                    //array = enemyAIOffset.Select(b => (byte)b).ToArray();
+                    //bw.BaseStream.Position = 0x000E80;
+                    //bw.Write(array, 0, array.Length);
+                    o = 0;
+                    #endregion
+
+                    #region Enemy AI
+                    // This is likely best served from a notepad containing AI scripts
+                    //array = formationAI.Select(b => (byte)b).ToArray();
+                    //bw.BaseStream.Position = 0x000E86;
+                    //bw.Write(array, 0, array.Length);
+                    #endregion
+                    bw.Close();
                 }
             }
             catch
