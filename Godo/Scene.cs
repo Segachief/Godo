@@ -297,116 +297,84 @@ namespace Godo
                     #endregion
 
                     #region Battle Formation Data
-                    r = 0;
+                    // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
+                    int[] enemyIDList = new int[6];
+                    enemyIDList[0] = enemyIDs[o]; o++;
+                    enemyIDList[1] = enemyIDs[o]; o++;
+                    enemyIDList[2] = enemyIDs[o]; o++;
+                    enemyIDList[3] = enemyIDs[o]; o++;
+                    enemyIDList[4] = enemyIDs[o]; o++;
+                    enemyIDList[5] = enemyIDs[o]; o++;
+                    o = 0;
                     while (r < 4)
                     {
-                        // If first enemy ID is FF then this formation is blank/unused
-                        if (enemyIDsCurrent[o] != 255)
+                        //This randomises formation data for each enemy, but has been dummied out as it doesn't fit current project requirements
+                        while (c < 6)
                         {
-                            // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
-                            int[] enemyIDList = new int[6];
-                            enemyIDList[0] = enemyIDs[o]; o++;
-                            enemyIDList[1] = enemyIDs[o]; o++;
-                            enemyIDList[2] = enemyIDs[o]; o++;
-                            enemyIDList[3] = enemyIDs[o]; o++;
-                            enemyIDList[4] = enemyIDs[o]; o++;
-                            enemyIDList[5] = enemyIDs[o]; o++;
-
-                            int[] formationIDList = new int[12]; // Stores the current formation enemy IDs
-                            formationIDList[0] = formationPlacement[o]; o++; // 1st enemy
-                            formationIDList[1] = formationPlacement[o]; o++;
-
-                            formationIDList[2] = formationPlacement[o]; o++; // 2nd enemy
-                            formationIDList[3] = formationPlacement[o]; o++;
-
-                            formationIDList[4] = formationPlacement[o]; o++; // 3rd enemy
-                            formationIDList[5] = formationPlacement[o]; o++;
-
-                            formationIDList[6] = formationPlacement[o]; o++; // 4th enemy
-                            formationIDList[7] = formationPlacement[o]; o++;
-
-                            formationIDList[8] = formationPlacement[o]; o++; // 5th enemy
-                            formationIDList[9] = formationPlacement[o]; o++;
-
-                            formationIDList[10] = formationPlacement[o]; o++; // 6th enemy
-                            formationIDList[11] = formationPlacement[o]; o++;
-
-                            // Checks the 6 potential formation entries and changes enemy ID if it finds a non-null one
-                            while (k < 6)
+                            rngID = rnd.Next(3);
+                            if (formationPlacement[o] != 255 && formationPlacement[o + 1] != 255)
                             {
-                                rngID = rnd.Next(3);
-                                if (formationPlacement[o] != 255 && formationPlacement[o + 1] != 255)
+                                if (rngID == 0)
                                 {
-                                    o += 2; // No entry is written as the enemy doesn't exist in the formation
-                                    if (rngID == 0)
-                                    {
-                                        // Sets enemy A as the formation enemy ID
-                                        formationPlacement[o] = enemyIDList[0]; o++;
-                                        formationPlacement[o] = enemyIDList[1]; o++;
-                                    }
-                                    else if (rngID == 1)
-                                    {
-                                        // Sets enemy B as the formation enemy ID
-                                        formationPlacement[o] = enemyIDList[2]; o++;
-                                        formationPlacement[o] = enemyIDList[3]; o++;
-                                    }
-                                    else
-                                    {
-                                        // Sets enemy C as the formation enemy ID
-                                        formationPlacement[o] = enemyIDList[4]; o++;
-                                        formationPlacement[o] = enemyIDList[5]; o++;
-                                    }
+                                    // Sets enemy A as the formation enemy ID
+                                    formationPlacement[o] = enemyIDList[0]; o++;
+                                    formationPlacement[o] = enemyIDList[1]; o++;
                                 }
-                                k++;
-                            }
-                            k = 0;
-                            //This randomises formation data for each enemy, but has been dummied out as it doesn't fit current project requirements
-                            while (k != 6)
-                            {
-                                // We don't want placement coordinates if the enemy ID is 'null' (FF FF)
-                                if (formationPlacement[o] != 255 && formationPlacement[o + 1] != 255)
+                                else if (rngID == 1)
                                 {
-                                    // X Coordinate
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-
-                                    // Y Coordinate
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-
-                                    // Z Coordinate
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-
-                                    // Row
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-
-                                    // Cover Flags (should be related to Row)
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-                                    formationPlacement[o] = formationPlacementCurrent[o]; o++;
-
-                                    // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                                    formationPlacement[o] = 255; o++;
-                                    formationPlacement[o] = 255; o++;
-                                    formationPlacement[o] = 255; o++;
-                                    formationPlacement[o] = 255; o++;
+                                    // Sets enemy B as the formation enemy ID
+                                    formationPlacement[o] = enemyIDList[2]; o++;
+                                    formationPlacement[o] = enemyIDList[3]; o++;
                                 }
-                                k++;
+                                else
+                                {
+                                    // Sets enemy C as the formation enemy ID
+                                    formationPlacement[o] = enemyIDList[4]; o++;
+                                    formationPlacement[o] = enemyIDList[5]; o++;
+                                }
+
+                                // X Coordinate
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                // Y Coordinate
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                // Z Coordinate
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                // Row
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                // Cover Flags (should be related to Row)
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+                                formationPlacement[o] = formationPlacementCurrent[o]; o++;
+
+                                // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
+                                formationPlacement[o] = 255; o++;
+                                formationPlacement[o] = 255; o++;
+                                formationPlacement[o] = 255; o++;
+                                formationPlacement[o] = 255; o++;
                             }
-                        }
-                        else
-                        {
-                            c = 0;
-                            while (c < 16)
+                            else
                             {
-                                formationPlacement[o] = formationPlacementCurrent[o];
-                                o++;
-                                c++;
+                                while (k < 16)
+                                {
+                                    formationPlacement[o] = formationPlacementCurrent[o];
+                                    o++;
+                                    k++;
+                                }
+                                k = 0;
                             }
+                            c++;
                         }
+                        c = 0;
                         r++;
                     }
+                    r = 0;
                     array = formationPlacement.Select(b => (byte)b).ToArray();
                     bw.BaseStream.Position = 0x00118;
                     bw.Write(array, 0, array.Length);
@@ -414,12 +382,10 @@ namespace Godo
                     #endregion
 
                     #region Enemy Data
-
-                    c = 0;
-                    while (c < 3)
+                    while (r < 3)
                     {
                         // If enemy name is empty, assume no enemy is there and just retain pre-existing data
-                        if (enemyDataCurrent[o] != 200 || enemyDataCurrent[o] != 255)
+                        if (enemyDataCurrent[o] != 0 || enemyDataCurrent[o] != 255)
                         {
                             // Enemy Name, 32 bytes ascii
                             nameBytes = AllMethods.NameGenerate(rnd);
@@ -550,30 +516,30 @@ namespace Godo
                                TODO: Pass the enemy ID from here to a method that can then check the valid animation indices, then return an array of values that can be
                                fed into our enemyData[] array for bytewriting.
                              */
-                            k = 0;
-                            while (k < 16)
+                            while (c < 16)
                             {
                                 enemyData[o] = enemyDataCurrent[o]; o++;
-                                k++;
+                                c++;
                             }
+                            c = 0;
 
                             // Enemy Attack IDs for matching to Animation IDs - 2bytes per attack ID
-                            k = 0;
-                            while (k < 16)
+                            while (c < 16)
                             {
                                 enemyData[o] = enemyDataCurrent[o]; o++;
                                 enemyData[o] = enemyDataCurrent[o]; o++;
-                                k++;
+                                c++;
                             }
+                            c = 0;
 
                             // Enemy Camera Override IDs for matching to Animation IDs - 2bytes per Camera Override ID - FFFF by default
-                            k = 0;
-                            while (k < 16)
+                            while (c < 16)
                             {
                                 enemyData[o] = enemyDataCurrent[o]; o++;
                                 enemyData[o] = enemyDataCurrent[o]; o++;
-                                k++;
+                                c++;
                             }
+                            c = 0;
 
                             // Obtain Rates
                             // 1 byte per item, 4 items. Values below 80 are Drop Items (#/63). Values above 80 are Steal Items (#63)
@@ -665,31 +631,28 @@ namespace Godo
                         }
                         else
                         {
-                            k = 0;
-                            while (k < 184)
+                            while (c < 184)
                             {
-                                enemyData[o] = enemyDataCurrent[o];
-                                o++;
-                                k++;
+                                enemyData[o] = enemyDataCurrent[o]; o++;
+                                c++;
                             }
+                            c = 0;
                         }
-                        c++;
+                        r++;
                     }
+                    r = 0;
 
                     array = enemyIDs.Select(b => (byte)b).ToArray();
                     bw.BaseStream.Position = 0x00298;
                     bw.Write(array, 0, array.Length);
                     o = 0;
-                    c = 0;
-                    k = 0;
                     #endregion
 
                     #region Attack Data
-                    while (c < 32)
+                    while (r < 32)
                     {
-                        // If the target impact anim is FFFF we can assume the attack is blank and should be left alone
                         // If the base power is 255 or 0 then we can assume it is not an attack, but a special action (i.e., animation handling)
-                        if (attackDataCurrent[o + 2] != 255 || attackDataCurrent[o + 15] != 255 || attackDataCurrent[o + 15] != 0)
+                        if (attackDataCurrent[o + 15] != 255 || attackDataCurrent[o + 15] != 0)
                         {
                             // Attack %
                             attackData[o] = rnd.Next(50, 150); o++;
@@ -798,39 +761,38 @@ namespace Godo
                         }
                         else
                         {
-                            k = 0;
-                            while (k < 28)
+                            while (c < 28)
                             {
-                                attackData[o] = attackDataCurrent[o];
-                                o++;
-                                k++;
+                                attackData[o] = attackDataCurrent[o]; o++;
+                                c++;
                             }
+                            c = 0;
                         }
-                        c++;
+                        r++;
                     }
+                    r = 0;
 
                     array = attackData.Select(b => (byte)b).ToArray();
                     bw.BaseStream.Position = 0x004C0;
                     bw.Write(array, 0, array.Length);
                     o = 0;
-                    c = 0;
                     #endregion
 
                     #region Attack IDs
-                    while (c < 32)
+                    while (r < 32)
                     {
                         // Attack ID - These should match the ones referenced in AI and Animation Attack IDs
                         //attackIDs[o] = rnd.Next(0, 256); o++;
                         attackIDs[o] = attackIDsCurrent[o]; o++;
                         attackIDs[o] = attackIDsCurrent[o]; o++;
-                        c++;
+                        r++;
                     }
+                    r = 0;
 
                     array = attackIDs.Select(b => (byte)b).ToArray();
                     bw.BaseStream.Position = 0x00840;
                     bw.Write(array, 0, array.Length);
                     o = 0;
-                    c = 0;
                     #endregion
 
                     #region Attack Names
@@ -924,7 +886,7 @@ namespace Godo
                     //array = enemyAIOffset.Select(b => (byte)b).ToArray();
                     //bw.BaseStream.Position = 0x000E80;
                     //bw.Write(array, 0, array.Length);
-                    o = 0;
+                    //o = 0;
                     #endregion
 
                     #region Enemy AI
@@ -933,6 +895,7 @@ namespace Godo
                     //bw.BaseStream.Position = 0x000E86;
                     //bw.Write(array, 0, array.Length);
                     #endregion
+
                     bw.Close();
                 }
             }
