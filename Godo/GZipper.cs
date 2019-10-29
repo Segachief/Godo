@@ -214,6 +214,7 @@ namespace Godo
             byte[] nextSceneOffset = new byte[4];   // Pointer to next file - used with currentScene to work out size of current file
             byte[] prevSceneOffset = new byte[4];   // Pointer of the previous offset, used to derive current pointer for header adjustment
             byte[] displacedSceneOffset = new byte[4];   // Pointer of the displaced offset
+            int displacedSceneSize;
 
             int thisSceneInt;                       // Int converted value of currentSceneOffset
             int nextSceneInt;                       // Int converted value of nextSceneOffset
@@ -245,6 +246,17 @@ namespace Godo
                 hfs.Seek(headerOffset, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
                 hfs.Read(header, 0, 64);
                 hfs.Close();
+
+                // Add displaced file if there's space
+                if (header[61] != 0xFF && header[62] != 0xFF && header[63] != 0xFF && header[64] != 0xFF)
+                {
+                    //TODO: Add the displaced header here to the start, bump up the other headers up by the size / 4 of the displaced file
+                    // Reason PrC can't open it is cause we have less than 255 scenes I think so once this is sorted it should be good to go.
+                }
+                else // If not, then will need to move the last header onto the next file 
+                {
+                    //TODO: Move 16th header and store it for the next block 
+                }
 
                 int sectionCount = 0; // Iteration of Section within Block - There are up to 16 sections within a block but can be less due to varying size of Scenes
                 while (sectionCount < 16)
@@ -422,11 +434,14 @@ namespace Godo
                                             // Copies the recompressed file to the displaced file
                                             moveFile.CopyTo(displaceStream);
 
-                                            // Store the displaced offset
+                                            // Store the displaced offset - We need size instead, not header offset
                                             displacedSceneOffset[0] = header[thisHeaderCounter];
                                             displacedSceneOffset[1] = header[thisHeaderCounter + 1];
                                             displacedSceneOffset[2] = header[thisHeaderCounter + 2];
                                             displacedSceneOffset[3] = header[thisHeaderCounter + 3];
+
+                                            // Size of our displaced scene (bytes) divided by 4 for the header
+                                            displacedSceneSize = (int)displaceStream.Length / 4;
 
                                             // Overwrite the current header with FF FF FF FF as it is being removed from this block
                                             header[thisHeaderCounter] = 255;
