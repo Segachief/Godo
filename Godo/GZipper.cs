@@ -440,6 +440,12 @@ namespace Godo
                                 }
                             }
                         }
+                        if(outputStream.Length > 8192)
+                        {
+                            // Current problem; when the file exceeds 8192 bytes, we need to move it onto the next section.
+                            //long deletion = outputStream.Length - 8192;
+                            //outputStream.SetLength(Math.Max(0, outputStream.Length - deletion));
+                        }
                         while (outputStream.Length % 8192 > 0)  // Remainder of 3, add 1 FF
                         {
                             outputStream.Write(padder, 0, 1);
