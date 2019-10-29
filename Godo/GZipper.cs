@@ -201,6 +201,8 @@ namespace Godo
             string[] inputFilePaths = new string[16];           // Stores all the recompressed files, so that they can be built into a new scene.bin
             string[] inputFinalPaths = new string[32];          // Stores all the block sections for generating the final scene.bin
             string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene")); // This is the finished scene.bin
+            string sceneDisplaced = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("displaced")); // For transferring a scene to the next block
+            string sceneDisplaceTarget;
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
@@ -211,6 +213,7 @@ namespace Godo
             byte[] thisSceneOffset = new byte[4];   // Pointer to current file
             byte[] nextSceneOffset = new byte[4];   // Pointer to next file - used with currentScene to work out size of current file
             byte[] prevSceneOffset = new byte[4];   // Pointer of the previous offset, used to derive current pointer for header adjustment
+            byte[] displacedSceneOffset = new byte[4];   // Pointer of the displaced offset
 
             int thisSceneInt;                       // Int converted value of currentSceneOffset
             int nextSceneInt;                       // Int converted value of nextSceneOffset
@@ -220,6 +223,7 @@ namespace Godo
             int absoluteOffset;                     // Stores the absolute offset value for section's header
             long newSceneOffset;                    // Used to calculate, in bytes, the offset to be read into header
             long prevSceneSize = 0;                 // Stores the size of the previous scene
+            long totalBlockSize = 64;                 // Stores the total compressed size of the current section block, if it exceeds 8192 action is taken; starts at 64 to represent header
 
             int thisHeaderCounter = 0;              // Used to determine location offset of where to write in 4-byte header value for current scene pointer
             int prevHeaderCounter = 0;              // Header values for the previous section; used to calculate size
@@ -248,6 +252,7 @@ namespace Godo
                     // For storing uncompressed scene, recompressed scene, and an updated header
                     string sceneFileUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
                     string sceneFileRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed" + sectionCount));
+                    sceneDisplaceTarget = sceneFileRecompressed;
 
                     inputFilePaths[sectionCount] = sceneFileRecompressed;
 
@@ -405,6 +410,36 @@ namespace Godo
                                     }
                                     else
                                     {
+
+                                    }
+                                    totalBlockSize = totalBlockSize + prevSceneSize;
+
+                                    if (totalBlockSize > 8192)
+                                    {
+                                        FileStream moveFile = File.OpenRead(sceneFileRecompressed);
+                                        using (var displaceStream = File.Create(sceneDisplaced))
+                                        {
+                                            // Copies the recompressed file to the displaced file
+                                            moveFile.CopyTo(displaceStream);
+
+                                            // Store the displaced offset
+                                            displacedSceneOffset[0] = header[thisHeaderCounter];
+                                            displacedSceneOffset[1] = header[thisHeaderCounter + 1];
+                                            displacedSceneOffset[2] = header[thisHeaderCounter + 2];
+                                            displacedSceneOffset[3] = header[thisHeaderCounter + 3];
+
+                                            // Overwrite the current header with FF FF FF FF as it is being removed from this block
+                                            header[thisHeaderCounter] = 255;
+                                            header[thisHeaderCounter + 1] = 255;
+                                            header[thisHeaderCounter + 2] = 255;
+                                            header[thisHeaderCounter + 3] = 255;
+
+                                            // Clears the input file path for this migrated section
+                                            inputFilePaths[sectionCount] = null;
+                                            MessageBox.Show("Displaced a File" + " " + sceneFileRecompressed + " block: " + blockCount);
+
+                                        }
+                                        moveFile.Close();
                                     }
                                     srcFile.Close();
                                 }
@@ -418,6 +453,7 @@ namespace Godo
                     thisHeaderCounter += 4;
                     if (nextSceneOffset[0] == 0xFF && nextSceneOffset[1] == 0xFF && nextSceneOffset[2] == 0xFF && nextSceneOffset[3] == 0xFF)
                     {
+                        thisHeaderCounter -= 4; // So we can get the current header again in case we have to move a displaced section file
                         sectionCount = 16;
                     }
                 }
@@ -440,28 +476,24 @@ namespace Godo
                                 }
                             }
                         }
-                        if(outputStream.Length > 8192)
-                        {
-                            // Current problem; when the file exceeds 8192 bytes, we need to move it onto the next section.
-                            //long deletion = outputStream.Length - 8192;
-                            //outputStream.SetLength(Math.Max(0, outputStream.Length - deletion));
-                        }
                         while (outputStream.Length % 8192 > 0)  // Remainder of 3, add 1 FF
                         {
                             outputStream.Write(padder, 0, 1);
                         }
+
                         outputStream.Close();
                     }
                 }
                 Array.Clear(inputFilePaths, 0, 16);
                 thisHeaderCounter = 0;
                 prevHeaderCounter = 0;
+                totalBlockSize = 64;
                 blockCount++;
                 headerOffset += 8192;
             }
             using (var outputStream = File.Create(finalScene))
             {
-                foreach(var inputFinalPath in inputFinalPaths)
+                foreach (var inputFinalPath in inputFinalPaths)
                 {
                     using (var inputStream = File.OpenRead(inputFinalPath))
                     {

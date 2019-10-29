@@ -132,10 +132,10 @@ namespace Godo
                     #region Battle Setup Flags
                     while (r < 4)
                     {
-                        if (battleSetupCurrent[o] != 255)
+                        if (battleSetupCurrent[o] != 0xFF)
                         {
                             // Battle Location
-                            battleSetup[o] = rnd.Next(60); o++;
+                            battleSetup[o] = rnd.Next(96); o++;
                             battleSetup[o] = 0; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
 
                             // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
@@ -144,11 +144,11 @@ namespace Godo
 
                             // Escape Counter; value of 0009 makes battle unescapable; 2-byte but value never exceeds 0009
                             battleSetup[o] = rnd.Next(1, 9); o++;
-                            battleSetup[o] = 0; o++;
+                            battleSetup[o] = battleSetupCurrent[o]; o++;
 
                             // Unused - 2byte
-                            battleSetup[o] = 255; o++;
-                            battleSetup[o] = 255; o++;
+                            battleSetup[o] = battleSetupCurrent[o]; o++;
+                            battleSetup[o] = battleSetupCurrent[o]; o++;
 
                             // Battle Square - Possible Next Battles (4x 2-byte formation IDs, one is selected at random; default value for no battle is 03E7
                             battleSetup[o] = battleSetupCurrent[o]; o++;
@@ -182,14 +182,14 @@ namespace Godo
                             battleSetup[o] = battleSetupCurrent[o]; o++;
 
                             // Indexed pre-battle camera position (where the camera starts from when battle loads in)
-                            battleSetup[o] = rnd.Next(256); o++;
+                            battleSetup[o] = rnd.Next(255); o++;
                         }
                         else
                         {
                             // Populate this entry with unaltered data
                             while (c < 20)
                             {
-                                battleSetup[o] = battleSetupCurrent[o]; o++;
+                                battleSetup[o] = 255; o++;
                                 c++;
                             }
                             c = 0;
@@ -297,7 +297,7 @@ namespace Godo
                     #endregion
 
                     #region Battle Formation Data
-                    //// Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
+                    // Sets the enemy IDs established at beginning of the scene so they can be referenced by formation array
                     //int[] enemyIDList = new int[6];
                     //enemyIDList[0] = enemyIDs[o]; o++;
                     //enemyIDList[1] = enemyIDs[o]; o++;
