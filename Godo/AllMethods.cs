@@ -29,6 +29,35 @@ namespace Godo
             return bytes;
         }
 
+        public static byte[] AddLittleEndian(byte[] a, byte[] b)
+        {
+            List<byte> result = new List<byte>();
+            if (a.Length < b.Length)
+            {
+                byte[] t = a;
+                a = b;
+                b = t;
+            }
+            int carry = 0;
+            for (int i = 0; i < b.Length; ++i)
+            {
+                int sum = a[i] + b[i] + carry;
+                result.Add((byte)(sum & 0xFF));
+                carry = sum >> 8;
+            }
+            for (int i = b.Length; i < a.Length; ++i)
+            {
+                int sum = a[i] + carry;
+                result.Add((byte)(sum & 0xFF));
+                carry = sum >> 8;
+            }
+            if (carry > 0)
+            {
+                result.Add((byte)carry);
+            }
+            return result.ToArray();
+        }
+
         // This method generates a random name using two 4-letter words
         public static byte[] NameGenerate(Random rnd)
         {

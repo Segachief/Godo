@@ -202,19 +202,27 @@ namespace Godo
             string[] inputFinalPaths = new string[32];          // Stores all the block sections for generating the final scene.bin
             string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene")); // This is the finished scene.bin
             string sceneDisplaced = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("displaced")); // For transferring a scene to the next block
-            string sceneDisplaceTarget;
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
                                                                  * Header total size must be 40h, FF padded
                                                                  */
 
+            byte[] displaceHeader = new byte[64];               /* Temporarily stores/builds a new header with a displaced file added to it.
+                                                                 * Is copied over header when finished.
+                                                                 */
+
+            byte[] adderHeader = new byte[4];                   // Adds bytes onto the adjusted header after displaced file is added
+            byte[] resultHeader = new byte[4];                  // The solved header values
+
             // In order to calculate the new header values, math needs to be performed with known values to derive all the correct values
             byte[] thisSceneOffset = new byte[4];   // Pointer to current file
             byte[] nextSceneOffset = new byte[4];   // Pointer to next file - used with currentScene to work out size of current file
             byte[] prevSceneOffset = new byte[4];   // Pointer of the previous offset, used to derive current pointer for header adjustment
             byte[] displacedSceneOffset = new byte[4];   // Pointer of the displaced offset
-            int displacedSceneSize;
+            int displacedSceneSize = 0;
+            bool displacementA = false;
+            bool displacementB = false;
 
             int thisSceneInt;                       // Int converted value of currentSceneOffset
             int nextSceneInt;                       // Int converted value of nextSceneOffset
@@ -235,6 +243,11 @@ namespace Godo
             int blockCount = 0;                     // Counts how many blocks have been produced, there should be 32
             int headerOffset = 0;                   // Offset of the current block header; goes up in 2000h (8192) increments
 
+            int r = 0;
+            int o = 0;
+            int c = 0;
+            int k = 0;
+
 
             // Scene decompression/recompression begins here
             while (headerOffset < 262144)           // This is the total number of bytes a scene.bin will be (32 potential blocks of 8192 bytes a-piece)
@@ -247,26 +260,30 @@ namespace Godo
                 hfs.Read(header, 0, 64);
                 hfs.Close();
 
-                // Add displaced file if there's space
-                if (header[61] != 0xFF && header[62] != 0xFF && header[63] != 0xFF && header[64] != 0xFF)
+                int sectionCount = 0; // Iteration of Section within Block - There are up to 16 sections within a block but can be less due to varying size of Scenes
+
+                if (displacementA == true)
                 {
-                    //TODO: Add the displaced header here to the start, bump up the other headers up by the size / 4 of the displaced file
-                    // Reason PrC can't open it is cause we have less than 255 scenes I think so once this is sorted it should be good to go.
-                }
-                else // If not, then will need to move the last header onto the next file 
-                {
-                    //TODO: Move 16th header and store it for the next block 
+                    displacementB = true;
+                    inputFilePaths[0] = sceneDisplaced;
                 }
 
-                int sectionCount = 0; // Iteration of Section within Block - There are up to 16 sections within a block but can be less due to varying size of Scenes
+                // Add displaced file if there's space
                 while (sectionCount < 16)
                 {
+                    if(displacementA == true)
+                    {
+                        o = 1;
+                    }
+                    else
+                    {
+                        o = 0;
+                    }
                     // For storing uncompressed scene, recompressed scene, and an updated header
                     string sceneFileUncompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("uncompressed" + sectionCount));
                     string sceneFileRecompressed = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("recompressed" + sectionCount));
-                    sceneDisplaceTarget = sceneFileRecompressed;
 
-                    inputFilePaths[sectionCount] = sceneFileRecompressed;
+                    inputFilePaths[sectionCount + o] = sceneFileRecompressed;
 
                     // Copies header byte data into these separate arrays so they can be parsed to int easier
                     thisSceneOffset[0] = header[thisHeaderCounter];
@@ -450,6 +467,7 @@ namespace Godo
                                             header[thisHeaderCounter + 3] = 255;
 
                                             // Clears the input file path for this migrated section
+                                            displacementA = true;
                                             inputFilePaths[sectionCount] = null;
                                             MessageBox.Show("Displaced a File" + " " + sceneFileRecompressed + " block: " + blockCount);
 
@@ -474,6 +492,61 @@ namespace Godo
                 }
                 if (sectionCount == 16)
                 {
+                    if (displacementB == true /*&& header[61] == 255*/)
+                    {
+                        // Start of Displaced Header is always 16h(40)
+                        displaceHeader[0] = 16;
+                        displaceHeader[1] = 0;
+                        displaceHeader[2] = 0;
+                        displaceHeader[3] = 0;
+                        while (r < 60)
+                        {
+                            // Header is appended to displaceHeader
+                            displaceHeader[r + 4] = header[r];
+                            r++;
+                        }
+                        r = 0;
+                        while (r < 64)
+                        {
+                            // Header then takes displaceHeader as we use header in code for calcs
+                            header[r] = displaceHeader[r];
+                            r++;
+                        }
+                        r = 4;
+                        while (r < 64)
+                        {
+                            // Converts displaced scene size into bytes, then adds those bytes onto the header values
+                            byte[] bytes = BitConverter.GetBytes(displacedSceneSize);
+                            adderHeader[0] = header[r];
+                            adderHeader[1] = header[r + 1];
+                            adderHeader[2] = header[r + 2];
+                            adderHeader[3] = header[r + 3];
+
+                            if (adderHeader[2] != 255)
+                            {
+
+                                // Gets an array of the added byte values from header and adderHeader
+                                resultHeader = AllMethods.AddLittleEndian(bytes, adderHeader);
+
+                                // Header takes the results and is ready to go
+                                header[r] = resultHeader[0];
+                                header[r + 1] = resultHeader[1];
+                                header[r + 2] = resultHeader[2];
+                                header[r + 3] = resultHeader[3];
+                            }
+                            r += 4;
+                        }
+
+                        //sectionCount++;
+                        //thisHeaderCounter += 4;
+                        displacementA = false;
+                        displacementB = false;
+                    }
+                    else // If not, then will need to move the last header onto the next file 
+                    {
+                        //TODO: Move 16th header and store it for the next block 
+                    }
+
                     using (var outputStream = File.Create(sceneNewHeader))
                     {
                         outputStream.Write(header, 0, 64);

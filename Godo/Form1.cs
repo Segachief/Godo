@@ -59,7 +59,8 @@ namespace Godo
                     lblFileName.Text = openFileDialog1.FileName;
                     string fileName = lblFileName.Text;
                     //GZipper.PrepareKernel(fileName);
-                    GZipper.PrepareScene(fileName);
+                    //GZipper.PrepareScene(fileName);
+                    AltGZipper.PrepareScene(fileName);
                     //MessageBox.Show("Kernel Prep Complete: DEBUG");
                     MessageBox.Show("Scene Prep Complete: DEBUG");
                 }
