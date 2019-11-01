@@ -17,6 +17,7 @@ namespace Godo
         {
             string gzipFileName = filename;                                                                 // Opens the specified file
             string targetDir = Path.GetDirectoryName(filename);                                             // Get directory where the target file resides
+            string kernel = Path.GetDirectoryName("Kernel.Bin");                                            // The kernel.bin for updating the lookup table
             string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene"));    // This is the finished scene.bin
 
             byte[] header = new byte[64];                       /* Stores the block header
@@ -36,6 +37,14 @@ namespace Godo
 
             byte[] padder = new byte[1];                        // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255;
+
+            byte[] kernelLookup = new byte[64];                 // Stores the new lookup table to be written to the kernel.bin; blank values are FF
+            int i = 0;
+            while (i < 64)
+            {
+                kernelLookup[i] = 255;
+                i++;
+            }
 
             int r = 0;  // C'mon get up and make some noise
             int o = 0;  // while your whiles get looped by
@@ -211,6 +220,7 @@ namespace Godo
 
             using (var outputStream = File.Create(finalScene))
             {
+                int blockCount = 0; // Counts blocks for the kernel lookup table index
                 // Loops until all 255 scenes are assigned to a block
                 while (r < 256)
                 {
@@ -222,6 +232,9 @@ namespace Godo
                     // 's' represents the number of scenes currently in the block, only 16 scenes can fit into one block
                     if (sizeLimit >= 8192 || s == 16)
                     {
+                        kernelLookup[blockCount] = (byte)s;
+                        blockCount++;
+
                         // Pads the end of the block until it hits a divisor of 8192.
                         outputStream.Position = outputStream.Length;
                         while (outputStream.Length % 8192 > 0)
@@ -306,6 +319,15 @@ namespace Godo
                 // New scene.bin ready to go. Hopefully.
                 outputStream.Close();
             }
+
+            //TODO: Open the kernel.bin and write in the updated lookup table here.
+            using (BinaryWriter bw = new BinaryWriter(File.Open(kernel, FileMode.Open)))
+            {
+                // Test this, think it's 3904 offset
+                bw.BaseStream.Position = 0x003904;
+                bw.Write(kernelLookup, 0, 64);
+            }
+
         }
     }
 }
