@@ -18,6 +18,14 @@ namespace Godo
                  | data[startIndex];
         }
 
+        public static int GetPreviousLittleEndianInt(byte[] data, int startIndex)
+        {
+            return (data[startIndex - 1] << 24)
+                 | (data[startIndex - 2] << 16)
+                 | (data[startIndex - 3] << 8)
+                 | data[startIndex - 4];
+        }
+
         // This converts a ulong value (16-bit number) to a 2-byte little endian value (8-bit per byte)
         public static byte[] GetLittleEndianConvert(ulong value)
         {
