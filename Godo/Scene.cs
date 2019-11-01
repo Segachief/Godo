@@ -8,7 +8,7 @@ using System.Windows.Forms;
 
 namespace Godo
 {
-    public class AltScene
+    public class Scene
     {
         // Randomises the Scene.Bin
         public static byte[] RandomiseScene(byte[] data)

@@ -59,8 +59,7 @@ namespace Godo
                     lblFileName.Text = openFileDialog1.FileName;
                     string fileName = lblFileName.Text;
                     //GZipper.PrepareKernel(fileName);
-                    //GZipper.PrepareScene(fileName);
-                    AltGZipper.PrepareScene(fileName);
+                    GZipper.PrepareScene(fileName);
                     //MessageBox.Show("Kernel Prep Complete: DEBUG");
                     MessageBox.Show("Scene Prep Complete: DEBUG");
                 }
@@ -73,15 +72,7 @@ namespace Godo
 
         private void BtnRandoScene_Click(object sender, EventArgs e)
         {
-            if (lblFileName.Text != "")
-            {
-                string fileName = lblFileName.Text;
-                Scene.RandomiseScene(fileName);
-            }
-            else
-            {
-                MessageBox.Show("Error: Please open a file first");
-            }
+           
         }
 
         private void BtnRandoKernel_Click(object sender, EventArgs e)

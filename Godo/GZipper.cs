@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Godo
 {
-    public class AltGZipper
+    public class GZipper
     {
         public static void PrepareScene(string filename)
         {
@@ -154,7 +154,7 @@ namespace Godo
                 }
 
                 // Sends decompressed scene data to be randomised
-                AltScene.RandomiseScene(uncompressedScene);
+                Scene.RandomiseScene(uncompressedScene);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;
