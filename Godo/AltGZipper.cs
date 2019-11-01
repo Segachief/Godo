@@ -15,9 +15,9 @@ namespace Godo
     {
         public static void PrepareScene(string filename)
         {
-            string gzipFileName = filename;                     // Opens the specified file
-            string targetDir = Path.GetDirectoryName(filename); // Get directory where the target file resides
-            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene")); // This is the finished scene.bin
+            string gzipFileName = filename;                                                                 // Opens the specified file
+            string targetDir = Path.GetDirectoryName(filename);                                             // Get directory where the target file resides
+            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene"));    // This is the finished scene.bin
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
@@ -31,28 +31,37 @@ namespace Godo
             int offset;                                         // Stores the current scene offset
             int nextOffset;                                     // Stores the next scene offset
             int absoluteOffset;                                 // Stores the scene's absolute offset in the scene.bin
-            int finalOffset = 0;                                // Stores the scene's absolute offset in the scene.bin
+            int finalOffset = 0;                                // Stores the scene's adjusted offset in the scene.bin
             int headerOffset = 0;                               // Offset of the current block header; goes up in 2000h (8192) increments
 
             byte[] padder = new byte[1];                        // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255;
 
-            int r = 0;
-            int o = 0;
-            int c = 0;
-            int k = 0;
-            int s = 0;
-            int u = 0;
+            int r = 0;  // C'mon get up and make some noise
+            int o = 0;  // while your whiles get looped by
+            int c = 0;  // the var street boys
+            int k = 0;  // *DJ scratching noises*
+            int s = 0;  // *DJ scratching noises intensify*
+
+
+            /* Step 1: Read the Scene.bin and retrieve its data for use later
+             * The goal of this step is to build an array containing information about each scene.
+             * We then use this information to derive other important information (for instance, adjusting the header offsets)
+             * To get the info we need, the header of each 'block' is read (2000h per block) and this tells us where to find each scene.
+             * We need to use GZip compression to get the data out, but we cannot let the Gzipper hit the header or it will break.
+            */
 
             // Entire file is read; offsets and sizes for scenes are extracted and placed in a jagged array (an array of arrays)
             while (headerOffset < 262144) // 32 blocks of 2000h/8192 bytes each
             {
-                FileStream stepOne = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read); // Opens and reads the default scene.bin
-                stepOne.Seek(headerOffset, SeekOrigin.Begin); // Should never exceed 40h/64d as header max size is 40h and each enemy needs a 4-byte offset. So that's room for 16 enemies only.
-                stepOne.Read(header, 0, 64);
+                // Opens and reads the default scene.bin
+                FileStream stepOne = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
+                stepOne.Seek(headerOffset, SeekOrigin.Begin);
+                stepOne.Read(header, 0, 64); // Header never exceeds 64 bytes
                 stepOne.Close();
 
-                while (r < 16) // Max of 16 sections (is usually less)
+                // Max of 16 sections in a header (is usually less however)
+                while (r < 16)
                 {
                     // If the 2nd byte of the current header is FF then assume there are no more valid scene headers in this block
                     if (header[c + 1] != 0xFF)
@@ -81,10 +90,6 @@ namespace Godo
                         // Checks that next header is not empty or if we are at the last header
                         if (currentHeader[1] == 0xFF || nextHeader[1] == 0xFF || r == 15)
                         {
-                            // Potential issue here; at end of file, missing space may be padded with FF and not actually be part of the file.
-                            // This means we get a file size much larger than it actually is which would be problematic when moving it to the next block.
-                            // Is there some other way to determine size?
-
                             // If next header is FF FF FF FF, then we're at the end of file and should deduct 2000h to get current file size
                             size = 8192 - (offset * 4);
                         }
@@ -95,7 +100,7 @@ namespace Godo
                         }
                         // Gets absolute offset in the scene.bin for the current scene
                         absoluteOffset = (offset * 4) + headerOffset;
-
+                        // Store our retrieved/derived information in our jagged array (watch out for the pointy bits)
                         jaggedSceneInfo[o] = new int[] { offset, size, absoluteOffset, finalOffset };
                         o++;
                     }
@@ -109,11 +114,12 @@ namespace Godo
             o = 0;
             headerOffset = 0;
 
-            /*
-             * Using absolute offset + compressed size, decompress the file.
-             * Run the file through scene randomiser
-             * Recompress the file
-             * Update the size; this will be used to update offset in last step when files are allocated to blocks
+
+            /* Step 2: Randomising the scene data
+             * Using absolute offset + compressed size, we locate and decompress the file.
+             * We run the scene data through the randomiser.
+             * We then recompress the returned data.
+             * The size will now have changed; we will update this later while generating our new scene.bin
             */
 
             while (r < 256)
@@ -192,9 +198,12 @@ namespace Godo
             o = 0;
 
 
-            // Now we need to build a new scene.bin using the recompressed files, with updated headers.
-            // Each block being built must check if the current scene will push it past 8192/200h and
-            // move onto the next block instead.
+            /* Step 3: Rebuilding the Scene.bin
+             * We dynamically put scenes into a block until it would exceed 8192 bytes; then we create a new block.
+             * The header is constantly updated with each new scene added to the block, using previous header to determine size.
+             * When all 255 scenes are allocated, we finish up by padding off the last block to get a 40,000h/262,144 byte file.
+             * The size will now have changed; we will update this later while generating our new scene.bin
+            */
 
             int sizeLimit = 8193; // Want to start by making a new header so we set size higher than limit to trigger that
             int headerInt;
@@ -205,15 +214,15 @@ namespace Godo
                 // Loops until all 255 scenes are assigned to a block
                 while (r < 256)
                 {
-                    // Checks if the next scene will 'fit' into the current block
-                    // No scene is added yet at this time, that is only done if there's space
+                    // Checks if the next scene will 'fit' into the current block.
+                    // No scene is added yet at this time, that is only done if there's space.
                     sizeLimit += jaggedSceneInfo[o][1];
 
                     // If this returns true, then our block is 'full' and now needs to be padded to 8192 bytes exactly
                     // 's' represents the number of scenes currently in the block, only 16 scenes can fit into one block
                     if (sizeLimit >= 8192 || s == 16)
                     {
-                        // Pads the end of the block until it hits a divisor of 8192
+                        // Pads the end of the block until it hits a divisor of 8192.
                         outputStream.Position = outputStream.Length;
                         while (outputStream.Length % 8192 > 0)
                         {
@@ -244,7 +253,6 @@ namespace Godo
                         c = 0;
                         k = 0;
                         s = 0;
-                        u = 0;
                         sizeLimit = jaggedSceneInfo[o][1]; // Resets size to that of the first added scene in this new block
                         sizeLimit += 64;
                     }
