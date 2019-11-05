@@ -80,11 +80,26 @@ namespace Godo
             string pickName = nameArray[x] + nameArray[y]; // Places both words into a string
 
             byte[] nameBytes = Encoding.ASCII.GetBytes(pickName); // Encodes the string into ASCII byte values
-            for (int i = 0; i < nameBytes.Length; i++)
-            {
-                //nameBytes[i] -= 0x20; // Adjusts the ASCII byte values to match the FF7 ASCII byte values
-            }
+            nameBytes[0] -= 0x20; // Capitalises the first letter
+            
             return nameBytes;
+        }
+
+        public static int Indexer(int modelID, int attackID, int type)
+        {
+            int animIndexID = 0;
+
+            // Index of all models and their valid anim IDs.
+            // This won't work for extra models or altered models I just realised.
+            switch (modelID)
+            {
+                case 1:
+                    byte[] physAnims = { 3, 4 };
+                    byte[] magAnims = { 5, 6 };
+                    byte[] miscAnims = { 7, 8 };
+                break;
+            }
+            return animIndexID;
         }
     }
 }

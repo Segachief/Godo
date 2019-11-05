@@ -38,10 +38,6 @@
             "DotNetZip": {
               "target": "Package",
               "version": "[1.13.4, )"
-            },
-            "SharpZipLib": {
-              "target": "Package",
-              "version": "[1.2.0, )"
             }
           }
         }

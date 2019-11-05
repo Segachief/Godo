@@ -10,15 +10,6 @@
         "runtime": {
           "lib/net40/DotNetZip.dll": {}
         }
-      },
-      "SharpZipLib/1.2.0": {
-        "type": "package",
-        "compile": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        },
-        "runtime": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        }
       }
     },
     ".NETFramework,Version=v4.7.2/win": {
@@ -29,15 +20,6 @@
         },
         "runtime": {
           "lib/net40/DotNetZip.dll": {}
-        }
-      },
-      "SharpZipLib/1.2.0": {
-        "type": "package",
-        "compile": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        },
-        "runtime": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
         }
       }
     },
@@ -50,15 +32,6 @@
         "runtime": {
           "lib/net40/DotNetZip.dll": {}
         }
-      },
-      "SharpZipLib/1.2.0": {
-        "type": "package",
-        "compile": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        },
-        "runtime": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        }
       }
     },
     ".NETFramework,Version=v4.7.2/win-x86": {
@@ -69,15 +42,6 @@
         },
         "runtime": {
           "lib/net40/DotNetZip.dll": {}
-        }
-      },
-      "SharpZipLib/1.2.0": {
-        "type": "package",
-        "compile": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
-        },
-        "runtime": {
-          "lib/net45/ICSharpCode.SharpZipLib.dll": {}
         }
       }
     }
@@ -99,29 +63,11 @@
         "lib/netstandard2.0/DotNetZip.pdb",
         "lib/netstandard2.0/DotNetZip.xml"
       ]
-    },
-    "SharpZipLib/1.2.0": {
-      "sha512": "zvWa/L02JHNatdtjya6Swpudb2YEHaOLHL1eRrqpjm71iGRNUNONO5adUF/9CHbSJbzhELW1UoH4NGy7n7+3bQ==",
-      "type": "package",
-      "path": "sharpziplib/1.2.0",
-      "files": [
-        ".nupkg.metadata",
-        ".signature.p7s",
-        "lib/net45/ICSharpCode.SharpZipLib.dll",
-        "lib/net45/ICSharpCode.SharpZipLib.pdb",
-        "lib/net45/ICSharpCode.SharpZipLib.xml",
-        "lib/netstandard2.0/ICSharpCode.SharpZipLib.dll",
-        "lib/netstandard2.0/ICSharpCode.SharpZipLib.pdb",
-        "lib/netstandard2.0/ICSharpCode.SharpZipLib.xml",
-        "sharpziplib.1.2.0.nupkg.sha512",
-        "sharpziplib.nuspec"
-      ]
     }
   },
   "projectFileDependencyGroups": {
     ".NETFramework,Version=v4.7.2": [
-      "DotNetZip >= 1.13.4",
-      "SharpZipLib >= 1.2.0"
+      "DotNetZip >= 1.13.4"
     ]
   },
   "packageFolders": {
@@ -161,10 +107,6 @@
           "DotNetZip": {
             "target": "Package",
             "version": "[1.13.4, )"
-          },
-          "SharpZipLib": {
-            "target": "Package",
-            "version": "[1.2.0, )"
           }
         }
       }

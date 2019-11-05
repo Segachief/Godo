@@ -3,11 +3,181 @@ using System.Collections;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Windows.Forms;
 
 namespace Godo
 {
     public class GZipper
     {
+        public static void PrepareKernel(string directory)
+        {
+            string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
+            string targetKernel = kernelDirectory + "KERNEL.bin";    // The kernel.bin for updating the lookup table
+            string backupKernel = targetKernel + "Backup";
+
+            int[][] jaggedKernelInfo = new int[27][];           // An array of arrays, containing compressed size, uncompressed size, section ID
+            ArrayList listedKernelData = new ArrayList();       // Contains all the compressed kernel section data
+
+            byte[] header = new byte[6]; /* Stores the section header
+                                          * [0][1] = Compressed Size
+                                          * [2][3] = Uncompressed Size
+                                          * [4][5] = Section ID - in practice, only [4] will be used as section ID never exceeds 255
+                                          */
+
+            int compressedSize;    // Stores the compressed size of the file
+            int uncompressedSize;  // Stores the uncompressed size of the file
+            int sectionID;         // Stores the section ID of the file
+            int offset = 0;        // Tracks where we are in the kernel.bin
+
+            int headerOffset = 0;   // Stores the absolute offset value for each section's header (updated on each loop)
+
+            int r = 0;  // ahhhh
+            int o = 0;  // We're gonna loop through whiles
+            int c = 0;  // all night
+            int k = 0;  // and party every day
+            int s = 0;  // *gene falls over a rogue assignment*
+
+            // Step 1: Read the kernel headers
+            while (r < 27) // 27 sections in the kernel
+            {
+                // Opens and reads the headers in the kernel.bin
+                FileStream stepOne = new FileStream(targetKernel, FileMode.Open, FileAccess.Read);
+                stepOne.Seek(headerOffset, SeekOrigin.Begin);
+
+                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                compressedSize = AllMethods.GetLittleEndianInt(header, 0);
+
+                stepOne.Read(header, 2, 2); // Header never exceeds 64 bytes
+                uncompressedSize = AllMethods.GetLittleEndianInt(header, 0);
+
+                stepOne.Read(header, 4, 2); // Header never exceeds 64 bytes
+                sectionID = AllMethods.GetLittleEndianInt(header, 0);
+
+                // Stored kernel header information in a jaggy array
+                jaggedKernelInfo[o] = new int[] { compressedSize, uncompressedSize, sectionID };
+                stepOne.Close();
+
+                headerOffset = +uncompressedSize;
+                r++;
+            }
+            r = 0;
+
+
+            // Step 2: Get the compressed data, uncompress it, and then randomise it
+            while (r < 27)
+            {
+                int bytesRead;
+                int size = jaggedKernelInfo[o][1];
+                byte[] uncompressedKernel = new byte[size]; // Used to hold the decompressed kernel section
+
+                using (BinaryReader brg = new BinaryReader(new FileStream(targetKernel, FileMode.Open)))
+                {
+                    // Calls method to convert little endian values into an integer
+                    byte[] compressedKernel = new byte[jaggedKernelInfo[o][0]]; // Used to hold the compressed scene file, where [o][1] is scene size
+
+                    brg.BaseStream.Seek(offset + 6, SeekOrigin.Begin); // Starts reading the compressed scene file
+                    brg.Read(compressedKernel, 0, compressedKernel.Length);
+
+                    using (MemoryStream inputWrapper = new MemoryStream(compressedKernel))
+                    {
+                        using (MemoryStream decompressedOutput = new MemoryStream())
+                        {
+                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
+                            {
+                                while ((bytesRead = zipInput.Read(uncompressedKernel, 0, size)) != 0)
+                                {
+                                    decompressedOutput.Write(uncompressedKernel, 0, bytesRead);
+                                }
+                                zipInput.Close();
+                            }
+                            decompressedOutput.Close();
+                        }
+                        inputWrapper.Close();
+                    }
+                    brg.Close();
+                }
+
+                // Sends decompressed scene data to be randomised by section
+                switch (r)
+                {
+                    case 3:
+                        Kernel.RandomiseSection3(uncompressedKernel);
+                        break;
+                }
+
+                // Recompress the altered uncompressed data back into GZip
+                byte[] recompressedKernel;
+                using (var result = new MemoryStream())
+                {
+                    using (var compressionStream = new GZipStream(result, CompressionMode.Compress))
+                    {
+                        compressionStream.Write(uncompressedKernel, 0, uncompressedKernel.Length);
+                        compressionStream.Close();
+                    }
+                    recompressedKernel = result.ToArray();
+                    result.Close();
+                }
+
+                // The size is updated with the newly compressed/padded scene's length
+                jaggedKernelInfo[o][0] = recompressedKernel.Length;
+
+                // Byte array is added to the ArrayList
+                listedKernelData.Add(recompressedKernel);
+                r++;
+                o++;
+                offset += jaggedKernelInfo[o][0] + 6;
+            }
+
+
+            /* Step 3: Rebuilding the Scene.bin
+            * We dynamically put scenes into a block until it would exceed 8192 bytes; then we create a new block.
+            * The header is constantly updated with each new scene added to the block, using previous header to determine size.
+            * When all 255 scenes are allocated, we finish up by padding off the last block to get a 40,000h/262,144 byte file.
+            * The size will now have changed; we will update this later while generating our new scene.bin
+           */
+
+            using (var outputStream = File.Create(targetKernel))
+            {
+                // Loops until all 27 sections are headered and written
+                while (r < 27)
+                {
+                    // Write the header first
+                    byte[] bytes = new byte[2];
+                    byte[] kernelHead = new byte[6];
+                    ulong comSize = (ulong)jaggedKernelInfo[o][0];
+                    ulong uncomSize = (ulong)jaggedKernelInfo[o][1];
+                    ulong sectID = (ulong)jaggedKernelInfo[o][2];
+
+                    bytes = AllMethods.GetLittleEndianConvert(comSize);
+                    kernelHead[0] = bytes[0];
+                    kernelHead[1] = bytes[1];
+
+                    bytes = AllMethods.GetLittleEndianConvert(uncomSize);
+                    kernelHead[2] = bytes[0];
+                    kernelHead[3] = bytes[1];
+
+                    bytes = AllMethods.GetLittleEndianConvert(sectID);
+                    kernelHead[4] = bytes[0];
+                    kernelHead[5] = bytes[1];
+
+                    // Takes the header data, converts it into a stream, and then appends it to the file-in-progress
+                    outputStream.Position = outputStream.Length;
+                    outputStream.Write(kernelHead, 0, kernelHead.Length);
+
+                    // Takes the byte data from the ArrayList, converts it into a stream, and then appends it to the file-in-progress
+                    byte[] kernelData = (byte[])listedKernelData[o];
+                    outputStream.Position = outputStream.Length;
+                    outputStream.Write(kernelData, 0, kernelData.Length);
+
+                    r++;
+                    o++;
+                }
+                r = 0;
+                o = 0;
+            }
+        }
+
+
         public static void PrepareScene(string directory)
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
@@ -35,6 +205,7 @@ namespace Godo
             int[][] jaggedSceneInfo = new int[256][];           // An array of arrays, containing offset, size, and absoluteoffset for each scene file
             ArrayList listedSceneData = new ArrayList();        // Contains all the compressed scene data
             ArrayList listedCameraData = new ArrayList();       // Contains all the uncompressed camera data
+            ArrayList listedAttackAnimData = new ArrayList();   // Contains all the uncompressed Attack Anim data
 
             long initialSize;                                   // The size of the initial scene.bin (can vary, up to 63 blocks but typically 32-33
             int sectionCount;                                   // Number of sections in the scene.bin
@@ -148,48 +319,10 @@ namespace Godo
             */
 
             // But first, we acquire the camera data of the target scene.bin
-            while (r < 256)
-            {
-                int bytesRead;
-                byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
+            listedCameraData = Indexer.GetCameraData(jaggedSceneInfo, targetScene);
 
-                using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
-                {
-                    // Calls method to convert little endian values into an integer
-                    byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
-                    brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
-                    brg.Read(compressedScene, 0, compressedScene.Length);
-
-                    using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
-                    {
-                        using (MemoryStream decompressedOutput = new MemoryStream())
-                        {
-                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
-                            {
-                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
-                                {
-                                    decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                    // If this scene has valid camera data, then pull it out.
-                                    byte[] camera = new byte[48];
-                                    if (uncompressedScene[87] != 255 && uncompressedScene[88] != 255)
-                                    {
-                                        camera = uncompressedScene.Skip(88).Take(48).ToArray();
-                                        listedCameraData.Add(camera);
-                                    }
-                                }
-                                zipInput.Close();
-                            }
-                            decompressedOutput.Close();
-                        }
-                        inputWrapper.Close();
-                    }
-                    brg.Close();
-                }
-                r++;
-                o++;
-            }
-            r = 0;
-            o = 0;
+            // And the animation indexes associated by Model IDs to the attackIDs
+            //listedAttackAnimData = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
 
             while (r < 256)
             {

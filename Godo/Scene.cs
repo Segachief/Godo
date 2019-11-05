@@ -38,7 +38,7 @@ namespace Godo
                 int r = 0; // For iterating scene records (256 of them)
                 int o = 0; // For iterating array indexes
                 int c = 0; // For iterating records
-                int k = 0; //
+                int k = 0; // See above
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                 Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
@@ -86,7 +86,7 @@ namespace Godo
                     if (data[o] != 255)
                     {
                         // Battle Location
-                        data[o] = (byte)rnd.Next(96); o++;
+                        data[o] = (byte)rnd.Next(89); o++;
                         data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
 
                         // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
@@ -133,7 +133,7 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Indexed pre-battle camera position (where the camera starts from when battle loads in)
-                        data[o] = (byte)rnd.Next(255); o++;
+                        data[o] = data[o]; o++;
                     }
                     else
                     {
@@ -475,6 +475,22 @@ namespace Godo
                          */
                         while (c < 16)
                         {
+                            int modelID = enemyIDs[0] + enemyIDs[1];
+                            int attackID = data[o + 16] + data[o + 17];
+                            int type = 0;
+                            if (data[o + 466] != 255)
+                            {
+                                type = (int)Anim.phys;
+                            }
+                            else if (data[o + 479] != 255)
+                            {
+                                type = (int)Anim.mag;
+                            }
+                            else
+                            {
+                                type = (int)Anim.misc;
+                            }
+                            AllMethods.Indexer(modelID, attackID, type);
                             data[o] = data[o]; o++;
                             c++;
                         }

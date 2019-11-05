@@ -1,6 +1,4 @@
-﻿using ICSharpCode.SharpZipLib.Core;
-using ICSharpCode.SharpZipLib.GZip;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -91,15 +89,7 @@ namespace Godo
 
         private void BtnRandoKernel_Click(object sender, EventArgs e)
         {
-            if (lblFileName.Text != "")
-            {
-                string fileName = lblFileName.Text;
-                Kernel.RandomiseSection3(fileName);
-            }
-            else
-            {
-                MessageBox.Show("Error: Please open a file first");
-            }
+            
         }
     }
 }
