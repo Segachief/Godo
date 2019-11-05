@@ -11,7 +11,7 @@ namespace Godo
     public class Scene
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data)
+        public static byte[] RandomiseScene(byte[] data, byte[] camera)
         {
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
@@ -28,7 +28,7 @@ namespace Godo
                 int[] attackData = new int[896];            // 32 records of 28 bytes each for Attacks; Enemy Attack Data
                 int[] attackIDs = new int[64];              // 32 records of 2 bytes each for Attack IDs; Enemy Attack ID Data
                 int[] attackNames = new int[1024];          // 32 records of 32 bytes each for Attack Names; Enemy Attack Name Data
-                int[] formationAIOffset = new int[8];      // 8 bytes per formation AI script offset, 4 offsets
+                int[] formationAIOffset = new int[8];       // 8 bytes per formation AI script offset, 4 offsets
                 int[] formationAI = new int[504];           // 504 bytes for Formation AI, 4 sets
                 int[] enemyAIOffset = new int[6];           // 6 bytes per enemy AI script offset, 3 offsets
                 int[] enemyAI = new int[4096];              // 4096 bytes for Enemy AI, 3 sets
@@ -40,9 +40,6 @@ namespace Godo
                 int c = 0; // For iterating records
                 int k = 0; //
 
-                //Note: Remember to call the index in the array for repeating data, such as Enemy IDs in the formation placement data.
-
-                byte[] array; // For conversion of int array to byte array
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                 Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
 
@@ -86,11 +83,11 @@ namespace Godo
                 #region Battle Setup Flags
                 while (r < 4)
                 {
-                    if (data[o] != 0xFF)
+                    if (data[o] != 255)
                     {
                         // Battle Location
                         data[o] = (byte)rnd.Next(96); o++;
-                        data[o] = 0; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
+                        data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
 
                         // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
                         data[o] = data[o]; o++; // FFFF by default, no new battle will load
@@ -143,7 +140,7 @@ namespace Godo
                         // Populate this entry with unaltered data
                         while (c < 20)
                         {
-                            data[o] = 255; o++;
+                            data[o] = data[o]; o++;
                             c++;
                         }
                         c = 0;
@@ -166,69 +163,68 @@ namespace Godo
                     {
                         // Using the byte array to retain camera data
                         // Primary Battle Idle Camera Position
-                        data[o] = (byte)rnd.Next(256); o++; // Camera X Position
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++; // Camera X Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = (byte)rnd.Next(256); o++; // Camera Y Position
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++; // Camera Y Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = (byte)rnd.Next(256); o++; // Camera Z Position
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++; // Camera Z Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = (byte)rnd.Next(256); o++; // Focus X Direction
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++; // Focus X Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = (byte)rnd.Next(256); o++; // Focus Y Direction
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++; // Focus Y Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = (byte)rnd.Next(256); o++; // Focus Z Direction
-                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = camera[k]; o++; k++;// Focus Z Direction
+                        data[o] = camera[k]; o++; k++;
 
 
                         // Secondary Battle Idle Camera Position
-                        data[o] = data[o]; o++; // Camera X Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Camera X Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Camera Y Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Camera Y Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Camera Z Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Camera Z Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus X Direction
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Focus X Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus Y Direction
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Focus Y Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus Z Direction
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Focus Z Direction
+                        data[o] = camera[k]; o++; k++;
 
 
                         // Tertiary Battle Idle Camera Position
-                        data[o] = data[o]; o++; // Camera X Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++;// Camera X Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Camera Y Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++;// Camera Y Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Camera Z Position
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++; // Camera Z Position
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus X Direction
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++;// Focus X Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus Y Direction
-                        data[o] = data[o]; o++;
+                        data[o] = camera[k]; o++; k++;// Focus Y Direction
+                        data[o] = camera[k]; o++; k++;
 
-                        data[o] = data[o]; o++; // Focus Z Direction
-                        data[o] = data[o]; o++;
-
+                        data[o] = camera[k]; o++; k++;// Focus Z Direction
+                        data[o] = camera[k]; o++; k++;
 
                         // Unused Battle Camera Position - FF Padding
                         for (int i = 0; i < 12; i++)
                         {
-                            data[o] = 255; o++;
+                            data[o] = 255; o++; k++;
                         }
                     }
                     else
@@ -241,6 +237,7 @@ namespace Godo
                         c = 0;
                     }
                     r++;
+                    k = 0;
                 }
                 r = 0;
 
@@ -259,11 +256,11 @@ namespace Godo
                         if (data[o] != 255 && data[o + 1] != 255)
                         {
                             // Set the rng so that a null enemy can't be picked
-                            if(enemyData[2] == 255 && enemyData[3] == 255)
+                            if (enemyData[2] == 255 && enemyData[3] == 255)
                             {
                                 rngID = rnd.Next(1);
                             }
-                            else if(enemyData[4] == 255 && enemyData[5] == 255)
+                            else if (enemyData[4] == 255 && enemyData[5] == 255)
                             {
                                 rngID = rnd.Next(2);
                             }
@@ -395,16 +392,16 @@ namespace Godo
                         data[o] = 255; o++; // Empty - Use FF to terminate the string
 
                         // Enemy Level - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 63); o++;
+                        data[o] = (byte)rnd.Next(10, 32); o++;
 
                         // Enemy Speed
-                        data[o] = (byte)rnd.Next(10, 256); o++;
+                        data[o] = (byte)rnd.Next(10, 127); o++;
 
                         // Enemy Luck
                         data[o] = (byte)rnd.Next(0, 256); o++;
 
                         // Enemy Evade
-                        data[o] = (byte)rnd.Next(10, 256); o++;
+                        data[o] = (byte)rnd.Next(0, 32); o++;
 
                         // Enemy Strength  - This'll likely be set via AI
                         data[o] = (byte)rnd.Next(10, 127); o++;
@@ -440,10 +437,10 @@ namespace Godo
                             20h-3Fh - Statuses (Damage done by actions that inflict these statuses will be modified)
                             FFh - No element
                         */
-                        data[o] = (byte)rnd.Next(0, 63); o++; // 4 elemental/status properties have been set
-                        data[o] = (byte)rnd.Next(0, 63); o++;
-                        data[o] = (byte)rnd.Next(0, 63); o++;
-                        data[o] = (byte)rnd.Next(0, 63); o++;
+                        data[o] = (byte)rnd.Next(0, 17); o++; // 4 elemental/status properties have been set
+                        data[o] = (byte)rnd.Next(0, 17); o++;
+                        data[o] = (byte)rnd.Next(0, 17); o++;
+                        data[o] = (byte)rnd.Next(0, 17); o++;
                         data[o] = 255; o++;
                         data[o] = 255; o++;
                         data[o] = 255; o++;
@@ -453,16 +450,17 @@ namespace Godo
                         /*
                             00h - Death
                             02h - Double Damage
+                            03h - Unknown
                             04h - Half Damage
                             05h - Nullify Damage
                             06h - Absorb 100%
                             07h - Full Cure
                             FFh - Nothing
                          */
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
+                        data[o] = (byte)rnd.Next(1, 7); o++;
+                        data[o] = (byte)rnd.Next(1, 7); o++;
+                        data[o] = (byte)rnd.Next(1, 7); o++;
+                        data[o] = (byte)rnd.Next(1, 7); o++;
                         data[o] = 255; o++;
                         data[o] = 255; o++;
                         data[o] = 255; o++;
@@ -509,20 +507,20 @@ namespace Godo
 
                         // Item IDs to be matched to the above drop/steal rates
                         // Item 1
-                        data[o] = 0; o++;
-                        data[o] = 127; o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
 
                         // Item 2
-                        data[o] = 0; o++;
-                        data[o] = 127; o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
 
                         // Item 3
-                        data[o] = 0; o++;
-                        data[o] = 127; o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
 
                         // Item 4
-                        data[o] = 0; o++;
-                        data[o] = 127; o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
+                        data[o] = (byte)rnd.Next(2, 7); o++;
 
                         // Manipulate/Berserk Attack IDs
                         // The first listed attack is the Berserk option; all 3 attacks can be selected for use under Manipulate
@@ -544,12 +542,12 @@ namespace Godo
                         data[o] = (byte)rnd.Next(0, 184); o++;
 
                         // Enemy AP
-                        data[o] = 0; o++;
                         data[o] = (byte)rnd.Next(0, 64); o++;
+                        data[o] = 0; o++;
 
                         // Enemy Morph Item ID - FFFF means no morph
-                        data[o] = 0; o++;
-                        data[o] = (byte)rnd.Next(0, 127); o++;
+                        data[o] = (byte)rnd.Next(0, 64); o++;
+                        data[o] = (byte)rnd.Next(0, 64); o++;
 
                         // Back Attack multiplier
                         data[o] = (byte)rnd.Next(0, 33); o++;
@@ -558,22 +556,22 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Enemy HP - Should probbly be set by AI
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
-                        data[o] = (byte)rnd.Next(0, 27); o++;
                         data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = (byte)rnd.Next(0, 3); o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
 
                         // EXP Points
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        data[o] = (byte)rnd.Next(0, 256); o++;
                         data[o] = (byte)rnd.Next(0, 3); o++;
-                        data[o] = (byte)rnd.Next(0, 232); o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
 
                         // Gil
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        data[o] = (byte)rnd.Next(0, 256); o++;
                         data[o] = (byte)rnd.Next(0, 3); o++;
-                        data[o] = (byte)rnd.Next(0, 232); o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
 
 
                         // Status Immunities
@@ -610,8 +608,9 @@ namespace Godo
                 #region Attack Data
                 while (r < 32)
                 {
-                    // If the base power is 255 or 0 then we can assume it is not an attack, but a special action (i.e., animation handling)
-                    if (data[o + 15] != 255 || data[o + 15] != 0)
+                    // If MP cost does not equal 65536 or Target flags are 0
+                    // TODO: Need a way to ignore attacks that are animation handling
+                    if (data[o + 4] != 255 && data[o + 5] != 255)
                     {
                         // Attack %
                         data[o] = (byte)rnd.Next(50, 150); o++;
@@ -632,8 +631,8 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Casting Cost
-                        data[o] = 0; o++;
                         data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = 0; o++;
 
                         // Impact Sound - Must be FFFF if Attack Effect ID is not FF
                         //data[o] = rnd.Next(0, 256); o++;
@@ -650,57 +649,54 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Target Flags - Logic will be tough for this one; will depend on attack element + attack type as some aren't designed for multi-target
-                        data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
                         //data[o] = data[o]; o++;
 
                         // Attack Effect ID - Must be FF if Impact Effect is not FF
-                        data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
                         //data[o] = data[o]; o++;
 
                         // Damage Calculation
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
                         // Base Power
-                        //data[o] = rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(0, 40); o++;
 
                         // Condition Sub-Menu Flags
                         // 00 = Party HP
                         // 01 = Party MP
                         // 02 = Party Status
                         // Other = None
-                        data[o] = (byte)rnd.Next(0, 3); o++;
-                        //data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
                         // Status Effect Change
                         // 00-3F = Chance to inflict/heal status (#/63)
                         // 40 = Remove Status
                         // 80 - Toggle Status
-                        data[o] = (byte)rnd.Next(0, 4); o++;
-                        //data[o] = data[o]; o++;
+                        //data[o] = (byte)rnd.Next(0, 4); o++;
+                        data[o] = data[o]; o++;
 
                         // Attack Additional Effects
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
 
                         // Additional Effects Modifier Value
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
 
 
                         // Produce an enum class that holds the specific values for each status, then pick one of those or more and 
                         // pipe it into the statuses/elements; true random here would be too much + death/imprisoned/petrify can creep in
 
                         // Statuses
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
                         // Elements
                         data[o] = (byte)rnd.Next(0, 256); o++;
@@ -709,10 +705,10 @@ namespace Godo
                         //data[o] = data[o]; o++;
 
                         // Special Attack Flags
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        //data[o] = (byte)rnd.Next(0, 256); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
                     }
                     else
                     {
@@ -754,50 +750,57 @@ namespace Godo
                 while (c < 32)
                 {
                     // Attack Name, 32 bytes ascii
-                    nameBytes = AllMethods.NameGenerate(rnd);
-                    data[o] = nameBytes[0]; o++;
-                    data[o] = nameBytes[1]; o++;
-                    data[o] = nameBytes[2]; o++;
-                    data[o] = nameBytes[3]; o++;
-                    rngID = rnd.Next(2); // Chance to append a longer name
-                    if (rngID == 1)
+                    if (data[o] != 255)
                     {
-                        data[o] = nameBytes[4]; o++;
-                        data[o] = nameBytes[5]; o++;
-                        data[o] = nameBytes[6]; o++;
-                        data[o] = nameBytes[7]; o++;
+                        nameBytes = AllMethods.NameGenerate(rnd);
+                        data[o] = nameBytes[0]; o++;
+                        data[o] = nameBytes[1]; o++;
+                        data[o] = nameBytes[2]; o++;
+                        data[o] = nameBytes[3]; o++;
+                        rngID = rnd.Next(2); // Chance to append a longer name
+                        if (rngID == 1)
+                        {
+                            data[o] = nameBytes[4]; o++;
+                            data[o] = nameBytes[5]; o++;
+                            data[o] = nameBytes[6]; o++;
+                            data[o] = nameBytes[7]; o++;
+                        }
+                        else
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        data[o] = 255; o++; // Empty - Use FF to terminate the string
                     }
                     else
                     {
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        o += 32;
                     }
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 0; o++;
-                    data[o] = 255; o++; // Empty - Use FF to terminate the string
                     c++;
                 }
                 //array = attackNames.Select(b => (byte)b).ToArray();

@@ -1,33 +1,43 @@
-﻿using ICSharpCode.SharpZipLib.GZip;
-using System;
+﻿using System;
 using System.Collections;
-using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Godo
 {
     public class GZipper
     {
-        public static void PrepareScene(string filename)
+        public static void PrepareScene(string directory)
         {
-            string gzipFileName = filename;                                                                 // Opens the specified file
-            string targetDir = Path.GetDirectoryName(filename);                                             // Get directory where the target file resides
-            string kernel = Path.GetDirectoryName("Kernel.Bin");                                            // The kernel.bin for updating the lookup table
-            string finalScene = Path.Combine(targetDir, Path.GetFileNameWithoutExtension("finalscene"));    // This is the finished scene.bin
+            string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
+            string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
+            string targetScene = sceneDirectory + "scene.bin";   // The target file itself
+            string targetKernel = directory + "KERNEL.bin";    // The kernel.bin for updating the lookup table
+            string backupScene = targetScene + "Backup";
+            string backupKernel = targetKernel + "Backup";
+
+            if (!Directory.Exists(backupScene)) // Ensures backup isn't overwritten
+            {
+                File.Copy(targetScene, backupScene, true);   // Creates a backup of the scene.bin
+            }
+
+            //if(!Directory.Exists(backupKernel)) // Ensures backup isn't overwritten
+            //{
+            //    File.Copy(targetKernel, backupKernel, true); // Creates a backup of the kernel.bin
+            //}
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
                                                                  * Header total size must be 40h - empty entries == FF FF FF FF
-                                                                */
+                                                                 */
 
             int[][] jaggedSceneInfo = new int[256][];           // An array of arrays, containing offset, size, and absoluteoffset for each scene file
             ArrayList listedSceneData = new ArrayList();        // Contains all the compressed scene data
+            ArrayList listedCameraData = new ArrayList();       // Contains all the uncompressed camera data
 
+            long initialSize;                                   // The size of the initial scene.bin (can vary, up to 63 blocks but typically 32-33
+            int sectionCount;                                   // Number of sections in the scene.bin
             int size;                                           // The size of the compressed file
             int offset;                                         // Stores the current scene offset
             int nextOffset;                                     // Stores the next scene offset
@@ -37,6 +47,8 @@ namespace Godo
 
             byte[] padder = new byte[1];                        // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255;
+
+            Random rnd = new Random(Guid.NewGuid().GetHashCode());
 
             byte[] kernelLookup = new byte[64];                 // Stores the new lookup table to be written to the kernel.bin; blank values are FF
             int i = 0;
@@ -61,10 +73,14 @@ namespace Godo
             */
 
             // Entire file is read; offsets and sizes for scenes are extracted and placed in a jagged array (an array of arrays)
-            while (headerOffset < 262144) // 32 blocks of 2000h/8192 bytes each
+            FileStream fs = new FileStream(targetScene, FileMode.Open, FileAccess.Read);
+            initialSize = fs.Length;
+            fs.Close();
+            sectionCount = (int)initialSize / 8192;
+            while (headerOffset < initialSize) // 32 blocks of 2000h/8192 bytes each
             {
                 // Opens and reads the default scene.bin
-                FileStream stepOne = new FileStream(gzipFileName, FileMode.Open, FileAccess.Read);
+                FileStream stepOne = new FileStream(targetScene, FileMode.Open, FileAccess.Read);
                 stepOne.Seek(headerOffset, SeekOrigin.Begin);
                 stepOne.Read(header, 0, 64); // Header never exceeds 64 bytes
                 stepOne.Close();
@@ -131,12 +147,56 @@ namespace Godo
              * The size will now have changed; we will update this later while generating our new scene.bin
             */
 
+            // But first, we acquire the camera data of the target scene.bin
             while (r < 256)
             {
                 int bytesRead;
                 byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
 
-                using (BinaryReader brg = new BinaryReader(new FileStream(gzipFileName, FileMode.Open)))
+                using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
+                {
+                    // Calls method to convert little endian values into an integer
+                    byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
+                    brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
+                    brg.Read(compressedScene, 0, compressedScene.Length);
+
+                    using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
+                    {
+                        using (MemoryStream decompressedOutput = new MemoryStream())
+                        {
+                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
+                            {
+                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
+                                {
+                                    decompressedOutput.Write(uncompressedScene, 0, bytesRead);
+                                    // If this scene has valid camera data, then pull it out.
+                                    byte[] camera = new byte[48];
+                                    if (uncompressedScene[87] != 255 && uncompressedScene[88] != 255)
+                                    {
+                                        camera = uncompressedScene.Skip(88).Take(48).ToArray();
+                                        listedCameraData.Add(camera);
+                                    }
+                                }
+                                zipInput.Close();
+                            }
+                            decompressedOutput.Close();
+                        }
+                        inputWrapper.Close();
+                    }
+                    brg.Close();
+                }
+                r++;
+                o++;
+            }
+            r = 0;
+            o = 0;
+
+            while (r < 256)
+            {
+                int bytesRead;
+                byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
+
+                using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
                 {
                     // Calls method to convert little endian values into an integer
                     byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
@@ -162,8 +222,12 @@ namespace Godo
                     brg.Close();
                 }
 
+                // Sends random camera data to be used
+                int rand = (byte)rnd.Next(listedCameraData.Count);
+                byte[] randCam = (byte[])listedCameraData[rand];
+
                 // Sends decompressed scene data to be randomised
-                Scene.RandomiseScene(uncompressedScene);
+                Scene.RandomiseScene(uncompressedScene, randCam);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;
@@ -183,7 +247,7 @@ namespace Godo
                 {
                     recompressedScene = recompressedScene.Concat(padder).ToArray();
                 }
-                else if(recompressedScene.Length % 4 == 2)  // Remainder of 2, add 2 FFs
+                else if (recompressedScene.Length % 4 == 2)  // Remainder of 2, add 2 FFs
                 {
                     recompressedScene = recompressedScene.Concat(padder).ToArray();
                     recompressedScene = recompressedScene.Concat(padder).ToArray();
@@ -200,8 +264,8 @@ namespace Godo
 
                 // Byte array is added to the ArrayList
                 listedSceneData.Add(recompressedScene);
-                o++;
                 r++;
+                o++;
             }
             r = 0;
             o = 0;
@@ -218,7 +282,7 @@ namespace Godo
             int headerInt;
             byte[] finalHeader = new byte[64];
 
-            using (var outputStream = File.Create(finalScene))
+            using (var outputStream = File.Create(targetScene))
             {
                 int blockCount = 0; // Counts blocks for the kernel lookup table index
                 // Loops until all 255 scenes are assigned to a block
@@ -312,7 +376,7 @@ namespace Godo
 
                 // All scenes allocated, the final file must now be padded to 8192 bytes
                 outputStream.Position = outputStream.Length;
-                while (outputStream.Length % 262144 > 0)
+                while (outputStream.Length % 8192 > 0)
                 {
                     outputStream.Write(padder, 0, 1);
                 }
@@ -321,13 +385,12 @@ namespace Godo
             }
 
             //TODO: Open the kernel.bin and write in the updated lookup table here.
-            using (BinaryWriter bw = new BinaryWriter(File.Open(kernel, FileMode.Open)))
-            {
-                // Test this, think it's 3904 offset
-                bw.BaseStream.Position = 0x003904;
-                bw.Write(kernelLookup, 0, 64);
-            }
-
+            //using (BinaryWriter bw = new BinaryWriter(File.Open(kernel, FileMode.Open)))
+            //{
+            //    // Test this, think it's 3904 offset
+            //    bw.BaseStream.Position = 0x003904;
+            //    bw.Write(kernelLookup, 0, 64);
+            //}
         }
     }
 }
