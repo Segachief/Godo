@@ -18,11 +18,7 @@ namespace Godo
             int[][] jaggedKernelInfo = new int[27][];           // An array of arrays, containing compressed size, uncompressed size, section ID
             ArrayList listedKernelData = new ArrayList();       // Contains all the compressed kernel section data
 
-            byte[] header = new byte[6]; /* Stores the section header
-                                          * [0][1] = Compressed Size
-                                          * [2][3] = Uncompressed Size
-                                          * [4][5] = Section ID - in practice, only [4] will be used as section ID never exceeds 255
-                                          */
+            byte[] header = new byte[4];                        //Retrieves header information for conversion to int
 
             int compressedSize;    // Stores the compressed size of the file
             int uncompressedSize;  // Stores the uncompressed size of the file
@@ -47,20 +43,23 @@ namespace Godo
                 stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
                 compressedSize = AllMethods.GetLittleEndianInt(header, 0);
 
-                stepOne.Read(header, 2, 2); // Header never exceeds 64 bytes
+                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
                 uncompressedSize = AllMethods.GetLittleEndianInt(header, 0);
 
-                stepOne.Read(header, 4, 2); // Header never exceeds 64 bytes
+                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
                 sectionID = AllMethods.GetLittleEndianInt(header, 0);
 
                 // Stored kernel header information in a jaggy array
                 jaggedKernelInfo[o] = new int[] { compressedSize, uncompressedSize, sectionID };
                 stepOne.Close();
 
-                headerOffset = +uncompressedSize;
+                headerOffset += compressedSize + 6;
                 r++;
+                o++;
+                stepOne.Close();
             }
             r = 0;
+            o = 0;
 
 
             // Step 2: Get the compressed data, uncompress it, and then randomise it
@@ -117,6 +116,8 @@ namespace Godo
                     recompressedKernel = result.ToArray();
                     result.Close();
                 }
+                // Offset is updated for the next pass before we write in our new value
+                offset += jaggedKernelInfo[o][0] + 6;
 
                 // The size is updated with the newly compressed/padded scene's length
                 jaggedKernelInfo[o][0] = recompressedKernel.Length;
@@ -125,17 +126,12 @@ namespace Godo
                 listedKernelData.Add(recompressedKernel);
                 r++;
                 o++;
-                offset += jaggedKernelInfo[o][0] + 6;
             }
+            r = 0;
+            o = 0;
 
 
-            /* Step 3: Rebuilding the Scene.bin
-            * We dynamically put scenes into a block until it would exceed 8192 bytes; then we create a new block.
-            * The header is constantly updated with each new scene added to the block, using previous header to determine size.
-            * When all 255 scenes are allocated, we finish up by padding off the last block to get a 40,000h/262,144 byte file.
-            * The size will now have changed; we will update this later while generating our new scene.bin
-           */
-
+            // Step 3: Rebuilding the Kernel.bin
             using (var outputStream = File.Create(targetKernel))
             {
                 // Loops until all 27 sections are headered and written
