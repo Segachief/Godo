@@ -10,6 +10,369 @@ namespace Godo
 {
     public class Kernel
     {
+
+        // Section 0: Command Data
+        public static byte[] RandomiseSection0(byte[] data)
+        {
+            /* Flags for commands like attack/magic. Not much to be changed here besides targeting parameters
+             * and which menus open which sub-menus (for instance, Magic opens the magic sub-menu).
+             * Would recommend leaving this data alone.
+             * 
+             * 32 commands in all, IDs start from 0:
+             * 0) 'Left' - Dummy/unknown
+             * 1) Attack
+             * 2) Magic
+             * 3) Summon
+             * 4) Item
+             * 5) Steal
+             * 6) Sense
+             * 7) Coin
+             * 8) Throw
+             * 9) Morph
+             * 10) Deathblow
+             * 11) Manip.
+             * 12) Mime
+             * 13) E. Skill
+             * 14) All: (the all modifier that attach to spells)
+             * 15) 4x: (The quadra modifier)
+             * 16) Unknown
+             * 17) Mug
+             * 18) Change Row
+             * 19) Defend
+             * 20) Limit
+             * 21) W-Magic
+             * 22) W-Summon
+             * 23) W-Item
+             * 24) Slash-All
+             * 25) 2x-Cut
+             * 26) Flash
+             * 27) 4x-Cut
+             * 28-31) Dummy
+             * 
+             * The data available to modify (8 bytes each):
+             * InitialCursor    (1)
+             * Targeting Flag   (1)
+             * Unknown          (2)
+             * CameraID Single  (2)
+             * CameraID Multi   (2)
+            */
+
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 32)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #0 (Command Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+        // Section 1: Attack Data
+        public static byte[] RandomiseSection1(byte[] data)
+        {
+            /* Player-available attacks. It should be noted that text strings are not stored with the
+             * related data in 99% of cases, but instead at the back of the kernel in sections.
+             * 
+             * There are 128 actions that can be edited; the tool appears to list 256 but the remaining 128
+             * do not exist and are actually stored in the .EXE (Limit Breaks). They have text pointers in
+             * the kernel but nothing else.
+             * 
+             * The data available to modify (28 bytes each):
+             * Hit %            (1)
+             * Impact Effect    (1)
+             * Target Hurt Anim (1)
+             * Unknown          (1)
+             * MP Cost          (2)
+             * Impact Sound     (2)
+             * Camera Single    (2)
+             * Camera Multi     (2)
+             * Target Flag      (1)
+             * Attack Anim ID   (1)
+             * Damage Calc      (1)
+             * Base Power       (1)
+             * Restore Type     (1)
+             * Status Toggle Type   (1)
+             * Additional Effects   (1)
+             * ^ Modifier           (1)
+             * Status Effects Mask  (4)
+             * Elements Mask        (4)
+             * Special Attack Flags (2)
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 128)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #1 (Attack Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+        // Section 2: Battle & Growth Data + Kernel Lookup Table
+        public static byte[] RandomiseSection2(byte[] data, byte[] kernelLookup)
+        {
+            /* Contains the following:
+            * 1) Stat Curve IDs, Join Level Modifier, Limit IDs, Limit Requirements, and Gauge-fill resistance (9 for each character) (59 * 9)
+            * STR > Vit > MAG > SPR > DEX > LCK > HP > MP > EXP Level Up Curve (9)
+            * Padding (1)
+            * Level Modifier (1)
+            * Padding (1)
+            * Limit ID 1-1 > 4-3 (1 each, 12 total) (not a typo; there are 3 limit slots for each Limit Level)
+            * Required Uses 1-2 > 3-3 (2 each, 12 total)
+            * Gauge Resistance 1 > 4 (4 each, 16 total)
+            * 
+            * 2) Curve Data
+            * Random Bonus to Primary Stats (1 each, 12 total)
+            * Random Bonus to HP (1 each, 12 total)
+            * Random Bonus to MP (1 each, 12 total)
+            * Curve Values  (16 each, 64 total)
+            * 
+            * 3) Character AI (2048)
+            * 
+            * 4) Random Number Lookup Table (256)
+            * 
+            * 5) Scene Lookup Table (64)
+            * 
+            * 6) Spell Order (56)
+           */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+            int c = 0;
+
+            try
+            {
+                while (r < 9)
+                {
+                    // Stat Curve IDs
+                    data[o] = (byte)rnd.Next(64); o++;      // STR
+                    data[o] = (byte)rnd.Next(64); o++;      // VIT
+                    data[o] = (byte)rnd.Next(64); o++;      // MAG
+                    data[o] = (byte)rnd.Next(64); o++;      // SPR
+                    data[o] = (byte)rnd.Next(64); o++;      // DEX
+                    data[o] = (byte)rnd.Next(64); o++;      // LCK
+                    data[o] = (byte)rnd.Next(64); o++;      // HP
+                    data[o] = (byte)rnd.Next(64); o++;      // MP
+                    data[o] = data[o]; o++;                 // EXP
+
+                    data[o] = data[o]; o++;                 // Padding
+                    data[o] = data[o]; o++;                 // Joining Level Modifier
+                    data[o] = data[o]; o++;                 // Padding
+
+                    // These values should be 80h/128 and above - Characters can mostly use any Limit (albeit with skeleton flailing around)
+                    // Avoid using 95h/149 > 9Bh/155 as these are Tifa's limits and will crash if not used by her
+                    data[o] = data[o]; o++;                 // Limit ID 1-1
+                    data[o] = data[o]; o++;                 // Limit ID 1-2
+                    data[o] = data[o]; o++;                 // Limit ID 1-3
+                    data[o] = data[o]; o++;                 // Limit ID 2-1
+                    data[o] = data[o]; o++;                 // Limit ID 2-2
+                    data[o] = data[o]; o++;                 // Limit ID 2-3
+                    data[o] = data[o]; o++;                 // Limit ID 3-1
+                    data[o] = data[o]; o++;                 // Limit ID 3-2
+                    data[o] = data[o]; o++;                 // Limit ID 3-3
+                    data[o] = data[o]; o++;                 // Limit ID 4-1
+                    data[o] = data[o]; o++;                 // Limit ID 4-2
+                    data[o] = data[o]; o++;                 // Limit ID 4-3
+
+                    data[o] = data[o]; o++;                 // Kills for Limit Level 2
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Kills for Limit Level 3
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 1-2
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 1-3
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 2-2
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 2-3
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 3-2
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Required used for 3-2
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 1
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 2
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 3
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 4
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+                r = 0;
+
+                // Random bonuses to primary stats (1 value per entry; default is 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3)
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+
+                // Random bonuses to HP - Range from 0 - 160
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+
+                // Random bonuses to MP - Range from 0 to 60
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+                data[o] = data[o]; o++;
+
+                // Stat Curve values; 64 of them, 16 bytes each
+                while (r < 64)
+                {
+                    while (c < 16)
+                    {
+                        data[o] = data[o]; o++;
+                        c++;
+                    }
+                    r++;
+                }
+                r = 0;
+                c = 0;
+
+                // Character AI
+                // My recommendation is to make multiple AI scripts (innate abilities or whatever) and have the tool read these scripts (byte files).
+                // Then have the program should read these byte files, put them in an array, and write to the data here. Make sure to read up on the
+                // AI structure on Qhimm Wiki (link available on Qhimm Forum's front page) to get the header logic together.
+                while (r < 2048)
+                {
+                    data[o] = data[o]; o++;
+                    r++;
+                }
+                r = 0;
+
+                // Random Lookup Table
+                // For encounters to pop in a different order, randomise this.
+                // But to be honest, the impact of randomising the random table will, ironically, be minimal.
+                while (r < 256)
+                {
+                    data[o] = data[o]; o++;
+                    r++;
+                }
+
+                // Scene Lookup Table
+                // This must be updated with the lookup table data built in the Scene randomisation section.
+                // If it isn't, the game will look for scenes in the wrong places and you'll get wrong encounters/softlocks from empty formations
+                while (r < 64)
+                {
+                    data[o] = kernelLookup[c]; o++;
+                    r++;
+                    c++;
+                }
+                r = o;
+                c = 0;
+
+                // Spell Order List
+                // Not much point randomising this but included for completeness
+                while (r < 56)
+                {
+                    data[o] = data[o]; o++;
+                    r++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #2 (Growth & Lookup Data) has failed to randomise");
+            }
+            return data;
+        }
+
         // Section 3: Character Record & Savemap Initialisation
         public static byte[] RandomiseSection3(byte[] data)
         {
@@ -31,7 +394,6 @@ namespace Godo
                 int c = 0; // For Weapon minimum value ID
                 int k = 0; // For Weapon maximum value ID
 
-                byte[] array;     // For conversion of int array to byte array
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                 Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
 
@@ -85,11 +447,11 @@ namespace Godo
                     data[o] = nameBytes[1]; o++;
                     data[o] = nameBytes[2]; o++;
                     data[o] = nameBytes[3]; o++;
-                    data[o] = 0; o++; // Space between the two words
                     data[o] = nameBytes[4]; o++;
                     data[o] = nameBytes[5]; o++;
                     data[o] = nameBytes[6]; o++;
                     data[o] = nameBytes[7]; o++;
+                    data[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
                     data[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
                     data[o] = 0; o++;   // Empty - For instance, Ex-Soldier prints as 'Ex-Soldie' if his name is called by field script
                     data[o] = 255; o++; // Empty - Use FF to terminate the string
@@ -427,7 +789,7 @@ namespace Godo
             }
             catch
             {
-                MessageBox.Show("Error: Try-Catch failed");
+                MessageBox.Show("Kernel Section #3 (Initial Data) has failed to randomise");
             }
             return data;
         }

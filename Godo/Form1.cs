@@ -17,15 +17,6 @@ namespace Godo
         {
             InitializeComponent();
         }
-
-        // Current TODO
-        /*
-         * 1) Set up iteration that can unpack and repack entire kernel, all sections, and final file be opened with wall market without issue.
-         * 
-         * 2) Set up the randomise kernel button as a method that is called during the unpacking, targeting required sections appropriately.
-         * 
-         * 3) Have everything happen in-memory without files, or at least clean up leftover files (especially if error is encountered).
-         */
         string directory;
 
         private void Form1_Load(object sender, EventArgs e)
@@ -68,8 +59,9 @@ namespace Godo
                 {
                     lblFileName.Text = openFileDialog1.FileName;
                     string fileName = lblFileName.Text;
-                    GZipper.PrepareKernel(directory);
-                    MessageBox.Show("Scene Prep Complete: DEBUG");
+                    byte[] kernelLookup = GZipper.PrepareScene(directory);
+                    //GZipper.PrepareKernel(directory, kernelLookup);
+                    MessageBox.Show("Rando Complete: DEBUG");
                 }
                 catch
                 {
