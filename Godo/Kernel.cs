@@ -351,9 +351,8 @@ namespace Godo
                 // If it isn't, the game will look for scenes in the wrong places and you'll get wrong encounters/softlocks from empty formations
                 while (r < 64)
                 {
-                    data[o] = kernelLookup[c]; o++;
+                    data[o] = kernelLookup[c]; o++; c++;
                     r++;
-                    c++;
                 }
                 r = o;
                 c = 0;

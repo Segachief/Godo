@@ -68,6 +68,9 @@ namespace Godo
             int o = 0;
             ArrayList listedCameraData = new ArrayList();
 
+            // Is equal to the absolute upper limit of possible enemy models (023Ah/675 = ZZDA)
+            int[][] jaggedAttackInfo = new int[675][];
+
             while (r < 256)
             {
                 int bytesRead;
@@ -94,16 +97,18 @@ namespace Godo
                                     /* 1) Pull out the Model ID first, and check if it exists in the array. If it does, skip.
                                      * 
                                      * 2) Pull out the associated attack data and check if Impact Effect isn't FF (phys) or if Animation ID isn't FF (Mag); if both are, then it's a Misc.
+                                     * This gives us 32 entries of 0, 1, or 2.
                                      *
                                      * 3) Look at the model's registered attacks; using the data from step 2, we can determine what anims the model has and which belong to which attack type.
+                                     * A match has us add AnimID + '#' to a string that can be parsed later.
                                      * 
-                                     * 4) 
+                                     * 4) When reassignment comes, we can check the new Model ID and its registered attacks then set an approproate animation.
                                      */
 
-                                    byte[] attacks = new byte[48];
-                                    if (uncompressedScene[87] != 255 && uncompressedScene[88] != 255)
+                                    byte[] ModelIDs = new byte[675];
+                                    if (uncompressedScene[0] != 255 && uncompressedScene[88] != 2)
                                     {
-                                        attacks = uncompressedScene.Skip(88).Take(48).ToArray();
+                                        ModelIDs = uncompressedScene.Skip(0).Take(2).ToArray();
                                         listedCameraData.Add(attacks);
                                     }
                                 }
