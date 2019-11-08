@@ -12,21 +12,13 @@ namespace Godo
         public static byte[] PrepareScene(string directory)
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
-            string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
-            string targetKernel = directory + "KERNEL.bin";    // The kernel.bin for updating the lookup table
             string backupScene = targetScene + "Backup";
-            string backupKernel = targetKernel + "Backup";
 
             if (!Directory.Exists(backupScene)) // Ensures backup isn't overwritten
             {
                 File.Copy(targetScene, backupScene, true);   // Creates a backup of the scene.bin
             }
-
-            //if(!Directory.Exists(backupKernel)) // Ensures backup isn't overwritten
-            //{
-            //    File.Copy(targetKernel, backupKernel, true); // Creates a backup of the kernel.bin
-            //}
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
@@ -35,11 +27,9 @@ namespace Godo
 
             int[][] jaggedSceneInfo = new int[256][];           // An array of arrays, containing offset, size, and absoluteoffset for each scene file
             ArrayList listedSceneData = new ArrayList();        // Contains all the compressed scene data
-            ArrayList listedCameraData = new ArrayList();       // Contains all the uncompressed camera data
             ArrayList listedAttackAnimData = new ArrayList();   // Contains all the uncompressed Attack Anim data
 
             long initialSize;                                   // The size of the initial scene.bin (can vary, up to 63 blocks but typically 32-33
-            int sectionCount;                                   // Number of sections in the scene.bin
             int size;                                           // The size of the compressed file
             int offset;                                         // Stores the current scene offset
             int nextOffset;                                     // Stores the next scene offset
@@ -78,7 +68,6 @@ namespace Godo
             FileStream fs = new FileStream(targetScene, FileMode.Open, FileAccess.Read);
             initialSize = fs.Length;
             fs.Close();
-            sectionCount = (int)initialSize / 8192;
             while (headerOffset < initialSize) // 32 blocks of 2000h/8192 bytes each
             {
                 // Opens and reads the default scene.bin
@@ -150,7 +139,7 @@ namespace Godo
             */
 
             // But first, we acquire the camera data of the target scene.bin
-            listedCameraData = Indexer.GetCameraData(jaggedSceneInfo, targetScene);
+            ArrayList listedCameraData = Indexer.GetCameraData(jaggedSceneInfo, targetScene);
 
             // And the animation indexes associated by Model IDs to the attackIDs
             //listedAttackAnimData = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
@@ -191,7 +180,7 @@ namespace Godo
                 byte[] randCam = (byte[])listedCameraData[rand];
 
                 // Sends decompressed scene data to be randomised
-                Scene.RandomiseScene(uncompressedScene, randCam);
+                Scene.RandomiseScene(uncompressedScene, randCam, r);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;
@@ -332,11 +321,11 @@ namespace Godo
                     k += 4;
                     s++;
                 }
-                r = 0;
-                o = 0;
-                c = 0;
-                k = 0;
-                s = 0;
+                r = 0;  // ahhhh
+                o = 0;  // We're gonna loop through whiles
+                c = 0;  // all night
+                k = 0;  // and try-catch every day
+                s = 0;  // *gene falls over a rogue assignment*
 
                 // All scenes allocated, the final file must now be padded to 8192 bytes
                 outputStream.Position = outputStream.Length;
@@ -349,14 +338,6 @@ namespace Godo
             }
 
             return kernelLookup;
-
-            //TODO: Open the kernel.bin and write in the updated lookup table here.
-            using (BinaryWriter bw = new BinaryWriter(File.Open(targetKernel, FileMode.Open)))
-            {
-                // Test this, think it's 3904 offset
-                bw.BaseStream.Position = 0x00F08;
-                bw.Write(kernelLookup, 0, 64);
-            }
         }
 
         public static void PrepareKernel(string directory, byte[] kernelLookup)
@@ -377,11 +358,8 @@ namespace Godo
 
             int headerOffset = 0;   // Stores the absolute offset value for each section's header (updated on each loop)
 
-            int r = 0;  // ahhhh
-            int o = 0;  // We're gonna loop through whiles
-            int c = 0;  // all night
-            int k = 0;  // and party every day
-            int s = 0;  // *gene falls over a rogue assignment*
+            int r = 0;  // ro ro
+            int o = 0;  // fight the powah
 
             // Step 1: Read the kernel headers
             while (r < 27) // 27 sections in the kernel
@@ -449,12 +427,40 @@ namespace Godo
                 // Sends decompressed scene data to be randomised by section
                 switch (r)
                 {
+                    case 0:
+                        Kernel.RandomiseSection0(uncompressedKernel);
+                        break;
+
+                    case 1:
+                        Kernel.RandomiseSection1(uncompressedKernel);
+                        break;
+
                     case 2:
                         Kernel.RandomiseSection2(uncompressedKernel, kernelLookup);
                         break;
 
                     case 3:
                         Kernel.RandomiseSection3(uncompressedKernel);
+                        break;
+
+                    case 4:
+                        Kernel.RandomiseSection4(uncompressedKernel);
+                        break;
+
+                    case 5:
+                        Kernel.RandomiseSection5(uncompressedKernel);
+                        break;
+
+                    case 6:
+                        Kernel.RandomiseSection6(uncompressedKernel);
+                        break;
+
+                    case 7:
+                        Kernel.RandomiseSection7(uncompressedKernel);
+                        break;
+
+                    case 8:
+                        Kernel.RandomiseSection8(uncompressedKernel);
                         break;
                 }
 

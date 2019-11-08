@@ -60,17 +60,17 @@ namespace Godo
                     lblFileName.Text = openFileDialog1.FileName;
                     string fileName = lblFileName.Text;
                     byte[] kernelLookup = GZipper.PrepareScene(directory);
-                    //GZipper.PrepareKernel(directory, kernelLookup);
+                    GZipper.PrepareKernel(directory, kernelLookup);
                     MessageBox.Show("Rando Complete: DEBUG");
                 }
                 catch
                 {
-                    MessageBox.Show("Error: File failed to open");
+                    MessageBox.Show("Randomisation failed");
                 }
             }
             else
             {
-
+                MessageBox.Show("Error: Valid directory required");
             }
         }
 

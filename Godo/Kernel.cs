@@ -793,5 +793,341 @@ namespace Godo
             }
             return data;
         }
+
+        public static byte[] RandomiseSection4(byte[] data)
+        {
+            /* Item Data
+             * 
+             * The data available to modify (28 bytes each):
+             * 8x FF Mask       (8)
+             * Camera Move ID   (2)
+             * Restriction Mask (2) - 01 can be sold, 02 can be used in battle, 04 can be used in menu
+             * Target Flags     (1)
+             * Attack Effect ID (1)
+             * Damage Calc.     (1)
+             * Base Power       (1)
+             * Conditions       (1) - 00 party HP, 01 party MP, 02 party status, other: none
+             * Status Change    (1) - 3F chance to inflict (/63), 40 Cure, 80 Toggle
+             * Attack Additional Effects   (1)
+             * Additional Effects Modifier (1)
+             * Status Effects   (4)
+             * Attack Element   (2)
+             * Special Attack Flags (2)
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 128)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #4 (Item Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+        public static byte[] RandomiseSection5(byte[] data)
+        {
+            /* Weapon Data
+             * 
+             * The data available to modify (44 bytes each):
+             * Target Flags     (1)
+             * Always FF        (1)
+             * Damage Calc.     (1)
+             * Always FF        (1)
+             * Base Power       (1)
+             * Status Attack    (1)
+             * Growth Rate      (1)
+             * Crit%            (1)
+             * Acc%             (1)
+             * Model ID         (1) - Upper nybble = attack animation modifier (barret/vince only), lower nybble: model ID
+             * Always FF        (1)
+             * Sound ID Mask    (1)
+             * Camera ID        (2) - Always FFFF
+             * Equip Mask       (2) 1, 2, 4, 8, 10, 20, 40, 80, 100, 200, 400 = Cloud > Sephiroth
+             * Attack Element   (2)
+             * Always FFFF      (2)
+             * Stat Type        (4) FF None, 00 STR > 05 LCK
+             * Stat Boost       (4)
+             * Slots            (8) 00 > 07 none > right-linked growth
+             * Sound ID Hit     (1)
+             * Sound ID Crit    (1)
+             * Sound ID Miss    (1)
+             * Impact ID        (1)
+             * Special Flags    (2)
+             * Restrict Mask    (2) 01 can sell, 02 can throw, 04 can Menu
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 128)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #5 (Weapon Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+
+        public static byte[] RandomiseSection6(byte[] data)
+        {
+            /* Armour Data
+             * 
+             * The data available to modify (44 bytes each):
+             * Unknown          (1)
+             * Damage Type      (1) - FF norm, 00 absorb, 01 null, 02 halve
+             * Defence          (1)
+             * MDef             (1)
+             * Defence%         (1)
+             * MDef%            (1)
+             * Status Def       (1)
+             * Unknown          (2)
+             * Slots            (8) - 00 > 07 none > right-linked growth
+             * Growth           (1)
+             * Equip Mask       (2) - 1, 2, 4, 8, 10, 20, 40, 80, 100, 200, 400 = Cloud > Sephiroth
+             * Elem Def         (2)
+             * Always FF        (2)
+             * Stat Type        (4)
+             * Stat Boost       (4)
+             * Restrict Mask    (2)
+             * Always FF        (2)
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 32)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #6 (Armour Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+        public static byte[] RandomiseSection7(byte[] data)
+        {
+            /* Accessory Data
+             * 
+             * The data available to modify (44 bytes each):
+             * Stat Type        (2)
+             * Stat Boost       (2)
+             * Elem Strength    (1) - 00 absorb, 01 null, 02 halve
+             * Special Effect   (1) - 00 > 06 auto-haste > auto-wall
+             * Elemental Mask   (2)
+             * Status Mask      (4)
+             * Equip Mask       (2)
+             * Restrict Mask    (2)
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 32)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #7 (Accessory Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
+        public static byte[] RandomiseSection8(byte[] data)
+        {
+            /* Materia Data
+             * 
+             * The data available to modify (44 bytes each):
+             * Level Up         (8) - Multiples of 100 (4x WORD)
+             * Equip Effect ID  (1)
+             * Status Effects   (3) - Only 24 statuses
+             * Element Index    (1)
+             * Materia Type     (1)
+             * Attributes       (6)
+            */
+            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            int r = 0;
+            int o = 0;
+
+            try
+            {
+                while (r < 95)
+                {
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Kernel Section #8 (Materia Data) has failed to randomise");
+            }
+
+            return data;
+        }
+
     }
 }

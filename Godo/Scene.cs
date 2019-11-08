@@ -11,12 +11,15 @@ namespace Godo
     public class Scene
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data, byte[] camera)
+        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID)
         {
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
              * The size of each scene is the same, as any unused data is padded with FF.
              */
+
+            // Identifies where a try-catch was triggered in the scene
+            string error = "";
 
             try
             {
@@ -81,6 +84,7 @@ namespace Godo
                 #endregion
 
                 #region Battle Setup Flags
+                error = "Battle Setup";
                 while (r < 4)
                 {
                     if (data[o] != 255)
@@ -156,7 +160,7 @@ namespace Godo
                 #endregion
 
                 #region Camera Placement Data
-
+                error = "Camera Placement";
                 while (r < 4)
                 {
                     if (data[o] != 255 && data[o + 1] != 255)
@@ -248,6 +252,7 @@ namespace Godo
                 #endregion
 
                 #region Battle Formation Data
+                error = "Battle Formation";
                 while (r < 4)
                 {
                     //This randomises formation data for each enemy, but has been dummied out as it doesn't fit current project requirements
@@ -338,6 +343,7 @@ namespace Godo
                 #endregion
 
                 #region Enemy Data
+                error = "Enemy Data";
                 while (r < 3)
                 {
                     // If enemy name is empty, assume no enemy is there and just retain pre-existing data
@@ -622,6 +628,7 @@ namespace Godo
                 #endregion
 
                 #region Attack Data
+                error = "Attack Data";
                 while (r < 32)
                 {
                     // If MP cost does not equal 65536 or Target flags are 0
@@ -746,6 +753,7 @@ namespace Godo
                 #endregion
 
                 #region Attack IDs
+                error = "Attack IDs";
                 while (r < 32)
                 {
                     // Attack ID - These should match the ones referenced in AI and Animation Attack IDs
@@ -827,6 +835,7 @@ namespace Godo
                 #endregion
 
                 #region Formation AI Script Offsets
+                error = "Formation AI Offsets";
                 // These need to match the location of each one
                 //data[o] = 0; o++;
                 //data[o] = 0; o++;
@@ -844,6 +853,7 @@ namespace Godo
                 #endregion
 
                 #region Formation AI
+                error = "Formation AI";
                 // This is likely best served from a notepad containing AI scripts, though formation AI itself is very rarely used (Final Sephiroth fight)
                 //array = formationAI.Select(b => (byte)b).ToArray();
                 //bw.BaseStream.Position = 0x000C88;
@@ -852,6 +862,7 @@ namespace Godo
                 #endregion
 
                 #region Enemy AI Offsets
+                error = "Enemy AI Offsets";
                 // These need to match the location of each one
                 //enemyAIOffset[o] = 0; o++;
                 //enemyAIOffset[o] = 0; o++;
@@ -864,6 +875,7 @@ namespace Godo
                 #endregion
 
                 #region Enemy AI
+                error = "Enemy AI";
                 // This is likely best served from a notepad containing AI scripts
                 //array = formationAI.Select(b => (byte)b).ToArray();
                 //bw.BaseStream.Position = 0x000E86;
@@ -873,7 +885,7 @@ namespace Godo
             }
             catch
             {
-                MessageBox.Show("Error: Try-Catch failed");
+                MessageBox.Show("Scene ID: " + sceneID + " has failed to randomise; point of error: " + error);
             }
             return data;
         }
