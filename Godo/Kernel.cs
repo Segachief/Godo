@@ -434,8 +434,7 @@ namespace Godo
                        a crash.
                     */
                     //data[o] = (byte)rnd.Next(1, 5);
-                    data[o] = 1;
-                    o++;
+                    data[o] = data[o]; o++;
 
                     // Current Limit Gauge
                     data[o] = (byte)rnd.Next(256); o++;
@@ -526,20 +525,20 @@ namespace Godo
                     data[o] = 0; o++; // 2nd byte
 
                     // Number of Kills
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++; // 2nd byte
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++; // 2nd byte
 
                     // Times Limit 1-1 used - If you hit the max value I think it unlocks 1-3
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++; // 2nd byte
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++; // 2nd byte
 
                     // Times Limit 2-1 used - If you hit the max value I think it unlocks 2-3
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++; // 2nd byte
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++; // 2nd byte
 
                     // Times Limit 3-1 used - If you hit the max value I think it unlocks 3-3
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++; // 2nd byte
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++; // 2nd byte
 
                     // Current HP - Setting limit of 2000 for balance - 100 is game's functional minimum
                     data[o] = (byte)rnd.Next(99, 209); o++; // Returns 100HP minimum, 209 is D0 in hex

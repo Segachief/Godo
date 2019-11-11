@@ -11,13 +11,18 @@ using System.Windows.Forms;
 
 namespace Godo
 {
-    public partial class Form1 : Form
+    public partial class MainForm : Form
     {
-        public Form1()
+        public MainForm()
         {
             InitializeComponent();
         }
+
         string directory;
+        bool[][] options = new bool[4][];
+        Random rnd = new Random();
+        int seed;
+        int newSeed;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -42,7 +47,7 @@ namespace Godo
         private void BtnOpen_Click(object sender, EventArgs e)
         {
             OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            openFileDialog1.InitialDirectory = "D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data";
+            //openFileDialog1.InitialDirectory = "D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data";
             using (var fbd = new FolderBrowserDialog())
             {
                 DialogResult result = fbd.ShowDialog();
@@ -52,16 +57,32 @@ namespace Godo
                     directory = fbd.SelectedPath;
                 }
             }
+        }
 
+        private void BtnRandoScene_Click(object sender, EventArgs e)
+        {
             if (directory != null)
             {
                 try
                 {
-                    lblFileName.Text = openFileDialog1.FileName;
+                    if (txtSeed != null)
+                    {
+                        seed = int.Parse(txtSeed.Text);
+                        rnd = new Random(seed);
+                    }
+                    else
+                    {
+                        seed = Environment.TickCount;
+                        rnd = new Random(seed);
+                        //rnd = new Random(Guid.NewGuid().GetHashCode());
+                    }
+
+
+
                     string fileName = lblFileName.Text;
-                    byte[] kernelLookup = GZipper.PrepareScene(directory);
-                    GZipper.PrepareKernel(directory, kernelLookup);
-                    MessageBox.Show("Rando Complete: DEBUG");
+                    byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd);
+                    GZipper.PrepareKernel(directory, kernelLookup, options, rnd);
+                    MessageBox.Show("Rando Complete: seed = " + seed);
                 }
                 catch
                 {
@@ -72,16 +93,6 @@ namespace Godo
             {
                 MessageBox.Show("Error: Valid directory required");
             }
-        }
-
-        private void BtnRandoScene_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void BtnRandoKernel_Click(object sender, EventArgs e)
-        {
-            
         }
     }
 }

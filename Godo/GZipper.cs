@@ -9,7 +9,7 @@ namespace Godo
 {
     public class GZipper
     {
-        public static byte[] PrepareScene(string directory)
+        public static byte[] PrepareScene(string directory, bool[][]options, Random rnd)
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
@@ -40,7 +40,7 @@ namespace Godo
             byte[] padder = new byte[1];                        // Scene files, after compression, need to be FF padded to make them multiplicable by 4
             padder[0] = 255;
 
-            Random rnd = new Random(Guid.NewGuid().GetHashCode());
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode());
 
             byte[] kernelLookup = new byte[64];                 // Stores the new lookup table to be written to the kernel.bin; blank values are FF
             int i = 0;
@@ -340,7 +340,7 @@ namespace Godo
             return kernelLookup;
         }
 
-        public static void PrepareKernel(string directory, byte[] kernelLookup)
+        public static void PrepareKernel(string directory, byte[] kernelLookup, bool[][]options, Random rnd)
         {
             string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
             string targetKernel = kernelDirectory + "KERNEL.bin";    // The kernel.bin for updating the lookup table

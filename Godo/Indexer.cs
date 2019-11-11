@@ -109,7 +109,7 @@ namespace Godo
                                     if (uncompressedScene[0] != 255 && uncompressedScene[88] != 2)
                                     {
                                         ModelIDs = uncompressedScene.Skip(0).Take(2).ToArray();
-                                        listedCameraData.Add(attacks);
+                                        //listedCameraData.Add(attacks);
                                     }
                                 }
                                 zipInput.Close();
