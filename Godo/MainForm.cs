@@ -19,10 +19,9 @@ namespace Godo
         }
 
         string directory;
-        bool[][] options = new bool[4][];
+        bool[] options = new bool[50];
         Random rnd = new Random();
         int seed;
-        int newSeed;
 
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -65,7 +64,7 @@ namespace Godo
             {
                 try
                 {
-                    if (txtSeed != null)
+                    if (txtSeed.Text != "")
                     {
                         seed = int.Parse(txtSeed.Text);
                         rnd = new Random(seed);
@@ -76,9 +75,7 @@ namespace Godo
                         rnd = new Random(seed);
                         //rnd = new Random(Guid.NewGuid().GetHashCode());
                     }
-
-
-
+                    options = OptionsArrayBuild();
                     string fileName = lblFileName.Text;
                     byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd);
                     GZipper.PrepareKernel(directory, kernelLookup, options, rnd);
@@ -93,6 +90,210 @@ namespace Godo
             {
                 MessageBox.Show("Error: Valid directory required");
             }
+        }
+
+        private bool[] OptionsArrayBuild()
+        {
+            // it has no style
+            // it has no grace
+            // this if-else chain
+            // is a huge disgrace
+
+            // Character Data
+            if(chkStatCurves.Checked)
+            {
+                options[0] = true;
+            }
+            if (chkLimitIDs.Checked)
+            {
+                options[1] = true;
+            }
+            if (chkLimitKillUse.Checked)
+            {
+                options[2] = true;
+            }
+            if (chkLimitGauge.Checked)
+            {
+                options[3] = true;
+            }
+            if (chkLevelUpBonus.Checked)
+            {
+                options[4] = true;
+            }
+            if (chkStatCurveData.Checked)
+            {
+                options[5] = true;
+            }
+            if (chkCharacterAI.Checked)
+            {
+                options[6] = true;
+            }
+            if (chkRandomLookup.Checked)
+            {
+                options[7] = true;
+            }
+
+
+            // Player Data
+            if (chkAttackData.Checked)
+            {
+                options[18] = true;
+            }
+            if (chkItemData.Checked)
+            {
+                options[9] = true;
+            }
+            if (chkWeaponData.Checked)
+            {
+                options[10] = true;
+            }
+            if (chkArmourData.Checked)
+            {
+                options[11] = true;
+            }
+            if (chkAccessoryData.Checked)
+            {
+                options[12] = true;
+            }
+            if (chkMateriaData.Checked)
+            {
+                options[13] = true;
+            }
+
+
+            // Initialisation Data
+            if (chkCharacterID.Checked)
+            {
+                options[14] = true;
+            }
+            if (chkCharacterStats.Checked)
+            {
+                options[15] = true;
+            }
+            if (chkCharacterName.Checked)
+            {
+                options[16] = true;
+            }
+            if (chkEquippedWeapon.Checked)
+            {
+                options[17] = true;
+            }
+            if (chkEquippedArmour.Checked)
+            {
+                options[18] = true;
+            }
+            if (chkEquippedAccessory.Checked)
+            {
+                options[19] = true;
+            }
+            if (chkCharacterHP.Checked)
+            {
+                options[20] = true;
+            }
+            if (chkCharacterMP.Checked)
+            {
+                options[21] = true;
+            }
+            if (chkEquippedMateria.Checked)
+            {
+                options[22] = true;
+            }
+            if (chkStartParty.Checked)
+            {
+                options[23] = true;
+            }
+
+
+            // Enemy Data
+            if (chkEnemyModels.Checked)
+            {
+                options[24] = true;
+            }
+            if (chkBattleBG.Checked)
+            {
+                options[25] = true;
+            }
+            if (chkDisableEscape.Checked)
+            {
+                options[26] = true;
+            }
+            if (chkCamera.Checked)
+            {
+                options[27] = true;
+            }
+            if (chkEnemyPlacement.Checked)
+            {
+                options[28] = true;
+            }
+            if (chkEnemyQuantity.Checked)
+            {
+                options[29] = true;
+            }
+            if (chkEnemyName.Checked)
+            {
+                options[30] = true;
+            }
+            if (chkEnemyStats.Checked)
+            {
+                options[31] = true;
+            }
+            if (chkElementalAffinity.Checked)
+            {
+                options[32] = true;
+            }
+            if (chkHeldItems.Checked)
+            {
+                options[33] = true;
+            }
+            if (chkEnemyMP.Checked)
+            {
+                options[34] = true;
+            }
+            if (chkEnemyAP.Checked)
+            {
+                options[35] = true;
+            }
+            if (chkEnemyHP.Checked)
+            {
+                options[36] = true;
+            }
+            if (chkEnemyEXP.Checked)
+            {
+                options[37] = true;
+            }
+            if (chkEnemyGil.Checked)
+            {
+                options[38] = true;
+            }
+            if (chkStatusImmunities.Checked)
+            {
+                options[39] = true;
+            }
+            if (chkEnemyAttacks.Checked)
+            {
+                options[40] = true;
+            }
+            if (chkStatusSafe.Checked)
+            {
+                options[41] = true;
+            }
+            if (chkStatusUnsafe.Checked)
+            {
+                options[42] = true;
+            }
+            if (chkRandomElements.Checked)
+            {
+                options[43] = true;
+            }
+            if (chkAttackNames.Checked)
+            {
+                options[44] = true;
+            }
+            if (chkEnemyAI.Checked)
+            {
+                options[45] = true;
+            }
+            return options;
         }
     }
 }

@@ -11,7 +11,7 @@ namespace Godo
     public class Scene
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID)
+        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID, bool[] options, Random rnd)
         {
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
@@ -44,23 +44,30 @@ namespace Godo
                 int k = 0; // See above
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
-                Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+                //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
 
                 #region Enemy IDs
                 // Enemy IDs
-                while (r < 3)
+                if (options[0] != false)
                 {
-                    if (data[o] != 255 && data[o + 1] != 255) // Don't want to add an enemy if there's none here
+                    while (r < 3)
                     {
-                        data[o] = (byte)rnd.Next(256); o++;
-                        data[o] = (byte)rnd.Next(2); o++;
+                        if (data[o] != 255 && data[o + 1] != 255) // Don't want to add an enemy if there's none here
+                        {
+                            data[o] = (byte)rnd.Next(256); o++;
+                            data[o] = (byte)rnd.Next(2); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
+                        r++;
                     }
-                    else
-                    {
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                    }
-                    r++;
+                }
+                else
+                {
+                    o +=6;
                 }
 
                 // Stores the enemy IDs for use later in enforcing consistency

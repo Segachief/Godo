@@ -12,7 +12,7 @@ namespace Godo
     {
 
         // Section 0: Command Data
-        public static byte[] RandomiseSection0(byte[] data)
+        public static byte[] RandomiseSection0(byte[] data, bool[]options, Random rnd)
         {
             /* Flags for commands like attack/magic. Not much to be changed here besides targeting parameters
              * and which menus open which sub-menus (for instance, Magic opens the magic sub-menu).
@@ -72,6 +72,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -83,7 +84,7 @@ namespace Godo
         }
 
         // Section 1: Attack Data
-        public static byte[] RandomiseSection1(byte[] data)
+        public static byte[] RandomiseSection1(byte[] data, bool[]options, Random rnd)
         {
             /* Player-available attacks. It should be noted that text strings are not stored with the
              * related data in 99% of cases, but instead at the back of the kernel in sections.
@@ -113,7 +114,7 @@ namespace Godo
              * Elements Mask        (4)
              * Special Attack Flags (2)
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -149,6 +150,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -160,7 +162,7 @@ namespace Godo
         }
 
         // Section 2: Battle & Growth Data + Kernel Lookup Table
-        public static byte[] RandomiseSection2(byte[] data, byte[] kernelLookup)
+        public static byte[] RandomiseSection2(byte[] data, bool[] options, Random rnd, byte[] kernelLookup)
         {
             /* Contains the following:
             * 1) Stat Curve IDs, Join Level Modifier, Limit IDs, Limit Requirements, and Gauge-fill resistance (9 for each character) (59 * 9)
@@ -186,7 +188,7 @@ namespace Godo
             * 
             * 6) Spell Order (56)
            */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
             int c = 0;
@@ -268,6 +270,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
                 r = 0;
 
@@ -373,7 +376,7 @@ namespace Godo
         }
 
         // Section 3: Character Record & Savemap Initialisation
-        public static byte[] RandomiseSection3(byte[] data)
+        public static byte[] RandomiseSection3(byte[] data, bool[]options, Random rnd)
         {
             /* Kernel File Breakdown
              * The kernel.bin comprises multiple sections in a gzip-bin format.
@@ -394,7 +397,7 @@ namespace Godo
                 int k = 0; // For Weapon maximum value ID
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
-                Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+                //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
 
                 #region Character Records (132bytes, 9 times)
                 while (r < 9) // Iterates 9 times for each character; 0 = Cloud, 8 = Cid
@@ -792,7 +795,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection4(byte[] data)
+        public static byte[] RandomiseSection4(byte[] data, bool[] options, Random rnd)
         {
             /* Item Data
              * 
@@ -812,7 +815,7 @@ namespace Godo
              * Attack Element   (2)
              * Special Attack Flags (2)
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -848,6 +851,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -858,7 +862,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection5(byte[] data)
+        public static byte[] RandomiseSection5(byte[] data, bool[] options, Random rnd)
         {
             /* Weapon Data
              * 
@@ -889,7 +893,7 @@ namespace Godo
              * Special Flags    (2)
              * Restrict Mask    (2) 01 can sell, 02 can throw, 04 can Menu
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -937,6 +941,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -948,7 +953,7 @@ namespace Godo
         }
 
 
-        public static byte[] RandomiseSection6(byte[] data)
+        public static byte[] RandomiseSection6(byte[] data, bool[] options, Random rnd)
         {
             /* Armour Data
              * 
@@ -971,7 +976,7 @@ namespace Godo
              * Restrict Mask    (2)
              * Always FF        (2)
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -1011,14 +1016,15 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    //data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -1029,7 +1035,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection7(byte[] data)
+        public static byte[] RandomiseSection7(byte[] data, bool[] options, Random rnd)
         {
             /* Accessory Data
              * 
@@ -1043,7 +1049,7 @@ namespace Godo
              * Equip Mask       (2)
              * Restrict Mask    (2)
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -1067,6 +1073,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
@@ -1077,7 +1084,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection8(byte[] data)
+        public static byte[] RandomiseSection8(byte[] data, bool[] options, Random rnd)
         {
             /* Materia Data
              * 
@@ -1089,7 +1096,7 @@ namespace Godo
              * Materia Type     (1)
              * Attributes       (6)
             */
-            Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -1117,6 +1124,7 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+                    r++;
                 }
             }
             catch
