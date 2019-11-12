@@ -66,10 +66,11 @@ namespace Godo
         {
             int r = 0;
             int o = 0;
+            int c = 0;
             ArrayList listedCameraData = new ArrayList();
 
             // Is equal to the absolute upper limit of possible enemy models (023Ah/675 = ZZDA)
-            int[][] jaggedAttackInfo = new int[675][];
+            int[][][] jaggedAttackInfo = new int[675][][];
 
             while (r < 256)
             {
@@ -92,7 +93,7 @@ namespace Godo
                                 while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
                                 {
                                     decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                    
+
                                     // Proposed logic:
                                     /* 1) Pull out the Model ID first, and check if it exists in the array. If it does, skip.
                                      * 
@@ -104,11 +105,70 @@ namespace Godo
                                      * 
                                      * 4) When reassignment comes, we can check the new Model ID and its registered attacks then set an approproate animation.
                                      */
+                                    int modelIndexA = 0;
+                                    int modelIndexB = 0;
+                                    int modelIndexC = 0;
+                                    int attackIndex = 0;
+                                    if (uncompressedScene[0] != 255 && uncompressedScene[1] != 255)
+                                    {
+                                        byte[] modelIDs = new byte[2];
+                                        modelIDs[0] = uncompressedScene[0];
+                                        modelIDs[1] = uncompressedScene[1];
+                                        modelIndexA = AllMethods.GetLittleEndianInt(modelIDs, 0);
+                                    }
+                                    if (uncompressedScene[2] != 255 && uncompressedScene[3] != 255)
+                                    {
+                                        byte[] modelIDs = new byte[2];
+                                        modelIDs[0] = uncompressedScene[0];
+                                        modelIDs[1] = uncompressedScene[1];
+                                        modelIndexB = AllMethods.GetLittleEndianInt(modelIDs, 0);
+                                    }
+                                    if (uncompressedScene[4] != 255 && uncompressedScene[5] != 255)
+                                    {
+                                        byte[] modelIDs = new byte[2];
+                                        modelIDs[0] = uncompressedScene[0];
+                                        modelIDs[1] = uncompressedScene[1];
+                                        modelIndexC = AllMethods.GetLittleEndianInt(modelIDs, 0);
+                                    }
+                                    while (c < 32)
+                                    {
+                                        if (uncompressedScene[16] != 255 && uncompressedScene[17] != 255)
+                                        {
+                                            // Now we need to check the attacks and identify what they are
+                                            byte[] attackIDs = new byte[2];
+                                            attackIDs[0] = uncompressedScene[16];
+                                            attackIDs[1] = uncompressedScene[17];
+                                            attackIndex = AllMethods.GetLittleEndianInt(attackIDs, 0);
 
-                                    byte[] ModelIDs = new byte[675];
+                                            if (uncompressedScene[255] != 255)
+                                            {
+
+                                            }
+
+                                        }
+                                    }
+                                    /*
+                                    In Enemy
+                                        Attack Anim: 2D0, 388, 440
+                                        Attack IDs:  2E0, 398, 450
+
+                                    In Attack
+                                        Attack Data
+                                        Impact Effect ID: 4C2
+                                        Attack Effect ID: 4CE
+                                        Attack ID: 840, 2bytes x32
+                                    */
+
+
+                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 3, 4 } }; // phys
+                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 5, 6 } }; // mag
+                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 7 } };    // misc
+
+
+
                                     if (uncompressedScene[0] != 255 && uncompressedScene[88] != 2)
                                     {
-                                        ModelIDs = uncompressedScene.Skip(0).Take(2).ToArray();
+                                        //ModelIDs = uncompressedScene.Skip(0).Take(2).ToArray();
                                         //listedCameraData.Add(attacks);
                                     }
                                 }
