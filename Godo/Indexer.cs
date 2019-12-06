@@ -67,10 +67,11 @@ namespace Godo
             int r = 0;
             int o = 0;
             int c = 0;
-            ArrayList listedCameraData = new ArrayList();
-
-            // Is equal to the absolute upper limit of possible enemy models (023Ah/675 = ZZDA)
-            int[][][] jaggedAttackInfo = new int[675][][];
+            int k = 0;
+            int y = 0;
+            int s = 0;
+            int z = 0;
+            ArrayList listedAttackData = new ArrayList();
 
             while (r < 256)
             {
@@ -88,88 +89,69 @@ namespace Godo
                     {
                         using (MemoryStream decompressedOutput = new MemoryStream())
                         {
+
+                            /* Step 1: Create an array with all AttackIDs and AttackTypes
+                                   * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
+                                   * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
+                                   * 0 = Phys, 1 = Mag, 2 = Misc
+                                   * 
+                                   * Rules
+                                   * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
+                                   * ) Duplicate attacks overwrite each other, keeping consistency.
+                                   * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
+                                   *       But I suspect 0400h (1024) will be the actual limit for Attack IDs. 
+                                   */
+
+                            /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
+                               * To build an array of valid animation indexes for an enemy, we need to get a record of what anim indexes
+                               * have already been set for each of its associated attacks. This data can then be used to 
+                               * 0 = Phys, 1 = Mag, 2 = Misc
+                               * 
+                               * Rules
+                               * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
+                               * ) Duplicate attacks overwrite each other, keeping consistency.
+                               * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
+                               *       But I suspect 0400h (1024) will be the actual limit for Attack IDs. 
+                               */
+
                             using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                             {
                                 while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
                                 {
-                                    decompressedOutput.Write(uncompressedScene, 0, bytesRead);
+                                    while (s < 3)
+                                    {
+                                        decompressedOutput.Write(uncompressedScene, 0, bytesRead);
+                                        int[][][] jaggedAttacks = new int[65534][][];
+                                        byte[] modelID = new byte[4];
+                                        byte[] attackID = new byte[4];
+                                        byte[] animID = new byte[4];
 
-                                    // Proposed logic:
-                                    /* 1) Pull out the Model ID first, and check if it exists in the array. If it does, skip.
-                                     * 
-                                     * 2) Pull out the associated attack data and check if Impact Effect isn't FF (phys) or if Animation ID isn't FF (Mag); if both are, then it's a Misc.
-                                     * This gives us 32 entries of 0, 1, or 2.
-                                     *
-                                     * 3) Look at the model's registered attacks; using the data from step 2, we can determine what anims the model has and which belong to which attack type.
-                                     * A match has us add AnimID + '#' to a string that can be parsed later.
-                                     * 
-                                     * 4) When reassignment comes, we can check the new Model ID and its registered attacks then set an approproate animation.
-                                     */
-                                    int modelIndexA = 0;
-                                    int modelIndexB = 0;
-                                    int modelIndexC = 0;
-                                    int attackIndex = 0;
-                                    if (uncompressedScene[0] != 255 && uncompressedScene[1] != 255)
-                                    {
-                                        byte[] modelIDs = new byte[2];
-                                        modelIDs[0] = uncompressedScene[0];
-                                        modelIDs[1] = uncompressedScene[1];
-                                        modelIndexA = AllMethods.GetLittleEndianInt(modelIDs, 0);
-                                    }
-                                    if (uncompressedScene[2] != 255 && uncompressedScene[3] != 255)
-                                    {
-                                        byte[] modelIDs = new byte[2];
-                                        modelIDs[0] = uncompressedScene[0];
-                                        modelIDs[1] = uncompressedScene[1];
-                                        modelIndexB = AllMethods.GetLittleEndianInt(modelIDs, 0);
-                                    }
-                                    if (uncompressedScene[4] != 255 && uncompressedScene[5] != 255)
-                                    {
-                                        byte[] modelIDs = new byte[2];
-                                        modelIDs[0] = uncompressedScene[0];
-                                        modelIDs[1] = uncompressedScene[1];
-                                        modelIndexC = AllMethods.GetLittleEndianInt(modelIDs, 0);
-                                    }
-                                    while (c < 32)
-                                    {
-                                        if (uncompressedScene[16] != 255 && uncompressedScene[17] != 255)
+                                        // Checks if enemy ID is null
+                                        if (uncompressedScene[z] != 255 && uncompressedScene[z + 1] != 255)
                                         {
-                                            // Now we need to check the attacks and identify what they are
-                                            byte[] attackIDs = new byte[2];
-                                            attackIDs[0] = uncompressedScene[16];
-                                            attackIDs[1] = uncompressedScene[17];
-                                            attackIndex = AllMethods.GetLittleEndianInt(attackIDs, 0);
+                                            modelID = uncompressedScene.Skip(z).Take(2).ToArray();
+                                            y = AllMethods.GetLittleEndianInt(modelID, 0);
 
-                                            if (uncompressedScene[255] != 255)
+                                            // Checks AttackID isn't blank and then takes it, converts it into Int for array index
+                                            if (uncompressedScene[2112 + z] != 255 && uncompressedScene[2113 + z] != 255)
                                             {
+                                                attackID = uncompressedScene.Skip(2112 + z).Take(2).ToArray();
+                                                c = AllMethods.GetLittleEndianInt(attackID, 0);
 
+                                                // Checks if an Anim was set for this AttackID (99% of cases one will be)
+                                                if (uncompressedScene[736 + s] != 255)
+                                                {
+                                                    animID = uncompressedScene.Skip(736 + s).Take(1).ToArray();
+                                                    k = AllMethods.GetLittleEndianInt(animID, 0);
+
+                                                    // Using the Model ID, and the AttackID, as the array indices, we place the Animation Index Value in there.
+                                                    // Now we need to figure out what kind of attack this is.
+                                                    jaggedAttacks[y][c] = new int[] { k };
+                                                }
                                             }
-
                                         }
-                                    }
-                                    /*
-                                    In Enemy
-                                        Attack Anim: 2D0, 388, 440
-                                        Attack IDs:  2E0, 398, 450
-
-                                    In Attack
-                                        Attack Data
-                                        Impact Effect ID: 4C2
-                                        Attack Effect ID: 4CE
-                                        Attack ID: 840, 2bytes x32
-                                    */
-
-
-                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 3, 4 } }; // phys
-                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 5, 6 } }; // mag
-                                    jaggedAttackInfo[modelIndexA] = new int[1][] { new[] { 7 } };    // misc
-
-
-
-                                    if (uncompressedScene[0] != 255 && uncompressedScene[88] != 2)
-                                    {
-                                        //ModelIDs = uncompressedScene.Skip(0).Take(2).ToArray();
-                                        //listedCameraData.Add(attacks);
+                                        z += 2;
+                                        s++;
                                     }
                                 }
                                 zipInput.Close();
@@ -183,7 +165,7 @@ namespace Godo
                 r++;
                 o++;
             }
-            return listedCameraData;
+            return listedAttackData;
         }
     }
 }

@@ -142,7 +142,7 @@ namespace Godo
             ArrayList listedCameraData = Indexer.GetCameraData(jaggedSceneInfo, targetScene);
 
             // And the animation indexes associated by Model IDs to the attackIDs
-            //listedAttackAnimData = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
+            listedAttackAnimData = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
 
             while (r < 256)
             {
