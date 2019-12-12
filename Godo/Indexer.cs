@@ -110,7 +110,7 @@ namespace Godo
                                     while (a < 3) // Iterates through the 3 registerable enemy slots in this scene
                                     {
                                         decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                        int[][][] jaggedModelAttackAnim = new int[65534][][];
+                                        int[][][] jaggedModelAttackAnim = new int[3000][][];
                                         byte[] modelID = new byte[4];
                                         byte[] attackID = new byte[4];
                                         byte[] animID = new byte[4];
@@ -119,25 +119,29 @@ namespace Godo
                                         if (uncompressedScene[b] != 255 && uncompressedScene[b + 1] != 255)
                                         {
                                             modelID = uncompressedScene.Skip(b).Take(2).ToArray();
-                                            y = AllMethods.GetLittleEndianInt(modelID, 0);
+                                            y = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
 
                                             while (d < 16) // Iterates through the 16 registerable attack slots of this enemy
                                             {
                                                 // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                                if (uncompressedScene[2112 + b] != 255 && uncompressedScene[2113 + b] != 255)
+                                                if (uncompressedScene[736 + b] != 255 && uncompressedScene[736 + b] != 255)
                                                 {
-                                                    attackID = uncompressedScene.Skip(2112 + b).Take(2).ToArray();
-                                                    c = AllMethods.GetLittleEndianInt(attackID, 0);
+                                                    attackID = uncompressedScene.Skip(736 + b).Take(2).ToArray();
+                                                    c = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
 
                                                     // Checks if an Anim was set for this AttackID (99% of cases one will be)
-                                                    if (uncompressedScene[736 + d] != 255)
+                                                    if (uncompressedScene[720 + d] != 255)
                                                     {
-                                                        animID = uncompressedScene.Skip(736 + d).Take(1).ToArray();
-                                                        k = AllMethods.GetLittleEndianInt(animID, 0);
+                                                        animID = uncompressedScene.Skip(720 + d).Take(1).ToArray();
+                                                        //k = AllMethods.GetLittleEndianInt(animID, 0);
+                                                        k = animID[0];
 
-                                                        // Using the Model ID, and the AttackID, as the array indices, we place the Animation Index Value in there.
-                                                        // Now we need to figure out what kind of attack this is.
-                                                        jaggedModelAttackAnim[y][c] = new int[] { k };
+                                                        // The 3D Jagged Array specifies the ModelID as the initial indice with storage for any AttackID.
+                                                        // The 2nd indice is the attack ID, which contains a value (this model's animation ID for the attack).
+                                                        // Later, when we match this to the other array we can check ModelID between them for a match.
+                                                        jaggedModelAttackAnim[y] = new int[1024][];
+                                                        jaggedModelAttackAnim[y][c] = new int[1];
+                                                        jaggedModelAttackAnim[y][c][0] = k;
                                                     }
                                                 }
                                                 // What we're doing is checking two separate lists that are in different locations, but which rely on each other.

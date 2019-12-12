@@ -18,6 +18,12 @@ namespace Godo
                  | data[startIndex];
         }
 
+        public static int GetLittleEndianIntTwofer(byte[] data, int startIndex)
+        {
+            return (data[startIndex + 1] << 8)
+                 | data[startIndex];
+        }
+
         public static int GetPreviousLittleEndianInt(byte[] data, int startIndex)
         {
             return (data[startIndex - 1] << 24)
