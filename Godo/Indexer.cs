@@ -69,11 +69,10 @@ namespace Godo
             int c = 0;
             int k = 0;
             int y = 0;
-
-            int a = 0;
-            int b = 0;
-            int d = 0;
             ArrayList listedAttackData = new ArrayList();
+            int[][][] jaggedModelAttackAnim = new int[3000][][]; // Model ID > AttackID > Animation Indice
+            int[][] jaggedAttackType = new int[1024][]; // Attack ID > Attack Type
+            int[][][] jaggedModelAttackTypes = new int[3000][][]; // Model ID > Attack Type > Animation Indices - Target to Return
 
             while (r < 256)
             {
@@ -91,7 +90,61 @@ namespace Godo
                     {
                         using (MemoryStream decompressedOutput = new MemoryStream())
                         {
-                            /* Step 1: Create an array with all AttackIDs and associated Animation Indexes
+                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
+                            {
+                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
+                                {
+                                    /* Step 1: Create an array with all AttackIDs and AttackTypes
+                                  * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
+                                  * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
+                                  * 0 = Phys, 1 = Mag, 2 = Misc
+                                  * 
+                                  * Rules
+                                  * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
+                                  * ) Duplicate attacks overwrite each other, keeping consistency.
+                                  * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
+                                  *       But I suspect 0400h (1024) will be the actual limit for Attack IDs.
+                                  */
+
+                                    while (c < 32) // Iterate through all 32 entries for attack data in the scene
+                                    {
+                                        decompressedOutput.Write(uncompressedScene, 0, bytesRead);
+                                        byte[] attackID = new byte[2];
+                                        int type;
+
+                                        // Checks AttackID isn't blank and then takes it, converts it into Int for array index
+                                        if (uncompressedScene[2112 + k] != 255)
+                                        {
+                                            attackID = uncompressedScene.Skip(2112 + k).Take(2).ToArray();
+                                            int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+
+                                            // Checks anim and impact to determine attack type
+                                            if (uncompressedScene[1218 + y] != 255)
+                                            {
+                                                type = 0; // Assigns this AttackID as Physical
+                                                jaggedAttackType[attackIDInt] = new int[] { type };
+                                            }
+                                            else if (uncompressedScene[1230 + y] != 255)
+                                            {
+                                                type = 1; // Assigns this AttackID as Magic
+                                                jaggedAttackType[attackIDInt] = new int[] { type };
+                                            }
+                                            else
+                                            {
+                                                type = 2; // Assigns this AttackID as Misc
+                                                jaggedAttackType[attackIDInt] = new int[] { type };
+                                            }
+                                        }
+                                        c++;
+                                        k += 2;
+                                        y += 28;
+                                    }
+                                    c = 0;
+                                    k = 0;
+                                    y = 0;
+
+
+                                    /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
                                * To build an array of valid animation indexes for an enemy, we need to get a record of what anim indexes
                                * have already been set for each of its associated attacks. This data can then be used to 
                                * 0 = Phys, 1 = Mag, 2 = Misc
@@ -103,114 +156,76 @@ namespace Godo
                                *       But I suspect 0400h (1024) will be the actual limit for Attack IDs. 
                                */
 
-                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
-                            {
-                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
-                                {
-                                    while (a < 3) // Iterates through the 3 registerable enemy slots in this scene
+                                    int enemyCount = 0;
+                                    while (enemyCount < 3) // Iterates through the 3 registerable enemy slots in this scene
                                     {
                                         decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                        int[][][] jaggedModelAttackAnim = new int[3000][][];
-                                        byte[] modelID = new byte[4];
-                                        byte[] attackID = new byte[4];
-                                        byte[] animID = new byte[4];
+                                        byte[] modelID = new byte[2];
+                                        byte[] attackID = new byte[2];
+                                        byte[] animID = new byte[1];
+                                        int attackCount = 0;
 
                                         // Checks if enemy ID is null
-                                        if (uncompressedScene[b] != 255 && uncompressedScene[b + 1] != 255)
+                                        if (uncompressedScene[c] != 255 && uncompressedScene[c + 1] != 255)
                                         {
-                                            modelID = uncompressedScene.Skip(b).Take(2).ToArray();
-                                            y = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+                                            modelID = uncompressedScene.Skip(k).Take(2).ToArray();
+                                            int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
 
-                                            while (d < 16) // Iterates through the 16 registerable attack slots of this enemy
+                                            while (attackCount < 16) // Iterates through the 16 registerable attack slots of this enemy
                                             {
                                                 // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                                if (uncompressedScene[736 + b] != 255 && uncompressedScene[736 + b] != 255)
+                                                if (uncompressedScene[736 + k] != 255 && uncompressedScene[736 + k] != 255)
                                                 {
-                                                    attackID = uncompressedScene.Skip(736 + b).Take(2).ToArray();
-                                                    c = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+                                                    attackID = uncompressedScene.Skip(736 + k).Take(2).ToArray();
+                                                    int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
 
                                                     // Checks if an Anim was set for this AttackID (99% of cases one will be)
-                                                    if (uncompressedScene[720 + d] != 255)
+                                                    if (uncompressedScene[720 + y] != 255)
                                                     {
-                                                        animID = uncompressedScene.Skip(720 + d).Take(1).ToArray();
-                                                        //k = AllMethods.GetLittleEndianInt(animID, 0);
-                                                        k = animID[0];
+                                                        animID = uncompressedScene.Skip(720 + y).Take(1).ToArray();
 
                                                         // The 3D Jagged Array specifies the ModelID as the initial indice with storage for any AttackID.
                                                         // The 2nd indice is the attack ID, which contains a value (this model's animation ID for the attack).
-                                                        // Later, when we match this to the other array we can check ModelID between them for a match.
-                                                        jaggedModelAttackAnim[y] = new int[1024][];
-                                                        jaggedModelAttackAnim[y][c] = new int[1];
-                                                        jaggedModelAttackAnim[y][c][0] = k;
+                                                        // Later, when we match this to the other array we can check ModelID and AttackID between them for a match.
+                                                        jaggedModelAttackAnim[modelIDInt] = new int[1024][];
+                                                        jaggedModelAttackAnim[modelIDInt][attackIDInt] = new int[1];
+                                                        jaggedModelAttackAnim[modelIDInt][attackIDInt][0] = animID[0];
                                                     }
                                                 }
                                                 // What we're doing is checking two separate lists that are in different locations, but which rely on each other.
                                                 // One is the Attack ID registered to an enemy, the other is the Animation Index to use with that Attack ID.
                                                 // One is 2-bytes, one is 1-byte, but they're in separate places so need to iterate through them separately too.
-                                                b += 2; // Gets us to the next registered attack offset
-                                                d++; // Takes us to the next attack
+                                                k += 2; // Gets us to the next registered attack offset
+                                                y++;
+                                                attackCount++;
                                             }
-                                            a++; // Next enemy
-                                            d = 0; // Reset attack counter
+                                            jaggedModelAttackTypes[modelIDInt] = new int[3][];
+                                            //jaggedModelAttackTypes[modelIDInt][attackIDInt] = new int[];
+
+                                        // JaggedAttackType: AttackID > AttackType
+                                        // JaggedModelAttackAnim: ModelID > AttackID > AnimIndice
+
+                                        //So: Where JaggedModelAttackAnim.ModelID.AttackID == jaggedAttackType.AttackID
+                                        // If JaggedAttackType == 0
+                                        // Put JaggedModelAttackAnim.AnimIndice into JaggedModelAttackType.AnimType[0]
+                                        
+                                        // AttackID is the the point of association.
+
                                         }
+                                        else // No enemy, so we move to the data for the next one
+                                        {
+                                            k += 32; // Tracks location of AttackID
+                                            y += 16; // Tracks location of Animation Indice
+                                        }
+
+                                        c += 2; // Next enemy ID offset
+                                        attackCount = 0; // Reset attack counter
+                                        enemyCount++; // Reset attack counter
                                     }
                                     c = 0;
                                     k = 0;
                                     y = 0;
-                                    a = 0;
-                                    b = 0;
-
-                                    /* Step 2: Create an array with all AttackIDs and AttackTypes
-                                   * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
-                                   * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
-                                   * 0 = Phys, 1 = Mag, 2 = Misc
-                                   * 
-                                   * Rules
-                                   * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
-                                   * ) Duplicate attacks overwrite each other, keeping consistency.
-                                   * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
-                                   *       But I suspect 0400h (1024) will be the actual limit for Attack IDs.
-                                   */
-
-                                    while (a < 32) // Iterate through all 32 entries for attack data in the scene
-                                    {
-                                        decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                        int[][] jaggedAttackType = new int[65534][];
-                                        //byte[] modelID = new byte[4];
-                                        byte[] attackID = new byte[4];
-                                        int type;
-
-                                        // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                        if (uncompressedScene[2112 + b] != 255 && uncompressedScene[2113 + b] != 255)
-                                        {
-                                            attackID = uncompressedScene.Skip(2112 + b).Take(2).ToArray();
-                                            c = AllMethods.GetLittleEndianInt(attackID, 0);
-
-                                            // Checks anim and impact to determine attack type
-                                            if (uncompressedScene[1218 + d] != 255)
-                                            {
-                                                type = 0; // Assigns this AttackID as Physical
-                                                jaggedAttackType[c] = new int[] { type };
-                                            }
-                                            else if (uncompressedScene[1230 + d] != 255)
-                                            {
-                                                type = 1; // Assigns this AttackID as Magic
-                                                jaggedAttackType[c] = new int[] { type };
-                                            }
-                                            else
-                                            {
-                                                type = 2; // Assigns this AttackID as Misc
-                                                jaggedAttackType[c] = new int[] { type };
-                                            }
-                                        }
-                                    }
-                                    b += 2;
-                                    d += 28;
-                                    a++;
                                 }
-                                b = 0;
-                                d = 0;
-                                a = 0;
                                 zipInput.Close();
                             }
                             decompressedOutput.Close();
@@ -222,6 +237,13 @@ namespace Godo
                 r++;
                 o++;
             }
+
+            // So we use these two jagged arrays to create an additional array that contains:
+            // Model ID[#] > AnimType[3] > {Phys}, {Mag}, {Misc}
+            // jaggedModelAttackAnim[modelIDInt][attackIDInt][0] = animID[0];
+            // jaggedAttackType[attackIDInt] = new int[] { type };
+
+
             return listedAttackData;
         }
     }
