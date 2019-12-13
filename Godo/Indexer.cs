@@ -6,6 +6,7 @@ using System.IO.Compression;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace Godo
 {
@@ -70,9 +71,9 @@ namespace Godo
             int k = 0;
             int y = 0;
             ArrayList listedAttackData = new ArrayList();
-            int[][][] jaggedModelAttackAnim = new int[3000][][]; // Model ID > AttackID > Animation Indice
-            int[][] jaggedAttackType = new int[1024][]; // Attack ID > Attack Type
-            int[][][] jaggedModelAttackTypes = new int[3000][][]; // Model ID > Attack Type > Animation Indices - Target to Return
+            int[][][] jaggedModelAttackAnim = new int[3000][][];    // Model ID > AttackID > Animation Indice
+            int[][] jaggedAttackType = new int[1024][];             // Attack ID > Attack Type
+            int[][][] jaggedModelAttackTypes = new int[3000][][];   // Model ID > Attack Type > Animation Indices - Target to Return
 
             while (r < 256)
             {
@@ -94,7 +95,7 @@ namespace Godo
                             {
                                 while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
                                 {
-                                    /* Step 1: Create an array with all AttackIDs and AttackTypes
+                                 /* Step 1: Create an array with all AttackIDs and AttackTypes
                                   * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
                                   * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
                                   * 0 = Phys, 1 = Mag, 2 = Misc
@@ -144,7 +145,7 @@ namespace Godo
                                     y = 0;
 
 
-                                    /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
+                              /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
                                * To build an array of valid animation indexes for an enemy, we need to get a record of what anim indexes
                                * have already been set for each of its associated attacks. This data can then be used to 
                                * 0 = Phys, 1 = Mag, 2 = Misc
@@ -163,6 +164,7 @@ namespace Godo
                                         byte[] modelID = new byte[2];
                                         byte[] attackID = new byte[2];
                                         byte[] animID = new byte[1];
+                                        byte[] animList = new byte[16];
                                         int attackCount = 0;
 
                                         // Checks if enemy ID is null
@@ -190,6 +192,25 @@ namespace Godo
                                                         jaggedModelAttackAnim[modelIDInt] = new int[1024][];
                                                         jaggedModelAttackAnim[modelIDInt][attackIDInt] = new int[1];
                                                         jaggedModelAttackAnim[modelIDInt][attackIDInt][0] = animID[0];
+
+                                                        jaggedModelAttackTypes[modelIDInt] = new int[3][];
+
+                                                        if(jaggedAttackType[attackIDInt][0] == 0) // Attack Type is physical
+                                                        {
+                                                            jaggedModelAttackTypes[modelIDInt][0] = new int[] { animID[0] };
+                                                        }
+                                                        else if (jaggedAttackType[attackIDInt][1] == 0) // Attack type is magical
+                                                        {
+                                                            jaggedModelAttackTypes[modelIDInt][1] = new int[] { animID[0] };
+                                                        }
+                                                        else if (jaggedAttackType[attackIDInt][0] == 2) // Attack type is miscellaneous
+                                                        {
+                                                            jaggedModelAttackTypes[modelIDInt][2] = new int[] { animID[0] };
+                                                        }
+                                                        else
+                                                        {
+                                                            MessageBox.Show("Error: An animation was not assigned correctly");
+                                                        }
                                                     }
                                                 }
                                                 // What we're doing is checking two separate lists that are in different locations, but which rely on each other.
@@ -199,8 +220,6 @@ namespace Godo
                                                 y++;
                                                 attackCount++;
                                             }
-                                            jaggedModelAttackTypes[modelIDInt] = new int[3][];
-                                            //jaggedModelAttackTypes[modelIDInt][attackIDInt] = new int[];
 
                                         // JaggedAttackType: AttackID > AttackType
                                         // JaggedModelAttackAnim: ModelID > AttackID > AnimIndice
