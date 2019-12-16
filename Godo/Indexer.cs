@@ -120,12 +120,12 @@ namespace Godo
                                             int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
 
                                             // Checks anim and impact to determine attack type
-                                            if (uncompressedScene[1218 + y] != 255)
+                                            if (uncompressedScene[1217 + y] != 255)
                                             {
                                                 type = 0; // Assigns this AttackID as Physical
                                                 jaggedAttackType[attackIDInt] = new int[] { type };
                                             }
-                                            else if (uncompressedScene[1230 + y] != 255)
+                                            else if (uncompressedScene[1229 + y] != 255)
                                             {
                                                 type = 1; // Assigns this AttackID as Magic
                                                 jaggedAttackType[attackIDInt] = new int[] { type };
@@ -145,17 +145,17 @@ namespace Godo
                                     y = 0;
 
 
-                              /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
-                               * To build an array of valid animation indexes for an enemy, we need to get a record of what anim indexes
-                               * have already been set for each of its associated attacks. This data can then be used to 
-                               * 0 = Phys, 1 = Mag, 2 = Misc
-                               * 
-                               * Rules
-                               * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
-                               * ) Duplicate attacks overwrite each other, keeping consistency.
-                               * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
-                               *       But I suspect 0400h (1024) will be the actual limit for Attack IDs. 
-                               */
+                                    /* Step 2: Create an array with all AttackIDs and associated Animation Indexes
+                                     * To build an array of valid animation indexes for an enemy, we need to get a record of what anim indexes
+                                     * have already been set for each of its associated attacks. This data can then be used to 
+                                     * 0 = Phys, 1 = Mag, 2 = Misc
+                                     * 
+                                     * Rules
+                                     * ) Any attack ID that has a value less than 0100 is a kernel-derived attack and is mag-type.
+                                     * ) Duplicate attacks overwrite each other, keeping consistency.
+                                     * ) Vanilla attacks don't exceed 0400 but have made array large enough for IDs up to FFFE in case of modded scene.bin
+                                     *       But I suspect 0400h (1024) will be the actual limit for Attack IDs. 
+                                     */
 
                                     int enemyCount = 0;
                                     while (enemyCount < 3) // Iterates through the 3 registerable enemy slots in this scene
@@ -166,12 +166,20 @@ namespace Godo
                                         byte[] animID = new byte[1];
                                         byte[] animList = new byte[16];
                                         int attackCount = 0;
+                                        int offset = 0;
 
-                                        // Checks if enemy ID is null
+                                        // Checks if enemy ID is null - is failing at enemy 3 for some reason
                                         if (uncompressedScene[c] != 255 && uncompressedScene[c + 1] != 255)
                                         {
-                                            modelID = uncompressedScene.Skip(k).Take(2).ToArray();
+                                            modelID = uncompressedScene.Skip(c).Take(2).ToArray();
                                             int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+                                            jaggedModelAttackTypes[modelIDInt] = new int[3][];
+                                            int[] physAnims = new int[16];
+                                            int[] magAnims = new int[16];
+                                            int[] miscAnims = new int[16];
+                                            int physCount = 0;
+                                            int magCount = 0;
+                                            int miscCount = 0;
 
                                             while (attackCount < 16) // Iterates through the 16 registerable attack slots of this enemy
                                             {
@@ -189,23 +197,27 @@ namespace Godo
                                                         // The 3D Jagged Array specifies the ModelID as the initial indice with storage for any AttackID.
                                                         // The 2nd indice is the attack ID, which contains a value (this model's animation ID for the attack).
                                                         // Later, when we match this to the other array we can check ModelID and AttackID between them for a match.
-                                                        jaggedModelAttackAnim[modelIDInt] = new int[1024][];
-                                                        jaggedModelAttackAnim[modelIDInt][attackIDInt] = new int[1];
-                                                        jaggedModelAttackAnim[modelIDInt][attackIDInt][0] = animID[0];
+                                                        //jaggedModelAttackAnim[modelIDInt] = new int[1024][];
+                                                        //jaggedModelAttackAnim[modelIDInt][attackIDInt] = new int[1];
+                                                        //jaggedModelAttackAnim[modelIDInt][attackIDInt][0] = animID[0];
 
-                                                        jaggedModelAttackTypes[modelIDInt] = new int[3][];
-
-                                                        if(jaggedAttackType[attackIDInt][0] == 0) // Attack Type is physical
+                                                        if (jaggedAttackType[attackIDInt][0] == 0) // Attack Type is physical
                                                         {
-                                                            jaggedModelAttackTypes[modelIDInt][0] = new int[] { animID[0] };
+                                                            physAnims[physCount] = animID[0];
+                                                            physCount++;
+                                                            //jaggedModelAttackTypes[modelIDInt][0] = new int[] { animID[0] };
                                                         }
-                                                        else if (jaggedAttackType[attackIDInt][1] == 0) // Attack type is magical
+                                                        else if (jaggedAttackType[attackIDInt][0] == 1) // Attack type is magical
                                                         {
-                                                            jaggedModelAttackTypes[modelIDInt][1] = new int[] { animID[0] };
+                                                            magAnims[magCount] = animID[0];
+                                                            magCount++;
+                                                            //jaggedModelAttackTypes[modelIDInt][1] = new int[] { animID[0] };
                                                         }
                                                         else if (jaggedAttackType[attackIDInt][0] == 2) // Attack type is miscellaneous
                                                         {
-                                                            jaggedModelAttackTypes[modelIDInt][2] = new int[] { animID[0] };
+                                                            miscAnims[miscCount] = animID[0];
+                                                            miscCount++;
+                                                            //jaggedModelAttackTypes[modelIDInt][2] = new int[] { animID[0] };
                                                         }
                                                         else
                                                         {
@@ -220,26 +232,30 @@ namespace Godo
                                                 y++;
                                                 attackCount++;
                                             }
+                                            jaggedModelAttackTypes[modelIDInt][0] = new int[] { physAnims[0], physAnims[1], physAnims[2], physAnims[3], physAnims[4], physAnims[5], physAnims[6], physAnims[7], physAnims[8], physAnims[9], physAnims[10], physAnims[11], physAnims[12], physAnims[13], physAnims[14], physAnims[15]};
+                                            jaggedModelAttackTypes[modelIDInt][1] = new int[] { magAnims[0], magAnims[1], magAnims[2], magAnims[3], magAnims[4], magAnims[5], magAnims[6], magAnims[7], magAnims[8], magAnims[9], magAnims[10], magAnims[11], magAnims[12], magAnims[13], magAnims[14], magAnims[15] };
+                                            jaggedModelAttackTypes[modelIDInt][2] = new int[] { miscAnims[0], miscAnims[1], miscAnims[2], miscAnims[3], miscAnims[4], miscAnims[5], miscAnims[6], miscAnims[7], miscAnims[8], miscAnims[9], miscAnims[10], miscAnims[11], miscAnims[12], miscAnims[13], miscAnims[14], miscAnims[15] };
+                                            // JaggedAttackType: AttackID > AttackType
+                                            // JaggedModelAttackAnim: ModelID > AttackID > AnimIndice
 
-                                        // JaggedAttackType: AttackID > AttackType
-                                        // JaggedModelAttackAnim: ModelID > AttackID > AnimIndice
+                                            //So: Where JaggedModelAttackAnim.ModelID.AttackID == jaggedAttackType.AttackID
+                                            // If JaggedAttackType == 0
+                                            // Put JaggedModelAttackAnim.AnimIndice into JaggedModelAttackType.AnimType[0]
 
-                                        //So: Where JaggedModelAttackAnim.ModelID.AttackID == jaggedAttackType.AttackID
-                                        // If JaggedAttackType == 0
-                                        // Put JaggedModelAttackAnim.AnimIndice into JaggedModelAttackType.AnimType[0]
-                                        
-                                        // AttackID is the the point of association.
+                                            // AttackID is the the point of association.
 
                                         }
                                         else // No enemy, so we move to the data for the next one
                                         {
-                                            k += 32; // Tracks location of AttackID
-                                            y += 16; // Tracks location of Animation Indice
+                                            k += 184; // Tracks location of AttackID
+                                            y += 200; // Tracks location of Animation Indice
                                         }
 
                                         c += 2; // Next enemy ID offset
                                         attackCount = 0; // Reset attack counter
                                         enemyCount++; // Reset attack counter
+                                        k += 152;
+                                        y += 168;
                                     }
                                     c = 0;
                                     k = 0;
