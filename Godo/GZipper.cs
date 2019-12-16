@@ -27,7 +27,7 @@ namespace Godo
 
             int[][] jaggedSceneInfo = new int[256][];           // An array of arrays, containing offset, size, and absoluteoffset for each scene file
             ArrayList listedSceneData = new ArrayList();        // Contains all the compressed scene data
-            ArrayList listedAttackAnimData = new ArrayList();   // Contains all the uncompressed Attack Anim data
+            int[][][] jaggedModelAttackTypes = new int[3000][][];   // Contains all the uncompressed Attack Anim data
 
             long initialSize;                                   // The size of the initial scene.bin (can vary, up to 63 blocks but typically 32-33
             int size;                                           // The size of the compressed file
@@ -141,8 +141,8 @@ namespace Godo
             // But first, we acquire the camera data of the target scene.bin
             ArrayList listedCameraData = Indexer.GetCameraData(jaggedSceneInfo, targetScene);
 
-            // And the animation indexes associated by Model IDs to the attackIDs
-            listedAttackAnimData = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
+            // And the valid Animation Types for each ModelID
+            jaggedModelAttackTypes = Indexer.GetAttackData(jaggedSceneInfo, targetScene);
 
             while (r < 256)
             {

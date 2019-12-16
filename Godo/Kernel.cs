@@ -198,15 +198,30 @@ namespace Godo
                 while (r < 9)
                 {
                     // Stat Curve IDs
-                    data[o] = (byte)rnd.Next(64); o++;      // STR
-                    data[o] = (byte)rnd.Next(64); o++;      // VIT
-                    data[o] = (byte)rnd.Next(64); o++;      // MAG
-                    data[o] = (byte)rnd.Next(64); o++;      // SPR
-                    data[o] = (byte)rnd.Next(64); o++;      // DEX
-                    data[o] = (byte)rnd.Next(64); o++;      // LCK
-                    data[o] = (byte)rnd.Next(64); o++;      // HP
-                    data[o] = (byte)rnd.Next(64); o++;      // MP
-                    data[o] = data[o]; o++;                 // EXP
+                    if (options[0] != false)
+                    {
+                        data[o] = (byte)rnd.Next(64); o++;      // STR
+                        data[o] = (byte)rnd.Next(64); o++;      // VIT
+                        data[o] = (byte)rnd.Next(64); o++;      // MAG
+                        data[o] = (byte)rnd.Next(64); o++;      // SPR
+                        data[o] = (byte)rnd.Next(64); o++;      // DEX
+                        data[o] = (byte)rnd.Next(64); o++;      // LCK
+                        data[o] = (byte)rnd.Next(64); o++;      // HP
+                        data[o] = (byte)rnd.Next(64); o++;      // MP
+                        data[o] = (byte)rnd.Next(64); o++;      // EXP
+                    }
+                    else
+                    {
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                    }
 
                     data[o] = data[o]; o++;                 // Padding
                     data[o] = data[o]; o++;                 // Joining Level Modifier
@@ -214,18 +229,36 @@ namespace Godo
 
                     // These values should be 80h/128 and above - Characters can mostly use any Limit (albeit with skeleton flailing around)
                     // Avoid using 95h/149 > 9Bh/155 as these are Tifa's limits and will crash if not used by her
-                    data[o] = data[o]; o++;                 // Limit ID 1-1
-                    data[o] = data[o]; o++;                 // Limit ID 1-2
-                    data[o] = data[o]; o++;                 // Limit ID 1-3
-                    data[o] = data[o]; o++;                 // Limit ID 2-1
-                    data[o] = data[o]; o++;                 // Limit ID 2-2
-                    data[o] = data[o]; o++;                 // Limit ID 2-3
-                    data[o] = data[o]; o++;                 // Limit ID 3-1
-                    data[o] = data[o]; o++;                 // Limit ID 3-2
-                    data[o] = data[o]; o++;                 // Limit ID 3-3
-                    data[o] = data[o]; o++;                 // Limit ID 4-1
-                    data[o] = data[o]; o++;                 // Limit ID 4-2
-                    data[o] = data[o]; o++;                 // Limit ID 4-3
+                    if (options[1] != false && (r != 2 || r != 6 || r != 7))
+                    {
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-1
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-2
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-3
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-1
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-2
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-3
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-1
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-2
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-3
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-1
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-2
+                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-3
+                    }
+                    else
+                    {
+                        data[o] = data[o]; o++;                 // Limit ID 1-1
+                        data[o] = data[o]; o++;                 // Limit ID 1-2
+                        data[o] = data[o]; o++;                 // Limit ID 1-3
+                        data[o] = data[o]; o++;                 // Limit ID 2-1
+                        data[o] = data[o]; o++;                 // Limit ID 2-2
+                        data[o] = data[o]; o++;                 // Limit ID 2-3
+                        data[o] = data[o]; o++;                 // Limit ID 3-1
+                        data[o] = data[o]; o++;                 // Limit ID 3-2
+                        data[o] = data[o]; o++;                 // Limit ID 3-3
+                        data[o] = data[o]; o++;                 // Limit ID 4-1
+                        data[o] = data[o]; o++;                 // Limit ID 4-2
+                        data[o] = data[o]; o++;                 // Limit ID 4-3
+                    }
 
                     data[o] = data[o]; o++;                 // Kills for Limit Level 2
                     data[o] = data[o]; o++;

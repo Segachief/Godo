@@ -48,7 +48,7 @@ namespace Godo
 
                 #region Enemy IDs
                 // Enemy IDs
-                if (options[0] != false)
+                if (options[24] != false)
                 {
                     while (r < 3)
                     {
@@ -67,7 +67,7 @@ namespace Godo
                 }
                 else
                 {
-                    o +=6;
+                    o += 6;
                 }
 
                 // Stores the enemy IDs for use later in enforcing consistency
@@ -97,16 +97,32 @@ namespace Godo
                     if (data[o] != 255)
                     {
                         // Battle Location
-                        data[o] = (byte)rnd.Next(89); o++;
-                        data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
+                        if (options[25] != false)
+                        {
+                            data[o] = (byte)rnd.Next(89); o++;
+                            data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
                         data[o] = data[o]; o++; // FFFF by default, no new battle will load
                         data[o] = data[o]; o++;
 
                         // Escape Counter; value of 0009 makes battle unescapable; 2-byte but value never exceeds 0009
-                        data[o] = (byte)rnd.Next(1, 9); o++;
-                        data[o] = data[o]; o++;
+                        if (options[26] != false)
+                        {
+                            data[o] = 9; o++;
+                            data[o] = data[o]; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Unused - 2byte
                         data[o] = data[o]; o++;
@@ -170,7 +186,7 @@ namespace Godo
                 error = "Camera Placement";
                 while (r < 4)
                 {
-                    if (data[o] != 255 && data[o + 1] != 255)
+                    if ((data[o] != 255 && data[o + 1] != 255) || options[27] != false)
                     {
                         // Using the byte array to retain camera data
                         // Primary Battle Idle Camera Position
@@ -262,10 +278,10 @@ namespace Godo
                 error = "Battle Formation";
                 while (r < 4)
                 {
-                    //This randomises formation data for each enemy, but has been dummied out as it doesn't fit current project requirements
+                    //This randomises formation data for each enemy
                     while (c < 6)
                     {
-                        if (data[o] != 255 && data[o + 1] != 255)
+                        if ((data[o] != 255 && data[o + 1] != 255) && options[29] != false)
                         {
                             // Set the rng so that a null enemy can't be picked
                             if (enemyData[2] == 255 && enemyData[3] == 255)
@@ -301,17 +317,35 @@ namespace Godo
                                 data[o] = enemyIDList[5]; o++;
                             }
 
-                            // X Coordinate
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
+                            if (options[28] != false)
+                            {
+                                // X Coordinate
+                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = (byte)rnd.Next(256); o++;
 
-                            // Y Coordinate
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                                // Y Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
 
-                            // Z Coordinate
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                                // Z Coordinate
+                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = (byte)rnd.Next(256); o++;
+                            }
+                            else
+                            {
+                                // X Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+
+                                // Y Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+
+                                // Z Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                            }
 
                             // Row
                             data[o] = data[o]; o++;
@@ -356,23 +390,38 @@ namespace Godo
                     // If enemy name is empty, assume no enemy is there and just retain pre-existing data
                     if (data[o] != 255)
                     {
-                        // Enemy Name, 32 bytes ascii
-                        nameBytes = AllMethods.NameGenerate(rnd);
-                        data[o] = nameBytes[0]; o++;
-                        data[o] = nameBytes[1]; o++;
-                        data[o] = nameBytes[2]; o++;
-                        data[o] = nameBytes[3]; o++;
-
-                        rngID = rnd.Next(2); // Chance to append a longer name
-                        if (rngID == 1)
+                        if (options[30] != false)
                         {
-                            data[o] = nameBytes[4]; o++;
-                            data[o] = nameBytes[5]; o++;
-                            data[o] = nameBytes[6]; o++;
-                            data[o] = nameBytes[7]; o++;
+                            // Enemy Name, 32 bytes ascii
+                            nameBytes = AllMethods.NameGenerate(rnd);
+                            data[o] = nameBytes[0]; o++;
+                            data[o] = nameBytes[1]; o++;
+                            data[o] = nameBytes[2]; o++;
+                            data[o] = nameBytes[3]; o++;
+
+                            rngID = rnd.Next(2); // Chance to append a longer name
+                            if (rngID == 1)
+                            {
+                                data[o] = nameBytes[4]; o++;
+                                data[o] = nameBytes[5]; o++;
+                                data[o] = nameBytes[6]; o++;
+                                data[o] = nameBytes[7]; o++;
+                            }
+                            else
+                            {
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                            }
                         }
                         else
                         {
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+
                             data[o] = 255; o++;
                             data[o] = 255; o++;
                             data[o] = 255; o++;
@@ -404,29 +453,43 @@ namespace Godo
                         data[o] = 255; o++;
                         data[o] = 255; o++; // Empty - Use FF to terminate the string
 
-                        // Enemy Level - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 32); o++;
+                        if (options[31] != false)
+                        {
+                            // Enemy Level - This'll likely be set via AI
+                            data[o] = (byte)rnd.Next(10, 32); o++;
 
-                        // Enemy Speed
-                        data[o] = (byte)rnd.Next(10, 127); o++;
+                            // Enemy Speed
+                            data[o] = (byte)rnd.Next(10, 127); o++;
 
-                        // Enemy Luck
-                        data[o] = (byte)rnd.Next(0, 256); o++;
+                            // Enemy Luck
+                            data[o] = (byte)rnd.Next(0, 256); o++;
 
-                        // Enemy Evade
-                        data[o] = (byte)rnd.Next(0, 32); o++;
+                            // Enemy Evade
+                            data[o] = (byte)rnd.Next(0, 32); o++;
 
-                        // Enemy Strength  - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 127); o++;
+                            // Enemy Strength  - This'll likely be set via AI
+                            data[o] = (byte)rnd.Next(10, 127); o++;
 
-                        // Enemy Defence  - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 127); o++;
+                            // Enemy Defence  - This'll likely be set via AI
+                            data[o] = (byte)rnd.Next(10, 127); o++;
 
-                        // Enemy Magic  - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 127); o++;
+                            // Enemy Magic  - This'll likely be set via AI
+                            data[o] = (byte)rnd.Next(10, 127); o++;
 
-                        // Enemy Magic Defence  - This'll likely be set via AI
-                        data[o] = (byte)rnd.Next(10, 127); o++;
+                            // Enemy Magic Defence  - This'll likely be set via AI
+                            data[o] = (byte)rnd.Next(10, 127); o++;
+                        }
+                        else
+                        {
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                        }
 
                         // Enemy Elemental Types
                         /*
@@ -450,35 +513,58 @@ namespace Godo
                             20h-3Fh - Statuses (Damage done by actions that inflict these statuses will be modified)
                             FFh - No element
                         */
-                        data[o] = (byte)rnd.Next(0, 17); o++; // 4 elemental/status properties have been set
-                        data[o] = (byte)rnd.Next(0, 17); o++;
-                        data[o] = (byte)rnd.Next(0, 17); o++;
-                        data[o] = (byte)rnd.Next(0, 17); o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
+                        if (options[32] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 17); o++; // 4 elemental/status properties have been set
+                            data[o] = (byte)rnd.Next(0, 17); o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
 
-                        // Elemental Rates/Modifiers
-                        /*
-                            00h - Death
-                            02h - Double Damage
-                            03h - Unknown
-                            04h - Half Damage
-                            05h - Nullify Damage
-                            06h - Absorb 100%
-                            07h - Full Cure
-                            FFh - Nothing
-                         */
-                        data[o] = (byte)rnd.Next(1, 7); o++;
-                        data[o] = (byte)rnd.Next(1, 7); o++;
-                        data[o] = (byte)rnd.Next(1, 7); o++;
-                        data[o] = (byte)rnd.Next(1, 7); o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
+                            // Elemental Rates/Modifiers
+                            /*
+                                00h - Death
+                                02h - Double Damage
+                                03h - Unknown
+                                04h - Half Damage
+                                05h - Nullify Damage
+                                06h - Absorb 100%
+                                07h - Full Cure
+                                FFh - Nothing
+                             */
+                            data[o] = (byte)rnd.Next(1, 7); o++;
+                            data[o] = (byte)rnd.Next(1, 7); o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
 
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                        }
 
                         // Action Animation Index
                         /* This needs a lot of logic to get running in a safe way. Each enemy Index needs to be loaded up with valid IDs for different types
@@ -529,27 +615,49 @@ namespace Godo
 
                         // Obtain Rates
                         // 1 byte per item, 4 items. Values below 80 are Drop Items (#/63). Values above 80 are Steal Items (#63)
-                        data[o] = (byte)rnd.Next(2, 7); o++; // Item 1
-                        data[o] = 255; o++; // Item 2
-                        data[o] = 255; o++; // Item 3
-                        data[o] = 255; o++; // Item 4
+                        if (options[33] != false)
+                        {
+                            data[o] = (byte)rnd.Next(2, 63); o++; // Item 1
+                            data[o] = (byte)rnd.Next(82, 87); o++; // Item 2
+                            data[o] = 255; o++; // Item 3
+                            data[o] = 255; o++; // Item 4
 
-                        // Item IDs to be matched to the above drop/steal rates
-                        // Item 1
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
+                            // Item IDs to be matched to the above drop/steal rates
+                            // Item 1
+                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = (byte)rnd.Next(2, 7); o++;
 
-                        // Item 2
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
+                            // Item 2
+                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = (byte)rnd.Next(2, 7); o++;
 
-                        // Item 3
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
+                            // Item 3
+                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = (byte)rnd.Next(2, 7); o++;
 
-                        // Item 4
-                        data[o] = (byte)rnd.Next(2, 7); o++;
-                        data[o] = (byte)rnd.Next(2, 7); o++;
+                            // Item 4
+                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = (byte)rnd.Next(2, 7); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Manipulate/Berserk Attack IDs
                         // The first listed attack is the Berserk option; all 3 attacks can be selected for use under Manipulate
@@ -567,12 +675,28 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Enemy MP
-                        data[o] = (byte)rnd.Next(0, 11); o++;
-                        data[o] = (byte)rnd.Next(0, 184); o++;
+                        if (options[34] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 11); o++;
+                            data[o] = (byte)rnd.Next(0, 184); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Enemy AP
-                        data[o] = (byte)rnd.Next(0, 64); o++;
-                        data[o] = 0; o++;
+                        if (options[35] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 64); o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Enemy Morph Item ID - FFFF means no morph
                         data[o] = (byte)rnd.Next(0, 64); o++;
@@ -585,29 +709,69 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Enemy HP - Should probbly be set by AI
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 3); o++;
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        if (options[36] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 3); o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // EXP Points
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 3); o++;
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        if (options[37] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 3); o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Gil
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 3); o++;
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        if (options[38] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 3); o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
 
                         // Status Immunities
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
+                        if (options[39] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Padding FF
                         data[o] = 255; o++;
@@ -639,8 +803,7 @@ namespace Godo
                 while (r < 32)
                 {
                     // If MP cost does not equal 65536 or Target flags are 0
-                    // TODO: Need a way to ignore attacks that are animation handling
-                    if (data[o + 4] != 255 && data[o + 5] != 255)
+                    if ((data[o + 4] != 255 && data[o + 5] != 255) && options[40] != false)
                     {
                         // Attack %
                         data[o] = (byte)rnd.Next(50, 150); o++;
@@ -718,21 +881,40 @@ namespace Godo
                         // Produce an enum class that holds the specific values for each status, then pick one of those or more and 
                         // pipe it into the statuses/elements; true random here would be too much + death/imprisoned/petrify can creep in
 
-                        // Statuses
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        // Statuses - TODO: Identify values that are OHKOs.
+                        if (options[41] != false) // Safe - OHKOs/Disables not enabled
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(2, 256); o++;
+                        }
+                        else if (options[42] != false) // Unsafe - OHKOs/Disables enabled
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
-                        // Elements
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        //data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
+                        // Elements - TODO: restrict to 1 element
+                        if (options[43] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Special Attack Flags
                         //data[o] = (byte)rnd.Next(0, 256); o++;
@@ -781,7 +963,7 @@ namespace Godo
                 while (c < 32)
                 {
                     // Attack Name, 32 bytes ascii
-                    if (data[o] != 255)
+                    if (data[o] != 255 && options[44] != false)
                     {
                         nameBytes = AllMethods.NameGenerate(rnd);
                         data[o] = nameBytes[0]; o++;
@@ -871,6 +1053,7 @@ namespace Godo
                 #region Enemy AI Offsets
                 error = "Enemy AI Offsets";
                 // These need to match the location of each one
+                //if(options[45] != false){}
                 //enemyAIOffset[o] = 0; o++;
                 //enemyAIOffset[o] = 0; o++;
                 //enemyAIOffset[o] = 0; o++;
