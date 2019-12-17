@@ -11,7 +11,7 @@ namespace Godo
     public class Scene
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID, bool[] options, Random rnd)
+        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID, bool[] options, Random rnd, int[][][] jaggedModelAttackTypes)
         {
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
@@ -567,10 +567,11 @@ namespace Godo
                         }
 
                         // Action Animation Index
-                        /* This needs a lot of logic to get running in a safe way. Each enemy Index needs to be loaded up with valid IDs for different types
-                           of attack with random variances for instances where enemy has multiple animations for an attack type (Behemoth's 4 physicals for instance).
-                           TODO: Pass the enemy ID from here to a method that can then check the valid animation indices, then return an array of values that can be
-                           fed into our data[] array for bytewriting.
+                        /* 
+                         * Way this'll work is:
+                         * Grab the associated AttackID from further down
+                         * Check that attack's data (what is it using; impact, spell, neither)
+                         * Assign Animation Indice based on a random value within the JaggedModelAttackType's ModelID's attack type container
                          */
                         while (c < 16)
                         {
