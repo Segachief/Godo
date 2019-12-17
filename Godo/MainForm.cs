@@ -137,7 +137,7 @@ namespace Godo
             // Player Data
             if (chkAttackData.Checked)
             {
-                options[18] = true;
+                options[8] = true;
             }
             if (chkItemData.Checked)
             {

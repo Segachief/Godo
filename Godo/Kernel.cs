@@ -10,9 +10,8 @@ namespace Godo
 {
     public class Kernel
     {
-
         // Section 0: Command Data
-        public static byte[] RandomiseSection0(byte[] data, bool[]options, Random rnd)
+        public static byte[] RandomiseSection0(byte[] data, bool[] options, Random rnd)
         {
             /* Flags for commands like attack/magic. Not much to be changed here besides targeting parameters
              * and which menus open which sub-menus (for instance, Magic opens the magic sub-menu).
@@ -64,14 +63,7 @@ namespace Godo
             {
                 while (r < 32)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                    o += 8;
                     r++;
                 }
             }
@@ -79,12 +71,11 @@ namespace Godo
             {
                 MessageBox.Show("Kernel Section #0 (Command Data) has failed to randomise");
             }
-
             return data;
         }
 
         // Section 1: Attack Data
-        public static byte[] RandomiseSection1(byte[] data, bool[]options, Random rnd)
+        public static byte[] RandomiseSection1(byte[] data, bool[] options, Random rnd)
         {
             /* Player-available attacks. It should be noted that text strings are not stored with the
              * related data in 99% of cases, but instead at the back of the kernel in sections.
@@ -157,7 +148,6 @@ namespace Godo
             {
                 MessageBox.Show("Kernel Section #1 (Attack Data) has failed to randomise");
             }
-
             return data;
         }
 
@@ -212,15 +202,7 @@ namespace Godo
                     }
                     else
                     {
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        o += 9;
                     }
 
                     data[o] = data[o]; o++;                 // Padding
@@ -246,140 +228,198 @@ namespace Godo
                     }
                     else
                     {
-                        data[o] = data[o]; o++;                 // Limit ID 1-1
-                        data[o] = data[o]; o++;                 // Limit ID 1-2
-                        data[o] = data[o]; o++;                 // Limit ID 1-3
-                        data[o] = data[o]; o++;                 // Limit ID 2-1
-                        data[o] = data[o]; o++;                 // Limit ID 2-2
-                        data[o] = data[o]; o++;                 // Limit ID 2-3
-                        data[o] = data[o]; o++;                 // Limit ID 3-1
-                        data[o] = data[o]; o++;                 // Limit ID 3-2
-                        data[o] = data[o]; o++;                 // Limit ID 3-3
-                        data[o] = data[o]; o++;                 // Limit ID 4-1
-                        data[o] = data[o]; o++;                 // Limit ID 4-2
-                        data[o] = data[o]; o++;                 // Limit ID 4-3
+                        o += 12;
                     }
 
-                    data[o] = data[o]; o++;                 // Kills for Limit Level 2
-                    data[o] = data[o]; o++;
+                    if (options[2] != false)
+                    {
+                        data[o] = (byte)rnd.Next(100); o++;     // Kills for Limit Level 2
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Kills for Limit Level 3
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(100); o++;     // Kills for Limit Level 3
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Required used for 1-2
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 1-2
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Required used for 1-3
-                    data[o] = data[o]; o++;
+                        if (options[1] != false)
+                        {
+                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 1-3
+                            data[o] = data[o]; o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
-                    data[o] = data[o]; o++;                 // Required used for 2-2
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 2-2
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Required used for 2-3
-                    data[o] = data[o]; o++;
+                        if (options[1] != false)
+                        {
+                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 2-3
+                            data[o] = data[o]; o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
-                    data[o] = data[o]; o++;                 // Required used for 3-2
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 3-2
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Required used for 3-2
-                    data[o] = data[o]; o++;
+                        if (options[1] != false)
+                        {
+                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 3-3
+                            data[o] = data[o]; o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
+                    }
+                    else
+                    {
+                        o += 16;
+                    }
 
-                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 1
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                    if (options[3] != false)
+                    {
+                        data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 1
+                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 2
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 2
+                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 3
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 3
+                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
-                    data[o] = data[o]; o++;                 // Gauge Resistance for Limit Level 4
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 4
+                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                    }
+                    else
+                    {
+                        o += 16;
+                    }
                     r++;
                 }
                 r = 0;
 
-                // Random bonuses to primary stats (1 value per entry; default is 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3)
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
+                if (options[4] != false)
+                {
+                    // Random bonuses to primary stats (1 value per entry; default is 0, 0, 0, 0, 1, 1, 1, 2, 2, 2, 3, 3)
+                    data[o] = (byte)rnd.Next(0, 1); o++;
+                    data[o] = (byte)rnd.Next(0, 1); o++;
+                    data[o] = (byte)rnd.Next(0, 1); o++;
+                    data[o] = (byte)rnd.Next(0, 2); o++;
+                    data[o] = (byte)rnd.Next(0, 2); o++;
+                    data[o] = (byte)rnd.Next(0, 2); o++;
+                    data[o] = (byte)rnd.Next(0, 3); o++;
+                    data[o] = (byte)rnd.Next(0, 3); o++;
+                    data[o] = (byte)rnd.Next(0, 4); o++;
+                    data[o] = (byte)rnd.Next(0, 4); o++;
+                    data[o] = (byte)rnd.Next(0, 5); o++;
+                    data[o] = (byte)rnd.Next(0, 5); o++;
 
-                // Random bonuses to HP - Range from 0 - 160
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
+                    // Random bonuses to HP - Range from 0 - 160
+                    data[o] = (byte)rnd.Next(40, 50); o++;
+                    data[o] = (byte)rnd.Next(50, 60); o++;
+                    data[o] = (byte)rnd.Next(60, 70); o++;
+                    data[o] = (byte)rnd.Next(70, 80); o++;
+                    data[o] = (byte)rnd.Next(80, 90); o++;
+                    data[o] = (byte)rnd.Next(90, 100); o++;
+                    data[o] = (byte)rnd.Next(100, 110); o++;
+                    data[o] = (byte)rnd.Next(110, 120); o++;
+                    data[o] = (byte)rnd.Next(120, 130); o++;
+                    data[o] = (byte)rnd.Next(130, 140); o++;
+                    data[o] = (byte)rnd.Next(140, 150); o++;
+                    data[o] = (byte)rnd.Next(150, 160); o++;
 
-                // Random bonuses to MP - Range from 0 to 60
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
-                data[o] = data[o]; o++;
+                    // Random bonuses to MP - Range from 0 to 60
+                    data[o] = (byte)rnd.Next(10, 20); o++;
+                    data[o] = (byte)rnd.Next(10, 20); o++;
+                    data[o] = (byte)rnd.Next(10, 20); o++;
+                    data[o] = (byte)rnd.Next(20, 30); o++;
+                    data[o] = (byte)rnd.Next(20, 30); o++;
+                    data[o] = (byte)rnd.Next(20, 30); o++;
+                    data[o] = (byte)rnd.Next(30, 40); o++;
+                    data[o] = (byte)rnd.Next(30, 40); o++;
+                    data[o] = (byte)rnd.Next(40, 50); o++;
+                    data[o] = (byte)rnd.Next(40, 50); o++;
+                    data[o] = (byte)rnd.Next(50, 60); o++;
+                    data[o] = (byte)rnd.Next(50, 60); o++;
+
+                }
+                else
+                {
+                    o += 36;
+                }
 
                 // Stat Curve values; 64 of them, 16 bytes each
-                while (r < 64)
+                if (options[5] != false)
                 {
-                    while (c < 16)
+                    while (r < 64)
                     {
-                        data[o] = data[o]; o++;
-                        c++;
+                        while (c < 16)
+                        {
+                            // Good luck
+                            data[o] = (byte)rnd.Next(255); o++;
+                            c++;
+                        }
+                        r++;
                     }
-                    r++;
+                }
+                else
+                {
+                    o += 1024;
                 }
                 r = 0;
                 c = 0;
 
                 // Character AI
                 // My recommendation is to make multiple AI scripts (innate abilities or whatever) and have the tool read these scripts (byte files).
-                // Then have the program should read these byte files, put them in an array, and write to the data here. Make sure to read up on the
+                // Then have the program read these byte files, put them in an array, and write to the data here. Make sure to read up on the
                 // AI structure on Qhimm Wiki (link available on Qhimm Forum's front page) to get the header logic together.
-                while (r < 2048)
+                if (options[6] != false)
                 {
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 2048)
+                    {
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
+                }
+                else
+                {
+                    o += 2048;
                 }
                 r = 0;
 
                 // Random Lookup Table
                 // For encounters to pop in a different order, randomise this.
                 // But to be honest, the impact of randomising the random table will, ironically, be minimal.
-                while (r < 256)
+                if (options[7] != false)
                 {
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 256)
+                    {
+                        data[o] = (byte)rnd.Next(255); o++;
+                        r++;
+                    }
+                }
+                else
+                {
+                    while (r < 256)
+                    {
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
                 }
 
                 // Scene Lookup Table
@@ -409,7 +449,7 @@ namespace Godo
         }
 
         // Section 3: Character Record & Savemap Initialisation
-        public static byte[] RandomiseSection3(byte[] data, bool[]options, Random rnd)
+        public static byte[] RandomiseSection3(byte[] data, bool[] options, Random rnd)
         {
             /* Kernel File Breakdown
              * The kernel.bin comprises multiple sections in a gzip-bin format.
@@ -436,34 +476,49 @@ namespace Godo
                 while (r < 9) // Iterates 9 times for each character; 0 = Cloud, 8 = Cid
                 {
                     // Character ID
-                    data[o] = (byte)r; o++;
+                    if (options[14] != false)
+                    {
+                        data[o] = (byte)rnd.Next(11); o++;
+                    }
+                    else
+                    {
+                        o++;
+                    }
 
-                    // Level
-                    data[o] = (byte)rnd.Next(1, 21); o++;
+                    // Character Stats
+                    if (options[15] != false)
+                    {
+                        // Level
+                        data[o] = (byte)rnd.Next(1, 21); o++;
 
-                    // Strength
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Strength
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Vitality
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Vitality
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Magic
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Magic
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Spirit
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Spirit
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Dexterity
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Dexterity
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Luck
-                    data[o] = (byte)rnd.Next(51); o++;
+                        // Luck
+                        data[o] = (byte)rnd.Next(51); o++;
 
-                    // Sources used - There are 6 values (1byte) for each Source type, redundant to change so skipped.
-                    // A case could be made that Source-boosted Dex behaves differently to natural Dex, so added that.
-                    o += 4; // Power to Spirit Sources, skipped and at 0
-                    data[o] = (byte)rnd.Next(51); o++; // Dex sources
-                    o++; // Luck Sources
+                        // Sources used - There are 6 values (1byte) for each Source type, redundant to change so skipped.
+                        // A case could be made that Source-boosted Dex behaves differently to natural Dex, so added that.
+                        o += 4; // Power to Spirit Sources, skipped and at 0
+                        data[o] = (byte)rnd.Next(51); o++; // Dex sources
+                        o++; // Luck Sources
+                    }
+                    else
+                    {
+                        o += 13;
+                    }
 
                     /* Current Limit Lv - Skipped as this wouldn't serve much purpose. You can freely change Limit Level
                        if the Limits are learned but having a Limit Level equipped with no Limits in it would likely cause
@@ -473,22 +528,29 @@ namespace Godo
                     data[o] = data[o]; o++;
 
                     // Current Limit Gauge
-                    data[o] = (byte)rnd.Next(256); o++;
+                    data[o] = (byte)rnd.Next(255); o++;
 
                     // Character Name: Gets two random 4-letter words from the method NameGenerate for the character name
-                    nameBytes = AllMethods.NameGenerate(rnd);
-                    data[o] = nameBytes[0]; o++;
-                    data[o] = nameBytes[1]; o++;
-                    data[o] = nameBytes[2]; o++;
-                    data[o] = nameBytes[3]; o++;
-                    data[o] = nameBytes[4]; o++;
-                    data[o] = nameBytes[5]; o++;
-                    data[o] = nameBytes[6]; o++;
-                    data[o] = nameBytes[7]; o++;
-                    data[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
-                    data[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
-                    data[o] = 0; o++;   // Empty - For instance, Ex-Soldier prints as 'Ex-Soldie' if his name is called by field script
-                    data[o] = 255; o++; // Empty - Use FF to terminate the string
+                    if (options[16] != false)
+                    {
+                        nameBytes = AllMethods.NameGenerate(rnd);
+                        data[o] = nameBytes[0]; o++;
+                        data[o] = nameBytes[1]; o++;
+                        data[o] = nameBytes[2]; o++;
+                        data[o] = nameBytes[3]; o++;
+                        data[o] = nameBytes[4]; o++;
+                        data[o] = nameBytes[5]; o++;
+                        data[o] = nameBytes[6]; o++;
+                        data[o] = nameBytes[7]; o++;
+                        data[o] = 0; o++;   // Empty - Note that names longer than 9 characters are stored but aren't retrieved properly by field script
+                        data[o] = 0; o++;   // Empty - For instance, Ex-Soldier prints as 'Ex-Soldie' if his name is called by field script
+                        data[o] = 0; o++;   // Empty
+                        data[o] = 255; o++; // Empty - Use FF to terminate the string
+                    }
+                    else
+                    {
+                        o += 12;
+                    }
 
                     // Equipped Weapon ID
                     /* Characters have a varying range for weapons, so this switch-case assigns the
@@ -496,53 +558,74 @@ namespace Godo
                        weapons without issue, but this helps eliminate late-game weapons from the mix.
                      */
                     #region Switch-Case for Weapon Ranges
-                    switch (r)
-                    { //TODO: Sort out the valid ranges
-                        case 0:
-                            c = 0;  // Cloud
-                            k = 10;
-                            break;
-                        case 1:
-                            c = 11; // Barret
-                            k = 20;
-                            break;
-                        case 2:
-                            c = 21; // Tifa
-                            k = 30;
-                            break;
-                        case 3:
-                            c = 31; // Aeristh
-                            k = 40;
-                            break;
-                        case 4:
-                            c = 41; // Red XIII
-                            k = 50;
-                            break;
-                        case 5:
-                            c = 51; // Yuffers
-                            k = 60;
-                            break;
-                        case 6:
-                            c = 0; // This is Young Cloud
-                            k = 10;
-                            break;
-                        case 7:
-                            c = 0; // This is Sephiroth
-                            k = 91;
-                            break;
-                        case 8:
-                            c = 81; // Cid
-                            k = 90;
-                            break;
+                    if (options[17] != false)
+                    {
+                        switch (r)
+                        { //TODO: Sort out the valid ranges
+                            case 0:
+                                c = 0;  // Cloud
+                                k = 14;
+                                break;
+                            case 1:
+                                c = 32; // Barret
+                                k = 46;
+                                break;
+                            case 2:
+                                c = 16; // Tifa
+                                k = 30;
+                                break;
+                            case 3:
+                                c = 62; // Aeristh
+                                k = 71;
+                                break;
+                            case 4:
+                                c = 48; // Red XIII
+                                k = 60;
+                                break;
+                            case 5:
+                                c = 87; // Yuffers
+                                k = 99;
+                                break;
+                            case 6:
+                                c = 0; // This is Young Cloud
+                                k = 14;
+                                break;
+                            case 7:
+                                c = 0; // This is Sephiroth
+                                k = 127;
+                                break;
+                            case 8:
+                                c = 73; // Cid
+                                k = 85;
+                                break;
+                        }
+                        data[o] = (byte)rnd.Next(c, k); o++;
                     }
-                    data[o] = (byte)rnd.Next(c, k); o++;
+                    else
+                    {
+                        o++;
+                    }
                     #endregion
 
                     // Equipped Armour ID
-                    data[o] = (byte)rnd.Next(10); o++;
+                    if (options[18] != false)
+                    {
+                        data[o] = (byte)rnd.Next(31); o++;
+                    }
+                    else
+                    {
+                        o++;
+                    }
 
                     // Equipped Accessory ID
-                    data[o] = (byte)rnd.Next(10); o++;
+                    if (options[19] != false)
+                    {
+                        data[o] = (byte)rnd.Next(31); o++;
+                    }
+                    else
+                    {
+                        o++;
+                    }
 
                     // Status Flag - 0 by default, valid ranges? Any point in checking? This'll be for Fury/Sadness.
                     //data[o] = (byte)rnd.Next(1);
@@ -577,15 +660,29 @@ namespace Godo
                     data[o] = data[o]; o++; // 2nd byte
 
                     // Current HP - Setting limit of 2000 for balance - 100 is game's functional minimum
-                    data[o] = (byte)rnd.Next(99, 209); o++; // Returns 100HP minimum, 209 is D0 in hex
-                    data[o] = (byte)rnd.Next(8); o++; // Random between 0 and 7, = 07D0 which is a range of 2000HP
+                    if (options[20] != false)
+                    {
+                        data[o] = (byte)rnd.Next(99, 209); o++; // Returns 100HP minimum, 209 is D0 in hex
+                        data[o] = (byte)rnd.Next(8); o++; // Random between 0 and 7, = 07D0 which is a range of 2000HP
+                    }
+                    else
+                    {
+                        o += 2;
+                    }
 
                     // Base HP - Character's 'real' HP - Setting this to same as Current HP
                     data[o] = data[o - 2]; o++; // Sets it to the Current HP value
                     data[o] = data[o - 2]; o++;
 
                     // Current MP - Setting limit of 200 for balance - 10 is game's functional minimum.
-                    data[o] = (byte)rnd.Next(11, 201); o++; o++; // Returns 10MP minimum, 200 max. 2nd byte is left as zero as we don't exceed 999MP
+                    if (options[21] != false)
+                    {
+                        data[o] = (byte)rnd.Next(11, 201); o++; o++; // Returns 10MP minimum, 200 max. 2nd byte is left as zero as we don't exceed 999MP
+                    }
+                    else
+                    {
+                        o++;
+                    }
 
                     // Base MP - Starting MP on New Game - Setting this to same as Current MP
                     data[o] = data[o - 2]; o++; o++; // Sets it to the Current MP value
@@ -601,116 +698,123 @@ namespace Godo
                     data[o] = data[o - 8]; o++; o++; // Set to Current MP value
 
                     // Current EXP - Likely needs paired with Level to avoid oddities with the gauge
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(128); o++;
-                    o++; // 3rd Byte: Leaving as 0
-                    o++; // 4th Byte: Leaving as 0
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
 
                     #region Equipment Materia Slots
-                    // Randomising all 8 slots completely could be absolute chaos, some rules may need to be applied here
-                    // Weapon Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;  // ID of the Materia
-                    data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
-                    data[o] = (byte)rnd.Next(11); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                    if (options[22] != false)
+                    {
+                        // Randomising all 8 slots completely could be absolute chaos, some rules may need to be applied here
+                        // Weapon Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;  // ID of the Materia
+                        data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
+                        data[o] = (byte)rnd.Next(11); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Weapon Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(11); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Weapon Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(11); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Weapon Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(11); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Weapon Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(11); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Weapon Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(11); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Weapon Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(11); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Weapon Materia Slot #5 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Weapon Materia Slot #5 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Weapon Materia Slot #6 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Weapon Materia Slot #6 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Weapon Materia Slot #7 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Weapon Materia Slot #7 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Weapon Materia Slot #8 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Weapon Materia Slot #8 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Armour Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++; // ID of the Materia
-                    data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Armour Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++; // ID of the Materia
+                        data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Armour Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Armour Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Armour Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Armour Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Armour Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = (byte)rnd.Next(91); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(256); o++;
-                    data[o] = (byte)rnd.Next(0); o++;
+                        // Armour Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = (byte)rnd.Next(91); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(256); o++;
+                        data[o] = (byte)rnd.Next(0); o++;
 
-                    // Armour Materia Slot #5 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Armour Materia Slot #5 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Armour Materia Slot #6 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Armour Materia Slot #6 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Armour Materia Slot #7 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Armour Materia Slot #7 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
 
-                    // Armour Materia Slot #8 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
-                    data[o] = 255; o++;
+                        // Armour Materia Slot #8 - Contains the ID + AP of the Materia, can be placed in an empty slot
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                    }
+                    else
+                    {
+                        o += 64;
+                    }
                     #endregion
 
                     // EXP to Next Level - If not correct then only causes temporary visual glitch with the gauge. Will be very difficult to synch
                     // as each character requires different amount of EXP, and the current EXP/Level will vary. May stick with default level.
-                    data[o] = 19; o++;
-                    o++;
-                    o++;
-                    o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
 
                     //#region Write Offset for Character Record
 
@@ -766,24 +870,59 @@ namespace Godo
                 }
                 #endregion
 
-                //#region Misc Bytes (4bytes)
-                //// Miscellaneous 4-bytes between character records and the item/materia arrays is handled here
-                //// Char ID Party Member Slot 1 - Unchanged as having unexpected party members can lock field scripts
-                //data[o] = 1; o++;
+                #region Misc Bytes (4bytes)
+                // Miscellaneous 4-bytes between character records and the item/materia arrays is handled here
+                // Char ID Party Member Slot 1 - Party Leader should be Cloud, Tifa, or Cid
+                if (options[22] != false)
+                {
+                    int slotA = rnd.Next(3);
+                    int slotB = rnd.Next(9);
+                    int slotC = rnd.Next(9);
+                    if (slotA == 1)
+                    {
+                        data[o] = 0; o++; // Cloud
+                    }
+                    else if (slotA == 2)
+                    {
+                        data[o] = 2; o++; // Tifa
+                    }
+                    else if (slotA == 3)
+                    {
+                        data[o] = 8; o++; // Cid
+                    }
+                    else
+                    {
+                        o++;
+                    }
 
-                //// Char ID Party Member Slot 2 - Unchanged as having unexpected party members can lock field scripts
-                //data[o] = 2; o++;
+                    // Char ID Party Member Slot 2
+                    while (slotB == slotA) // Re-rolls until SlotB has a different ID to SlotA
+                    {
+                        slotB = rnd.Next(9);
+                    }
+                    data[o] = (byte)slotB; o++;
 
-                //// Char ID Party Member Slot 3 - Unchanged as having unexpected party members can lock field scripts
-                //data[o] = 0; o++;
+                    // Char ID Party Member Slot 3 - Unchanged as having unexpected party members can lock field scripts
+                    while (slotC == slotA || slotC == slotB) // Re-rolls until SlotC has a different ID to SlotA and SlotB
+                    {
+                        slotC = rnd.Next(9);
+                    }
+                    data[o] = (byte)slotC; o++;
+                }
+                else
+                {
+                    data[o] = 0; o++; // Cloud
+                    data[o] = 1; o++; // Barret
+                    data[o] = 2; o++; // Tifa
+                }
 
-                //// Padding of 1 byte, default value is FF
-                //data[o] = 255; o++;
+                // Padding of 1 byte, default value is FF
+                data[o] = 255; o++;
 
                 ////array = miscRecord.Select(b => (byte)b).ToArray();
                 ////bw.BaseStream.Position = 0x004A4;
                 ////bw.Write(array, 0, array.Length);
-                //#endregion
+                #endregion
 
                 //#region Item, Materia, and Stolen Materia (1632 bytes)
                 //// Starting Item stock - This array is massive, 2*320 bytes to handle Item ID + Quantity with no absolute position within inventory
@@ -841,7 +980,7 @@ namespace Godo
              * Damage Calc.     (1)
              * Base Power       (1)
              * Conditions       (1) - 00 party HP, 01 party MP, 02 party status, other: none
-             * Status Change    (1) - 3F chance to inflict (/63), 40 Cure, 80 Toggle
+             * Status Chance    (1) - 3F chance to inflict (/63), 40 Cure, 80 Toggle
              * Attack Additional Effects   (1)
              * Additional Effects Modifier (1)
              * Status Effects   (4)
@@ -854,44 +993,77 @@ namespace Godo
 
             try
             {
-                while (r < 128)
+                if (options[9] != false)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 128)
+                    {
+                        // FF Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Camera Move ID
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Use Restriction Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Target Flags
+                        data[o] = data[o]; o++;
+
+                        // Attack Effect ID
+                        data[o] = data[o]; o++;
+
+                        // Damage Calc
+                        data[o] = data[o]; o++;
+
+                        // Base Power
+                        data[o] = data[o]; o++;
+
+                        // Conditions
+                        data[o] = data[o]; o++;
+
+                        // Status Chance
+                        data[o] = data[o]; o++;
+
+                        // Additional Effects
+                        data[o] = data[o]; o++;
+
+                        // Additional Effects Modifier
+                        data[o] = data[o]; o++;
+
+                        // Status Effects
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Attack Element
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Special Attack Flags
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
+                }
+                else
+                {
+                    o += 3584;
                 }
             }
             catch
             {
                 MessageBox.Show("Kernel Section #4 (Item Data) has failed to randomise");
             }
-
             return data;
         }
 
@@ -932,56 +1104,111 @@ namespace Godo
 
             try
             {
-                while (r < 128)
+                if (options[10] != false)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 128)
+                    {
+                        // Target Flags
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+
+                        // Damage Calc
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+
+                        // Base Power
+                        data[o] = data[o]; o++;
+
+                        // Status Attack
+                        data[o] = data[o]; o++;
+
+                        // Growth Rate
+                        data[o] = data[o]; o++;
+
+                        // Crit%
+                        data[o] = data[o]; o++;
+
+                        // Acc%
+                        data[o] = data[o]; o++;
+
+                        // Model ID - Barret, Vincent
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+
+                        // Sound ID
+                        data[o] = data[o]; o++;
+
+                        // Camera ID - Always FF
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Equip Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Attack Element
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Stat Boost Type
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Stat Boost Value
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Slots
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Sound ID Hit
+                        data[o] = data[o]; o++;
+
+                        // Sound ID Crit
+                        data[o] = data[o]; o++;
+
+                        // Sound ID Miss
+                        data[o] = data[o]; o++;
+
+                        // Impact ID
+                        data[o] = data[o]; o++;
+
+                        // Special Flags
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Restrict Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
                 }
             }
             catch
             {
                 MessageBox.Show("Kernel Section #5 (Weapon Data) has failed to randomise");
             }
-
             return data;
         }
 
@@ -1015,56 +1242,87 @@ namespace Godo
 
             try
             {
-                while (r < 32)
+                if (options[11] != false)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    //data[o] = data[o]; o++;
-                    r++;
+                    while (r < 32)
+                    {
+                        // Unknown
+                        data[o] = data[o]; o++;
+
+                        // Damage Type - FF Normal, 00 Absorb, 01 Null, 02 Halve
+                        data[o] = data[o]; o++;
+
+                        // Defence
+                        data[o] = data[o]; o++;
+
+                        // MDefence
+                        data[o] = data[o]; o++;
+
+                        // Defence%
+                        data[o] = data[o]; o++;
+
+                        // MDef%
+                        data[o] = data[o]; o++;
+
+                        // Status Defence
+                        data[o] = data[o]; o++;
+
+                        // Unknown
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Slots
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Growth
+                        data[o] = data[o]; o++;
+
+                        // Equip Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Elem Def
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Stat Type
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Stat Boost
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Restrict Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Always FF
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
                 }
             }
             catch
             {
                 MessageBox.Show("Kernel Section #6 (Armour Data) has failed to randomise");
             }
-
             return data;
         }
 
@@ -1088,32 +1346,49 @@ namespace Godo
 
             try
             {
-                while (r < 32)
+                if (options[12] != false)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 32)
+                    {
+                        // Stat Type
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Stat Boost
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Elem Strength
+                        data[o] = data[o]; o++;
+
+                        // Special Effect
+                        data[o] = data[o]; o++;
+
+                        // Elem Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Status Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Equip Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Restrict Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
                 }
             }
             catch
             {
                 MessageBox.Show("Kernel Section #7 (Accessory Data) has failed to randomise");
             }
-
             return data;
         }
 
@@ -1135,38 +1410,50 @@ namespace Godo
 
             try
             {
-                while (r < 95)
+                if (options[13] != false)
                 {
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    r++;
+                    while (r < 95)
+                    {
+                        // Level Up
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Equip Effect ID
+                        data[o] = data[o]; o++;
+
+                        // Status Effects
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Element Index
+                        data[o] = data[o]; o++;
+
+                        // Materia Type
+                        data[o] = data[o]; o++;
+
+                        // Attributes
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        r++;
+                    }
                 }
             }
             catch
             {
                 MessageBox.Show("Kernel Section #8 (Materia Data) has failed to randomise");
             }
-
             return data;
         }
-
     }
 }
