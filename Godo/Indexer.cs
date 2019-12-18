@@ -146,6 +146,12 @@ namespace Godo
                                     int enemyCount = 0;
                                     while (enemyCount < 3) // Iterates through the 3 registerable enemy slots in this scene
                                     {
+
+                                        if (r == 194 && enemyCount == 1)
+                                        {
+                                            int fff = 0;
+                                        }
+
                                         decompressedOutput.Write(uncompressedScene, 0, bytesRead);
                                         byte[] modelID = new byte[2];
                                         byte[] attackID = new byte[2];
@@ -153,7 +159,7 @@ namespace Godo
                                         int attackCount = 0;
 
                                         // Checks if enemy ID is Null/FFFF
-                                        if (uncompressedScene[c] != 255 && uncompressedScene[c + 1] != 255)
+                                        if (uncompressedScene[c + 1] != 255)
                                         {
                                             modelID = uncompressedScene.Skip(c).Take(2).ToArray();
                                             int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);

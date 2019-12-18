@@ -387,6 +387,7 @@ namespace Godo
                 error = "Enemy Data";
                 while (r < 3)
                 {
+                    int i = 0;
                     // If enemy name is empty, assume no enemy is there and just retain pre-existing data
                     if (data[o] != 255)
                     {
@@ -406,52 +407,35 @@ namespace Godo
                                 data[o] = nameBytes[5]; o++;
                                 data[o] = nameBytes[6]; o++;
                                 data[o] = nameBytes[7]; o++;
+         
+                                while(i < 23)
+                                {
+                                    data[o] = 255; o++;
+                                    i++;
+                                }
+                                data[o] = 255; o++; // Empty - Use FF to terminate the string
+                                i = 0;
                             }
                             else
                             {
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
+                                while (i < 27)
+                                {
+                                    data[o] = 255; o++;
+                                    i++;
+                                }
+                                data[o] = 255; o++; // Empty - Use FF to terminate the string
+                                i = 0;
                             }
                         }
                         else
                         {
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
+                            while (i < 32)  // Option is Off, so keep default name
+                            {
+                                o++;
+                                i++;
+                            }
+                            i = 0;
                         }
-
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-                        data[o] = 255; o++; // Empty - Use FF to terminate the string
 
                         if (options[31] != false)
                         {

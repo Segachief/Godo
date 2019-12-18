@@ -181,7 +181,7 @@ namespace Godo
                 int sceneID = r;
 
                 // Sends decompressed scene data to be randomised
-                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd);
+                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd, jaggedModelAttackTypes);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;
