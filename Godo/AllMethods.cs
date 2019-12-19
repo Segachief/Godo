@@ -90,22 +90,5 @@ namespace Godo
             
             return nameBytes;
         }
-
-        public static int Indexer(int modelID, int attackID, int type)
-        {
-            int animIndexID = 0;
-
-            // Index of all models and their valid anim IDs.
-            // This won't work for extra models or altered models I just realised.
-            switch (modelID)
-            {
-                case 1:
-                    byte[] physAnims = { 3, 4 };
-                    byte[] magAnims = { 5, 6 };
-                    byte[] miscAnims = { 7, 8 };
-                break;
-            }
-            return animIndexID;
-        }
     }
 }

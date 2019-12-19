@@ -11,4 +11,3 @@ D:\Practice\Godo\Godo\obj\Debug\Godo.csproj.CopyComplete
 D:\Practice\Godo\Godo\bin\Debug\DotNetZip.dll
 D:\Practice\Godo\Godo\bin\Debug\DotNetZip.pdb
 D:\Practice\Godo\Godo\obj\Debug\Godo.MainForm.resources
-D:\Practice\Godo\Godo\obj\Debug\Godo.PlayerOptionsForm.resources
