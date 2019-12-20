@@ -146,12 +146,6 @@ namespace Godo
                                     int enemyCount = 0;
                                     while (enemyCount < 3) // Iterates through the 3 registerable enemy slots in this scene
                                     {
-
-                                        //if (r == 194 && enemyCount == 1)
-                                        //{
-                                        //    int breakpointCatcher = 0;
-                                        //}
-
                                         decompressedOutput.Write(uncompressedScene, 0, bytesRead);
                                         byte[] modelID = new byte[2];
                                         byte[] attackID = new byte[2];

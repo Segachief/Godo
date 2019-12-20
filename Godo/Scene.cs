@@ -58,8 +58,18 @@ namespace Godo
                         {
                             if (data[o] != 255 && data[o + 1] != 255) // Don't want to add an enemy if there's none here
                             {
-                                data[o] = (byte)rnd.Next(256); o++;
-                                data[o] = (byte)rnd.Next(2); o++;
+                                int validModel = 0;
+                                while (validModel == 0)
+                                {
+                                    ulong modelIDCheck = (ulong)rnd.Next(676);
+                                    if (jaggedModelAttackTypes[modelIDCheck] != null)
+                                    {
+                                        byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
+                                        data[o] = model[0]; o++;
+                                        data[o] = model[1]; o++;
+                                        validModel = 1;
+                                    }
+                                }
                             }
                             else
                             {
@@ -469,14 +479,7 @@ namespace Godo
                             }
                             else
                             {
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
+                                o += 8;
                             }
 
                             // Enemy Elemental Types
@@ -602,19 +605,25 @@ namespace Godo
 
                             while (c < 16)
                             {
-                                int modelID = 0;
-                                if(r == 0)
+                                byte[] modelID = new byte[2];
+                                if (r == 0)
                                 {
-                                    modelID = enemyIDList[0] + enemyIDList[1];
+                                    modelID[0] = enemyIDList[0];
+                                    modelID[1] = enemyIDList[1];
                                 }
                                 else if(r == 1)
                                 {
-                                    modelID = enemyIDList[2] + enemyIDList[3];
+                                    modelID[0] = enemyIDList[2];
+                                    modelID[1] = enemyIDList[3];
                                 }
                                 else if(r == 2)
                                 {
-                                    modelID = enemyIDList[4] + enemyIDList[5];
+                                    modelID[0] = enemyIDList[4];
+                                    modelID[1] = enemyIDList[5];
                                 }
+
+                                int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+
                                 byte[] attackID = new byte[2];
                                 attackID = data.Skip(2112 + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
@@ -625,10 +634,10 @@ namespace Godo
                                 {
                                     if (jaggedAttackType[attackIDInt][0] == 0)
                                     {
-                                        while (first == 0 || jaggedModelAttackTypes[modelID][0][anim] == 0)
+                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][0][anim] == 0)
                                         {
                                             first++;
-                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][0].Length);
+                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][0].Length);
                                             terminate++;
                                             if(terminate > 32)
                                             {
@@ -637,17 +646,17 @@ namespace Godo
                                         }
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelID][0][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][0][anim];
                                         }
                                         o++;
                                         first = 0;
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 1)
                                     {
-                                        while (anim == 0 || jaggedModelAttackTypes[modelID][1][anim] == 0)
+                                        while (anim == 0 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0)
                                         {
                                             first++;
-                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][1].Length);
+                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][1].Length);
                                             terminate++;
                                             if (terminate > 32)
                                             {
@@ -656,17 +665,17 @@ namespace Godo
                                         }
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelID][1][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][1][anim];
                                         }
                                         o++;
                                         first = 0;
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 2)
                                     {
-                                        while (anim == 0 || jaggedModelAttackTypes[modelID][2][anim] == 0)
+                                        while (anim == 0 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0)
                                         {
                                             first++;
-                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][2].Length);
+                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][2].Length);
                                             terminate++;
                                             if (terminate > 32)
                                             {
@@ -675,7 +684,7 @@ namespace Godo
                                         }
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelID][2][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][2][anim];
                                         }
                                         o++;
                                         first = 0;
