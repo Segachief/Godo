@@ -106,7 +106,7 @@ namespace Godo
                                         int type;
 
                                         // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                        if (uncompressedScene[2112 + k] != 255)
+                                        if (uncompressedScene[2113 + k] != 255)
                                         {
                                             attackID = uncompressedScene.Skip(2112 + k).Take(2).ToArray();
                                             int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);

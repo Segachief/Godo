@@ -570,7 +570,7 @@ namespace Godo
                                 int type;
 
                                 // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                if (data[2112 + k] != 255)
+                                if (data[2113 + k] != 255)
                                 {
                                     attackID = data.Skip(2112 + k).Take(2).ToArray();
                                     int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
@@ -605,49 +605,80 @@ namespace Godo
                                 int modelID = 0;
                                 if(r == 0)
                                 {
-                                    modelID = enemyIDs[0] + enemyIDs[1];
+                                    modelID = enemyIDList[0] + enemyIDList[1];
                                 }
                                 else if(r == 1)
                                 {
-                                    modelID = enemyIDs[2] + enemyIDs[3];
+                                    modelID = enemyIDList[2] + enemyIDList[3];
                                 }
                                 else if(r == 2)
                                 {
-                                    modelID = enemyIDs[4] + enemyIDs[r + 5];
+                                    modelID = enemyIDList[4] + enemyIDList[5];
                                 }
                                 byte[] attackID = new byte[2];
                                 attackID = data.Skip(2112 + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
                                 int anim = 0;
+                                int first = 0;
                                 int terminate = 0;
                                 if (attackIDInt != 65535)
                                 {
                                     if (jaggedAttackType[attackIDInt][0] == 0)
                                     {
-                                        while (anim == 0 && terminate != 32)
+                                        while (first == 0 || jaggedModelAttackTypes[modelID][0][anim] == 0)
                                         {
+                                            first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelID][0].Length);
                                             terminate++;
+                                            if(terminate > 32)
+                                            {
+                                                break;
+                                            }
                                         }
-                                        data[o] = (byte)jaggedModelAttackTypes[modelID][0][anim]; o++;
+                                        if (terminate < 32)
+                                        {
+                                            data[o] = (byte)jaggedModelAttackTypes[modelID][0][anim];
+                                        }
+                                        o++;
+                                        first = 0;
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 1)
                                     {
-                                        while (anim == 0 && terminate != 32)
+                                        while (anim == 0 || jaggedModelAttackTypes[modelID][1][anim] == 0)
                                         {
-                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][0].Length);
+                                            first++;
+                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][1].Length);
                                             terminate++;
+                                            if (terminate > 32)
+                                            {
+                                                break;
+                                            }
                                         }
-                                        data[o] = (byte)jaggedModelAttackTypes[modelID][0][anim]; o++;
+                                        if (terminate < 32)
+                                        {
+                                            data[o] = (byte)jaggedModelAttackTypes[modelID][1][anim];
+                                        }
+                                        o++;
+                                        first = 0;
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 2)
                                     {
-                                        while (anim == 0 && terminate != 32)
+                                        while (anim == 0 || jaggedModelAttackTypes[modelID][2][anim] == 0)
                                         {
-                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][0].Length);
+                                            first++;
+                                            anim = rnd.Next(0, jaggedModelAttackTypes[modelID][2].Length);
                                             terminate++;
+                                            if (terminate > 32)
+                                            {
+                                                break;
+                                            }
                                         }
-                                        data[o] = (byte)jaggedModelAttackTypes[modelID][0][anim]; o++;
+                                        if (terminate < 32)
+                                        {
+                                            data[o] = (byte)jaggedModelAttackTypes[modelID][2][anim];
+                                        }
+                                        o++;
+                                        first = 0;
                                     }
                                     else
                                     {
@@ -655,11 +686,11 @@ namespace Godo
                                         data[o] = data[o]; o++;
                                     }
 
-                                    if (terminate == 32)
-                                    {
-                                        // We have a ModelID that does not have a required animation; we must re-roll this scene
-                                        reroll = 0;
-                                    }
+                                    //if (terminate == 32)
+                                    //{
+                                    //    // We have a ModelID that does not have a required animation; we must re-roll this scene
+                                    //    reroll = 0;
+                                    //}
                                 }
                                 else
                                 {
