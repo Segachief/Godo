@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -72,6 +73,67 @@ namespace Godo
             return result.ToArray();
         }
 
+        public static bool CheckExcludedModel(ulong modelID)
+        {
+            // List of excluded models from random allocation
+            ulong[] excluded = { 14, 15, 38, 48, 49, 50, 54, 64, 68, 70, 78, 92, 95, 97, 133, 139, 149, 150, 151, 152, 153,
+                154, 155, 156, 198, 212, 213, 214, 228, 229, 236, 240, 241, 242, 243, 254, 255, 256, 258, 259, 260,
+                288, 294, 296, 297, 298, 299, 300, 306, 307, 308, 311, 312, 332 };
+
+            if (excluded.Contains(modelID))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool CheckAnimSet(ulong modelID)
+        {
+            // Has alternate idle + damaged anims
+            ulong[] animSet = { 86, 131, 143, 147, 170, 202, 278, 339, 340, 341, 342, 343, 344, 347, 349, 350 };
+
+            if (animSet.Contains(modelID))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool CheckBossSet(ulong modelID)
+        {
+            // Bosses with alternate idle/damaged anims
+            ulong[] bossSet = { 10, 11, 22, 33, 37, 71, 81, 195 };
+
+            if (bossSet.Contains(modelID))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public static bool CheckExcludedScene(int sceneID)
+        {
+            // List of excluded scenes from random allocation
+            int[] excluded = { 12, 21, 31, 32, 33, 34, 35, 36, 48, 81, 91, 96, 97, 101, 102, 103, 104, 105, 106, 107, 108, 114, 115, 116, 117, 120, 131, 133, 138, 139, 143, 144, 150, 174, 185, 186, 189, 194, 195, 205, 209, 210, 211, 214, 215, 217, 221, 223, 224, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 237, 243, 245, 246 };
+            if (excluded.Contains(sceneID))
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
         // This method generates a random name using two 4-letter words
         public static byte[] NameGenerate(Random rnd)
         {
@@ -89,6 +151,24 @@ namespace Godo
             nameBytes[0] -= 0x20; // Capitalises the first letter
             
             return nameBytes;
+        }
+
+        public static void Log(int logMessage, TextWriter w)
+        {
+            w.Write("\r\nSeed Entry : ");
+            w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");
+            w.WriteLine("  :");
+            w.WriteLine($"  :{logMessage}");
+            w.WriteLine("-------------------------------");
+        }
+
+        public static void DumpLog(StreamReader r)
+        {
+            string line;
+            while ((line = r.ReadLine()) != null)
+            {
+                Console.WriteLine(line);
+            }
         }
     }
 }

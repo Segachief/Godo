@@ -177,6 +177,8 @@
             // chkLimitKillUse
             // 
             this.chkLimitKillUse.AutoSize = true;
+            this.chkLimitKillUse.Checked = true;
+            this.chkLimitKillUse.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLimitKillUse.Location = new System.Drawing.Point(3, 49);
             this.chkLimitKillUse.Name = "chkLimitKillUse";
             this.chkLimitKillUse.Size = new System.Drawing.Size(97, 17);
@@ -187,6 +189,8 @@
             // chkLimitGauge
             // 
             this.chkLimitGauge.AutoSize = true;
+            this.chkLimitGauge.Checked = true;
+            this.chkLimitGauge.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLimitGauge.Location = new System.Drawing.Point(3, 72);
             this.chkLimitGauge.Name = "chkLimitGauge";
             this.chkLimitGauge.Size = new System.Drawing.Size(117, 17);
@@ -197,6 +201,8 @@
             // chkLevelUpBonus
             // 
             this.chkLevelUpBonus.AutoSize = true;
+            this.chkLevelUpBonus.Checked = true;
+            this.chkLevelUpBonus.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 95);
             this.chkLevelUpBonus.Name = "chkLevelUpBonus";
             this.chkLevelUpBonus.Size = new System.Drawing.Size(113, 17);
@@ -339,6 +345,8 @@
             // chkCharacterStats
             // 
             this.chkCharacterStats.AutoSize = true;
+            this.chkCharacterStats.Checked = true;
+            this.chkCharacterStats.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterStats.Location = new System.Drawing.Point(3, 26);
             this.chkCharacterStats.Name = "chkCharacterStats";
             this.chkCharacterStats.Size = new System.Drawing.Size(89, 17);
@@ -359,6 +367,8 @@
             // chkEquippedWeapon
             // 
             this.chkEquippedWeapon.AutoSize = true;
+            this.chkEquippedWeapon.Checked = true;
+            this.chkEquippedWeapon.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedWeapon.Location = new System.Drawing.Point(3, 72);
             this.chkEquippedWeapon.Name = "chkEquippedWeapon";
             this.chkEquippedWeapon.Size = new System.Drawing.Size(115, 17);
@@ -369,6 +379,8 @@
             // chkEquippedArmour
             // 
             this.chkEquippedArmour.AutoSize = true;
+            this.chkEquippedArmour.Checked = true;
+            this.chkEquippedArmour.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedArmour.Location = new System.Drawing.Point(3, 95);
             this.chkEquippedArmour.Name = "chkEquippedArmour";
             this.chkEquippedArmour.Size = new System.Drawing.Size(107, 17);
@@ -379,6 +391,8 @@
             // chkEquippedAccessory
             // 
             this.chkEquippedAccessory.AutoSize = true;
+            this.chkEquippedAccessory.Checked = true;
+            this.chkEquippedAccessory.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedAccessory.Location = new System.Drawing.Point(3, 118);
             this.chkEquippedAccessory.Name = "chkEquippedAccessory";
             this.chkEquippedAccessory.Size = new System.Drawing.Size(123, 17);
@@ -389,6 +403,8 @@
             // chkCharacterHP
             // 
             this.chkCharacterHP.AutoSize = true;
+            this.chkCharacterHP.Checked = true;
+            this.chkCharacterHP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterHP.Location = new System.Drawing.Point(3, 141);
             this.chkCharacterHP.Name = "chkCharacterHP";
             this.chkCharacterHP.Size = new System.Drawing.Size(90, 17);
@@ -399,6 +415,8 @@
             // chkCharacterMP
             // 
             this.chkCharacterMP.AutoSize = true;
+            this.chkCharacterMP.Checked = true;
+            this.chkCharacterMP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterMP.Location = new System.Drawing.Point(3, 164);
             this.chkCharacterMP.Name = "chkCharacterMP";
             this.chkCharacterMP.Size = new System.Drawing.Size(91, 17);
@@ -409,6 +427,8 @@
             // chkEquippedMateria
             // 
             this.chkEquippedMateria.AutoSize = true;
+            this.chkEquippedMateria.Checked = true;
+            this.chkEquippedMateria.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedMateria.Location = new System.Drawing.Point(3, 187);
             this.chkEquippedMateria.Name = "chkEquippedMateria";
             this.chkEquippedMateria.Size = new System.Drawing.Size(109, 17);
@@ -419,6 +439,8 @@
             // chkStartParty
             // 
             this.chkStartParty.AutoSize = true;
+            this.chkStartParty.Checked = true;
+            this.chkStartParty.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkStartParty.Location = new System.Drawing.Point(3, 210);
             this.chkStartParty.Name = "chkStartParty";
             this.chkStartParty.Size = new System.Drawing.Size(89, 17);
@@ -453,7 +475,7 @@
             this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel4.Location = new System.Drawing.Point(454, 167);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(334, 271);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(340, 271);
             this.flowLayoutPanel4.TabIndex = 12;
             // 
             // chkEnemyModels
@@ -501,9 +523,9 @@
             this.chkEnemyPlacement.AutoSize = true;
             this.chkEnemyPlacement.Location = new System.Drawing.Point(3, 95);
             this.chkEnemyPlacement.Name = "chkEnemyPlacement";
-            this.chkEnemyPlacement.Size = new System.Drawing.Size(111, 17);
+            this.chkEnemyPlacement.Size = new System.Drawing.Size(118, 17);
             this.chkEnemyPlacement.TabIndex = 4;
-            this.chkEnemyPlacement.Text = "Enemy Placement";
+            this.chkEnemyPlacement.Text = "Enemy XYZ Coords";
             this.chkEnemyPlacement.UseVisualStyleBackColor = true;
             // 
             // chkEnemyQuantity
@@ -529,6 +551,8 @@
             // chkEnemyStats
             // 
             this.chkEnemyStats.AutoSize = true;
+            this.chkEnemyStats.Checked = true;
+            this.chkEnemyStats.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyStats.Location = new System.Drawing.Point(3, 164);
             this.chkEnemyStats.Name = "chkEnemyStats";
             this.chkEnemyStats.Size = new System.Drawing.Size(85, 17);
@@ -539,6 +563,8 @@
             // chkElementalAffinity
             // 
             this.chkElementalAffinity.AutoSize = true;
+            this.chkElementalAffinity.Checked = true;
+            this.chkElementalAffinity.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkElementalAffinity.Location = new System.Drawing.Point(3, 187);
             this.chkElementalAffinity.Name = "chkElementalAffinity";
             this.chkElementalAffinity.Size = new System.Drawing.Size(106, 17);
@@ -549,6 +575,8 @@
             // chkHeldItems
             // 
             this.chkHeldItems.AutoSize = true;
+            this.chkHeldItems.Checked = true;
+            this.chkHeldItems.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkHeldItems.Location = new System.Drawing.Point(3, 210);
             this.chkHeldItems.Name = "chkHeldItems";
             this.chkHeldItems.Size = new System.Drawing.Size(76, 17);
@@ -559,6 +587,8 @@
             // chkEnemyMP
             // 
             this.chkEnemyMP.AutoSize = true;
+            this.chkEnemyMP.Checked = true;
+            this.chkEnemyMP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyMP.Location = new System.Drawing.Point(3, 233);
             this.chkEnemyMP.Name = "chkEnemyMP";
             this.chkEnemyMP.Size = new System.Drawing.Size(77, 17);
@@ -569,7 +599,9 @@
             // chkEnemyAP
             // 
             this.chkEnemyAP.AutoSize = true;
-            this.chkEnemyAP.Location = new System.Drawing.Point(120, 3);
+            this.chkEnemyAP.Checked = true;
+            this.chkEnemyAP.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnemyAP.Location = new System.Drawing.Point(127, 3);
             this.chkEnemyAP.Name = "chkEnemyAP";
             this.chkEnemyAP.Size = new System.Drawing.Size(75, 17);
             this.chkEnemyAP.TabIndex = 11;
@@ -579,7 +611,9 @@
             // chkEnemyHP
             // 
             this.chkEnemyHP.AutoSize = true;
-            this.chkEnemyHP.Location = new System.Drawing.Point(120, 26);
+            this.chkEnemyHP.Checked = true;
+            this.chkEnemyHP.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnemyHP.Location = new System.Drawing.Point(127, 26);
             this.chkEnemyHP.Name = "chkEnemyHP";
             this.chkEnemyHP.Size = new System.Drawing.Size(76, 17);
             this.chkEnemyHP.TabIndex = 12;
@@ -589,7 +623,9 @@
             // chkEnemyEXP
             // 
             this.chkEnemyEXP.AutoSize = true;
-            this.chkEnemyEXP.Location = new System.Drawing.Point(120, 49);
+            this.chkEnemyEXP.Checked = true;
+            this.chkEnemyEXP.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnemyEXP.Location = new System.Drawing.Point(127, 49);
             this.chkEnemyEXP.Name = "chkEnemyEXP";
             this.chkEnemyEXP.Size = new System.Drawing.Size(82, 17);
             this.chkEnemyEXP.TabIndex = 13;
@@ -599,7 +635,9 @@
             // chkEnemyGil
             // 
             this.chkEnemyGil.AutoSize = true;
-            this.chkEnemyGil.Location = new System.Drawing.Point(120, 72);
+            this.chkEnemyGil.Checked = true;
+            this.chkEnemyGil.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnemyGil.Location = new System.Drawing.Point(127, 72);
             this.chkEnemyGil.Name = "chkEnemyGil";
             this.chkEnemyGil.Size = new System.Drawing.Size(73, 17);
             this.chkEnemyGil.TabIndex = 14;
@@ -609,7 +647,9 @@
             // chkStatusImmunities
             // 
             this.chkStatusImmunities.AutoSize = true;
-            this.chkStatusImmunities.Location = new System.Drawing.Point(120, 95);
+            this.chkStatusImmunities.Checked = true;
+            this.chkStatusImmunities.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkStatusImmunities.Location = new System.Drawing.Point(127, 95);
             this.chkStatusImmunities.Name = "chkStatusImmunities";
             this.chkStatusImmunities.Size = new System.Drawing.Size(108, 17);
             this.chkStatusImmunities.TabIndex = 15;
@@ -619,7 +659,9 @@
             // chkEnemyAttacks
             // 
             this.chkEnemyAttacks.AutoSize = true;
-            this.chkEnemyAttacks.Location = new System.Drawing.Point(120, 118);
+            this.chkEnemyAttacks.Checked = true;
+            this.chkEnemyAttacks.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkEnemyAttacks.Location = new System.Drawing.Point(127, 118);
             this.chkEnemyAttacks.Name = "chkEnemyAttacks";
             this.chkEnemyAttacks.Size = new System.Drawing.Size(97, 17);
             this.chkEnemyAttacks.TabIndex = 16;
@@ -629,7 +671,7 @@
             // chkStatusSafe
             // 
             this.chkStatusSafe.AutoSize = true;
-            this.chkStatusSafe.Location = new System.Drawing.Point(120, 141);
+            this.chkStatusSafe.Location = new System.Drawing.Point(127, 141);
             this.chkStatusSafe.Name = "chkStatusSafe";
             this.chkStatusSafe.Size = new System.Drawing.Size(196, 17);
             this.chkStatusSafe.TabIndex = 17;
@@ -639,7 +681,7 @@
             // chkStatusUnsafe
             // 
             this.chkStatusUnsafe.AutoSize = true;
-            this.chkStatusUnsafe.Location = new System.Drawing.Point(120, 164);
+            this.chkStatusUnsafe.Location = new System.Drawing.Point(127, 164);
             this.chkStatusUnsafe.Name = "chkStatusUnsafe";
             this.chkStatusUnsafe.Size = new System.Drawing.Size(208, 17);
             this.chkStatusUnsafe.TabIndex = 18;
@@ -649,7 +691,7 @@
             // chkRandomElements
             // 
             this.chkRandomElements.AutoSize = true;
-            this.chkRandomElements.Location = new System.Drawing.Point(120, 187);
+            this.chkRandomElements.Location = new System.Drawing.Point(127, 187);
             this.chkRandomElements.Name = "chkRandomElements";
             this.chkRandomElements.Size = new System.Drawing.Size(167, 17);
             this.chkRandomElements.TabIndex = 21;
@@ -659,7 +701,9 @@
             // chkAttackNames
             // 
             this.chkAttackNames.AutoSize = true;
-            this.chkAttackNames.Location = new System.Drawing.Point(120, 210);
+            this.chkAttackNames.Checked = true;
+            this.chkAttackNames.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkAttackNames.Location = new System.Drawing.Point(127, 210);
             this.chkAttackNames.Name = "chkAttackNames";
             this.chkAttackNames.Size = new System.Drawing.Size(93, 17);
             this.chkAttackNames.TabIndex = 19;
@@ -669,7 +713,7 @@
             // chkEnemyAI
             // 
             this.chkEnemyAI.AutoSize = true;
-            this.chkEnemyAI.Location = new System.Drawing.Point(120, 233);
+            this.chkEnemyAI.Location = new System.Drawing.Point(127, 233);
             this.chkEnemyAI.Name = "chkEnemyAI";
             this.chkEnemyAI.Size = new System.Drawing.Size(71, 17);
             this.chkEnemyAI.TabIndex = 20;

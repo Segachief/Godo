@@ -9,7 +9,7 @@ namespace Godo
 {
     public class GZipper
     {
-        public static byte[] PrepareScene(string directory, bool[]options, Random rnd)
+        public static byte[] PrepareScene(string directory, bool[]options, Random rnd, int seed)
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
@@ -181,7 +181,7 @@ namespace Godo
                 int sceneID = r;
 
                 // Sends decompressed scene data to be randomised
-                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd, jaggedModelAttackTypes);
+                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd, jaggedModelAttackTypes, seed);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;
@@ -341,7 +341,7 @@ namespace Godo
             return kernelLookup;
         }
 
-        public static void PrepareKernel(string directory, byte[] kernelLookup, bool[]options, Random rnd)
+        public static void PrepareKernel(string directory, byte[] kernelLookup, bool[]options, Random rnd, int seed)
         {
             string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
             string targetKernel = kernelDirectory + "KERNEL.bin";    // The kernel.bin for updating the lookup table
@@ -429,39 +429,39 @@ namespace Godo
                 switch (r)
                 {
                     case 0:
-                        Kernel.RandomiseSection0(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection0(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 1:
-                        Kernel.RandomiseSection1(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection1(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 2:
-                        Kernel.RandomiseSection2(uncompressedKernel, options, rnd, kernelLookup);
+                        Kernel.RandomiseSection2(uncompressedKernel, options, rnd, seed, kernelLookup);
                         break;
 
                     case 3:
-                        Kernel.RandomiseSection3(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection3(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 4:
-                        Kernel.RandomiseSection4(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection4(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 5:
-                        Kernel.RandomiseSection5(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection5(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 6:
-                        Kernel.RandomiseSection6(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection6(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 7:
-                        Kernel.RandomiseSection7(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection7(uncompressedKernel, options, rnd, seed);
                         break;
 
                     case 8:
-                        Kernel.RandomiseSection8(uncompressedKernel, options, rnd);
+                        Kernel.RandomiseSection8(uncompressedKernel, options, rnd, seed);
                         break;
                 }
 

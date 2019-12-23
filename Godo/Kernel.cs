@@ -11,7 +11,7 @@ namespace Godo
     public class Kernel
     {
         // Section 0: Command Data
-        public static byte[] RandomiseSection0(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection0(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Flags for commands like attack/magic. Not much to be changed here besides targeting parameters
              * and which menus open which sub-menus (for instance, Magic opens the magic sub-menu).
@@ -75,7 +75,7 @@ namespace Godo
         }
 
         // Section 1: Attack Data
-        public static byte[] RandomiseSection1(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection1(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Player-available attacks. It should be noted that text strings are not stored with the
              * related data in 99% of cases, but instead at the back of the kernel in sections.
@@ -152,7 +152,7 @@ namespace Godo
         }
 
         // Section 2: Battle & Growth Data + Kernel Lookup Table
-        public static byte[] RandomiseSection2(byte[] data, bool[] options, Random rnd, byte[] kernelLookup)
+        public static byte[] RandomiseSection2(byte[] data, bool[] options, Random rnd, int seed, byte[] kernelLookup)
         {
             /* Contains the following:
             * 1) Stat Curve IDs, Join Level Modifier, Limit IDs, Limit Requirements, and Gauge-fill resistance (9 for each character) (59 * 9)
@@ -449,7 +449,7 @@ namespace Godo
         }
 
         // Section 3: Character Record & Savemap Initialisation
-        public static byte[] RandomiseSection3(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection3(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Kernel File Breakdown
              * The kernel.bin comprises multiple sections in a gzip-bin format.
@@ -967,7 +967,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection4(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection4(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Item Data
              * 
@@ -1067,7 +1067,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection5(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection5(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Weapon Data
              * 
@@ -1213,7 +1213,7 @@ namespace Godo
         }
 
 
-        public static byte[] RandomiseSection6(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection6(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Armour Data
              * 
@@ -1326,7 +1326,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection7(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection7(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Accessory Data
              * 
@@ -1392,7 +1392,7 @@ namespace Godo
             return data;
         }
 
-        public static byte[] RandomiseSection8(byte[] data, bool[] options, Random rnd)
+        public static byte[] RandomiseSection8(byte[] data, bool[] options, Random rnd, int seed)
         {
             /* Materia Data
              * 

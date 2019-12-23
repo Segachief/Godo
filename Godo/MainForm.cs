@@ -77,13 +77,34 @@ namespace Godo
                     }
                     options = OptionsArrayBuild();
                     string fileName = lblFileName.Text;
-                    byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd);
-                    GZipper.PrepareKernel(directory, kernelLookup, options, rnd);
+                    byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd, seed);
+                    GZipper.PrepareKernel(directory, kernelLookup, options, rnd, seed);
                     MessageBox.Show("Rando Complete: seed = " + seed);
+
+                    string seedFile = directory + "\\FF7RandomSeeds.txt";
+                    if (!File.Exists(seedFile))
+                    {
+                        using (FileStream fs = File.Create(seedFile))
+                        {
+                            Byte[] title = new UTF8Encoding(true).GetBytes("Random Seed History");
+                            fs.Write(title, 0, title.Length);
+                        }
+                    }
+
+                    using (StreamWriter w = File.AppendText(seedFile))
+                    {
+                        AllMethods.Log(seed, w);
+                    }
+
+                    using (StreamReader r = File.OpenText(seedFile))
+                    {
+                        AllMethods.DumpLog(r);
+                    }
+
                 }
                 catch
                 {
-                    MessageBox.Show("Randomisation failed");
+                    MessageBox.Show("Randomisation failed - Check that valid files are in correct locations");
                 }
             }
             else
@@ -100,7 +121,7 @@ namespace Godo
             // is a huge disgrace
 
             // Character Data
-            if(chkStatCurves.Checked)
+            if (chkStatCurves.Checked)
             {
                 options[0] = true;
             }
