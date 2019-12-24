@@ -37,11 +37,22 @@ namespace Godo
                 int[] enemyAI = new int[4096];              // 4096 bytes for Enemy AI, 3 sets
 
                 int rngID = 0; // Stores a randomly generated number
+                byte statAdjustMax = (byte)sceneID;
+                byte statAdjustMin = (byte)(sceneID/5);
+                byte expAdjust = (byte)(sceneID/10);
+                byte hpAdjust = (byte)(sceneID/20);
 
                 int r = 0; // For iterating scene records (256 of them)
                 int o = 0; // For iterating array indexes
                 int c = 0; // For iterating records
                 int k = 0; // See above
+
+                byte battleBG = 0;
+
+                bool validModel = false;
+                bool excludedModel = false;
+                bool enemyAnimGroup = false;
+                bool bossAnimGroup = false;
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                                   //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
@@ -58,11 +69,6 @@ namespace Godo
                             currentModelID[0] = data[o];
                             currentModelID[1] = data[o + 1];
                             ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
-
-                            bool validModel = false;
-                            bool excludedModel = false;
-                            bool enemyAnimGroup = false;
-                            bool bossAnimGroup = false;
 
                             excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
                             enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
@@ -157,6 +163,7 @@ namespace Godo
                         if (options[25] != false)
                         {
                             data[o] = (byte)rnd.Next(89); o++;
+                            battleBG = data[o - 1]; // Records battle BG value to check for supernova viability later
                             data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
                         }
                         else
@@ -338,7 +345,8 @@ namespace Godo
                     //This randomises formation data for each enemy
                     while (c < 6)
                     {
-                        if ((data[o] != 255 && data[o + 1] != 255) && options[29] != false)
+                        // Increases quantity of enemies - Not applied for bosses
+                        if ((data[o] != 255 && data[o + 1] != 255) && options[29] != false  && bossAnimGroup == false)
                         {
                             // Set the rng so that a null enemy can't be picked
                             if (enemyData[2] == 255 && enemyData[3] == 255)
@@ -496,29 +504,58 @@ namespace Godo
 
                         if (options[31] != false)
                         {
-                            // Enemy Level - This'll likely be set via AI
-                            data[o] = (byte)rnd.Next(10, 32); o++;
+                            if (bossAnimGroup == true)
+                            { // Boss parameters
+                                // Enemy Level - This'll likely be set via AI
+                                data[o] = statAdjustMax;
 
-                            // Enemy Speed
-                            data[o] = (byte)rnd.Next(10, 127); o++;
+                                // Enemy Speed
+                                data[o] = (byte)rnd.Next(10, 64); o++;
 
-                            // Enemy Luck
-                            data[o] = (byte)rnd.Next(0, 256); o++;
+                                // Enemy Luck
+                                data[o] = (byte)rnd.Next(0, 32); o++;
 
-                            // Enemy Evade
-                            data[o] = (byte)rnd.Next(0, 32); o++;
+                                // Enemy Evade
+                                data[o] = (byte)rnd.Next(0, 16); o++;
 
-                            // Enemy Strength  - This'll likely be set via AI
-                            data[o] = (byte)rnd.Next(10, 127); o++;
+                                // Enemy Strength  - This'll likely be set via AI
+                                data[o] = statAdjustMax;
 
-                            // Enemy Defence  - This'll likely be set via AI
-                            data[o] = (byte)rnd.Next(10, 127); o++;
+                                // Enemy Defence  - This'll likely be set via AI
+                                data[o] = statAdjustMax;
 
-                            // Enemy Magic  - This'll likely be set via AI
-                            data[o] = (byte)rnd.Next(10, 127); o++;
+                                // Enemy Magic  - This'll likely be set via AI
+                                data[o] = statAdjustMax;
 
-                            // Enemy Magic Defence  - This'll likely be set via AI
-                            data[o] = (byte)rnd.Next(10, 127); o++;
+                                // Enemy Magic Defence  - This'll likely be set via AI
+                                data[o] = statAdjustMax;
+                            }
+                            else
+                            { // Regular enemy parameters
+                                // Enemy Level - This'll likely be set via AI
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+
+                                // Enemy Speed
+                                data[o] = (byte)rnd.Next(10, 127); o++;
+
+                                // Enemy Luck
+                                data[o] = (byte)rnd.Next(0, 64); o++;
+
+                                // Enemy Evade
+                                data[o] = (byte)rnd.Next(0, 32); o++;
+
+                                // Enemy Strength  - This'll likely be set via AI
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+
+                                // Enemy Defence  - This'll likely be set via AI
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+
+                                // Enemy Magic  - This'll likely be set via AI
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+
+                                // Enemy Magic Defence  - This'll likely be set via AI
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                            }
                         }
                         else
                         {
@@ -843,8 +880,16 @@ namespace Godo
                         // Enemy MP
                         if (options[34] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 11); o++;
-                            data[o] = (byte)rnd.Next(0, 184); o++;
+                            if (bossAnimGroup == true)
+                            {
+                                data[o] = 11; o++;
+                                data[o] = 184; o++;
+                            }
+                            else
+                            {
+                                data[o] = (byte)rnd.Next(0, 11); o++;
+                                data[o] = (byte)rnd.Next(0, 184); o++;
+                            }
                         }
                         else
                         {
@@ -855,8 +900,16 @@ namespace Godo
                         // Enemy AP
                         if (options[35] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 64); o++;
-                            data[o] = 0; o++;
+                            if (bossAnimGroup == true)
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 4; o++;
+                            }
+                            else
+                            {
+                                data[o] = (byte)rnd.Next(0, statAdjustMin); o++;
+                                data[o] = 0; o++;
+                            }
                         }
                         else
                         {
@@ -874,13 +927,23 @@ namespace Godo
                         // Alignment FF
                         data[o] = 255; o++;
 
-                        // Enemy HP - Should probbly be set by AI
+                        // Enemy HP - Should probably be set by AI
                         if (options[36] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 3); o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
+                            if (bossAnimGroup == true)
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = hpAdjust; o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
                         }
                         else
                         {
@@ -893,10 +956,20 @@ namespace Godo
                         // EXP Points
                         if (options[37] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 3); o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
+                            if (bossAnimGroup == true)
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = expAdjust; o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = (byte)rnd.Next(0, 2); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
                         }
                         else
                         {
@@ -909,10 +982,20 @@ namespace Godo
                         // Gil
                         if (options[38] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 3); o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
+                            if (bossAnimGroup == true)
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = expAdjust; o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else
+                            {
+                                data[o] = (byte)rnd.Next(0, 256); o++;
+                                data[o] = (byte)rnd.Next(0, 2); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
                         }
                         else
                         {
@@ -922,14 +1005,86 @@ namespace Godo
                             data[o] = data[o]; o++;
                         }
 
+                        //Random rndStatusSafe = new Random(seed);
+                        int picker = rnd.Next(4);
+                        int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 
                         // Status Immunities
                         if (options[39] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            if (bossAnimGroup == true)
+                            {
+                                if (picker == 0)
+                                {
+                                    picker = rnd.Next(2, 8); // Prevents Death
+                                    data[o] = (byte)status[picker]; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+
+                                }
+                                else if (picker == 1)
+                                {
+                                    picker = rnd.Next(8);
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                }
+                                else if (picker == 2)
+                                {
+                                    picker = rnd.Next(0, 6); // Prevents Berserk/Manip
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = 0; o++;
+                                }
+                                else
+                                {
+                                    picker = rnd.Next(2, 3); // Only Paralysis/Darkness available
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)status[picker]; o++;
+                                }
+
+                            }
+                            else
+                            {
+                                if (picker == 0)
+                                {
+                                    picker = rnd.Next(0, 8);
+                                    data[o] = (byte)status[picker]; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+
+                                }
+                                else if (picker == 1)
+                                {
+                                    picker = rnd.Next(8);
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                }
+                                else if (picker == 2)
+                                {
+                                    picker = rnd.Next(8);
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)status[picker]; o++;
+                                    data[o] = 0; o++;
+                                }
+                                else
+                                {
+                                    picker = rnd.Next(8);
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = 0; o++;
+                                    data[o] = (byte)status[picker]; o++;
+                                }
+                            }
                         }
                         else
                         {

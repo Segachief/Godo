@@ -100,7 +100,6 @@ namespace Godo
                     {
                         AllMethods.DumpLog(r);
                     }
-
                 }
                 catch
                 {
