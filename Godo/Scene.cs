@@ -53,6 +53,7 @@ namespace Godo
                 bool excludedModel = false;
                 bool enemyAnimGroup = false;
                 bool bossAnimGroup = false;
+                bool excludedScene = false;
 
                 // Used to ascertain which models were swapped for which when writing to formation
                 ulong enemyA = 0;
@@ -90,6 +91,7 @@ namespace Godo
                             excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
                             enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
                             bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                            excludedScene = AllMethods.CheckExcludedScene(sceneID);
 
                             while (validModel != true) // Checks that model ID assigned exists
                             {
@@ -121,12 +123,18 @@ namespace Godo
                                     o += 2;
                                     validModel = true;
                                 }
+                                else if (excludedScene == true)
+                                {
+                                    // This scene is excluded from ModelID changes
+                                    o += 2;
+                                    validModel = true;
+                                }
                                 else
                                 {
                                     ulong modelIDCheck = (ulong)rnd.Next(676);
                                     excludedModel = AllMethods.CheckExcludedModel(modelIDCheck);
-                                    enemyAnimGroup = AllMethods.CheckExcludedModel(modelIDCheck);
-                                    bossAnimGroup = AllMethods.CheckExcludedModel(modelIDCheck);
+                                    enemyAnimGroup = AllMethods.CheckAnimSet(modelIDCheck);
+                                    bossAnimGroup = AllMethods.CheckBossSet(modelIDCheck);
                                     if (jaggedModelAttackTypes[modelIDCheck] != null && excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
                                     {
                                         byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
@@ -378,12 +386,12 @@ namespace Godo
                                 data[o] = enemyIDList[0]; o++;
                                 data[o] = enemyIDList[1]; o++;
                             }
-                            else if(currentModelIDInt == enemyB)
+                            else if (currentModelIDInt == enemyB)
                             {
                                 data[o] = enemyIDList[2]; o++;
                                 data[o] = enemyIDList[3]; o++;
                             }
-                            else if(currentModelIDInt == enemyC)
+                            else if (currentModelIDInt == enemyC)
                             {
                                 data[o] = enemyIDList[4]; o++;
                                 data[o] = enemyIDList[5]; o++;
@@ -432,10 +440,23 @@ namespace Godo
                             data[o] = data[o]; o++;
 
                             // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
+                            excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                            if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                            {
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                            }
                         }
                         // If the enemy quantity option is on, we add a new enemy here
                         else if (options[29] != false && bossAnimGroup == false)
@@ -779,11 +800,13 @@ namespace Godo
                                 int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
 
                                 byte[] attackID = new byte[2];
-                                attackID = data.Skip(2112 + y).Take(2).ToArray();
+                                attackID = data.Skip(736 + y).Take(2).ToArray();
+                                //attackID = data.Skip(2112 + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
                                 int anim = 0;
                                 int first = 0;
                                 int terminate = 0;
+
                                 if (attackIDInt != 65535)
                                 {
                                     if (jaggedAttackType[attackIDInt][0] == 0)
@@ -807,7 +830,7 @@ namespace Godo
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 1)
                                     {
-                                        while (anim == 0 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0)
+                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0)
                                         {
                                             first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][1].Length);
@@ -826,7 +849,7 @@ namespace Godo
                                     }
                                     else if (jaggedAttackType[attackIDInt][0] == 2)
                                     {
-                                        while (anim == 0 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0)
+                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0)
                                         {
                                             first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][2].Length);
@@ -865,6 +888,7 @@ namespace Godo
                                 c++;
                             }
                             c = 0;
+                            //Array.Clear(jaggedAttackType, 0, jaggedAttackType.Length);
                         }
                         else
                         {
@@ -1046,14 +1070,14 @@ namespace Godo
                             if (bossAnimGroup == true)
                             {
                                 data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = hpAdjust; o++;
+                                data[o] = (byte)(hpAdjust + 2); o++;
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                             else
                             {
                                 data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                data[o] = hpAdjust; o++;
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }

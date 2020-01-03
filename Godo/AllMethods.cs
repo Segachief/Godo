@@ -76,9 +76,9 @@ namespace Godo
         public static bool CheckExcludedModel(ulong modelID)
         {
             // List of excluded models from random allocation
-            ulong[] excluded = { 14, 15, 38, 48, 49, 50, 54, 64, 68, 70, 78, 92, 95, 97, 133, 139, 149, 150, 151, 152, 153,
-                154, 155, 156, 198, 212, 213, 214, 228, 229, 236, 240, 241, 242, 243, 254, 255, 256, 258, 259, 260,
-                288, 294, 296, 297, 298, 299, 300, 306, 307, 308, 311, 312, 332 };
+            ulong[] excluded = { 14, 15, 38, 48, 49, 50, 54, 64, 65, 66, 68, 70, 78, 92, 95, 97, 111, 133, 139,
+                149, 150, 151, 152, 153, 154, 155, 156, 198, 212, 213, 214, 228, 229, 236, 240, 241, 242, 243,
+                254, 255, 256, 258, 259, 260, 288, 294, 296, 297, 298, 299, 300, 306, 307, 308, 311, 312, 332 };
 
             if (excluded.Contains(modelID))
             {
@@ -108,7 +108,7 @@ namespace Godo
         public static bool CheckBossSet(ulong modelID)
         {
             // Bosses with alternate idle/damaged anims
-            ulong[] bossSet = { 10, 11, 22, 33, 37, 71, 81, 195 };
+            ulong[] bossSet = { 10, 11, 22, 33, 67, 71, 81, 195 };
 
             if (bossSet.Contains(modelID))
             {
