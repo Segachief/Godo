@@ -9,7 +9,7 @@ namespace Godo
 {
     public class GZipper
     {
-        public static byte[] PrepareScene(string directory, bool[]options, Random rnd, int seed)
+        public static byte[] PrepareScene(string directory, bool[] options, Random rnd, int seed)
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
@@ -341,7 +341,7 @@ namespace Godo
             return kernelLookup;
         }
 
-        public static void PrepareKernel(string directory, byte[] kernelLookup, bool[]options, Random rnd, int seed)
+        public static void PrepareKernel(string directory, byte[] kernelLookup, bool[] options, Random rnd, int seed)
         {
             string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
             string targetKernel = kernelDirectory + "KERNEL.bin";    // The kernel.bin for updating the lookup table

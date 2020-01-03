@@ -101,6 +101,7 @@
             this.btnOpen.TabIndex = 1;
             this.btnOpen.Text = "Open Directory";
             this.btnOpen.UseVisualStyleBackColor = true;
+            this.btnOpen.Visible = false;
             this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
             // 
             // lblFileName
@@ -111,6 +112,7 @@
             this.lblFileName.Name = "lblFileName";
             this.lblFileName.Size = new System.Drawing.Size(2, 15);
             this.lblFileName.TabIndex = 2;
+            this.lblFileName.Visible = false;
             // 
             // btnRandoScene
             // 
@@ -177,8 +179,6 @@
             // chkLimitKillUse
             // 
             this.chkLimitKillUse.AutoSize = true;
-            this.chkLimitKillUse.Checked = true;
-            this.chkLimitKillUse.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLimitKillUse.Location = new System.Drawing.Point(3, 49);
             this.chkLimitKillUse.Name = "chkLimitKillUse";
             this.chkLimitKillUse.Size = new System.Drawing.Size(97, 17);
@@ -189,8 +189,6 @@
             // chkLimitGauge
             // 
             this.chkLimitGauge.AutoSize = true;
-            this.chkLimitGauge.Checked = true;
-            this.chkLimitGauge.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLimitGauge.Location = new System.Drawing.Point(3, 72);
             this.chkLimitGauge.Name = "chkLimitGauge";
             this.chkLimitGauge.Size = new System.Drawing.Size(117, 17);
@@ -201,8 +199,6 @@
             // chkLevelUpBonus
             // 
             this.chkLevelUpBonus.AutoSize = true;
-            this.chkLevelUpBonus.Checked = true;
-            this.chkLevelUpBonus.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 95);
             this.chkLevelUpBonus.Name = "chkLevelUpBonus";
             this.chkLevelUpBonus.Size = new System.Drawing.Size(113, 17);
@@ -219,6 +215,7 @@
             this.chkStatCurveData.TabIndex = 5;
             this.chkStatCurveData.Text = "Stat Curve Data";
             this.chkStatCurveData.UseVisualStyleBackColor = true;
+            this.chkStatCurveData.Visible = false;
             // 
             // chkCharacterAI
             // 
@@ -229,6 +226,7 @@
             this.chkCharacterAI.TabIndex = 6;
             this.chkCharacterAI.Text = "Character AI";
             this.chkCharacterAI.UseVisualStyleBackColor = true;
+            this.chkCharacterAI.Visible = false;
             // 
             // chkRandomLookup
             // 
@@ -239,6 +237,7 @@
             this.chkRandomLookup.TabIndex = 7;
             this.chkRandomLookup.Text = "Random Lookup Table";
             this.chkRandomLookup.UseVisualStyleBackColor = true;
+            this.chkRandomLookup.Visible = false;
             // 
             // flowLayoutPanel2
             // 
@@ -345,8 +344,6 @@
             // chkCharacterStats
             // 
             this.chkCharacterStats.AutoSize = true;
-            this.chkCharacterStats.Checked = true;
-            this.chkCharacterStats.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterStats.Location = new System.Drawing.Point(3, 26);
             this.chkCharacterStats.Name = "chkCharacterStats";
             this.chkCharacterStats.Size = new System.Drawing.Size(89, 17);
@@ -367,8 +364,6 @@
             // chkEquippedWeapon
             // 
             this.chkEquippedWeapon.AutoSize = true;
-            this.chkEquippedWeapon.Checked = true;
-            this.chkEquippedWeapon.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedWeapon.Location = new System.Drawing.Point(3, 72);
             this.chkEquippedWeapon.Name = "chkEquippedWeapon";
             this.chkEquippedWeapon.Size = new System.Drawing.Size(115, 17);
@@ -379,8 +374,6 @@
             // chkEquippedArmour
             // 
             this.chkEquippedArmour.AutoSize = true;
-            this.chkEquippedArmour.Checked = true;
-            this.chkEquippedArmour.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedArmour.Location = new System.Drawing.Point(3, 95);
             this.chkEquippedArmour.Name = "chkEquippedArmour";
             this.chkEquippedArmour.Size = new System.Drawing.Size(107, 17);
@@ -391,8 +384,6 @@
             // chkEquippedAccessory
             // 
             this.chkEquippedAccessory.AutoSize = true;
-            this.chkEquippedAccessory.Checked = true;
-            this.chkEquippedAccessory.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedAccessory.Location = new System.Drawing.Point(3, 118);
             this.chkEquippedAccessory.Name = "chkEquippedAccessory";
             this.chkEquippedAccessory.Size = new System.Drawing.Size(123, 17);
@@ -403,8 +394,6 @@
             // chkCharacterHP
             // 
             this.chkCharacterHP.AutoSize = true;
-            this.chkCharacterHP.Checked = true;
-            this.chkCharacterHP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterHP.Location = new System.Drawing.Point(3, 141);
             this.chkCharacterHP.Name = "chkCharacterHP";
             this.chkCharacterHP.Size = new System.Drawing.Size(90, 17);
@@ -415,8 +404,6 @@
             // chkCharacterMP
             // 
             this.chkCharacterMP.AutoSize = true;
-            this.chkCharacterMP.Checked = true;
-            this.chkCharacterMP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkCharacterMP.Location = new System.Drawing.Point(3, 164);
             this.chkCharacterMP.Name = "chkCharacterMP";
             this.chkCharacterMP.Size = new System.Drawing.Size(91, 17);
@@ -427,8 +414,6 @@
             // chkEquippedMateria
             // 
             this.chkEquippedMateria.AutoSize = true;
-            this.chkEquippedMateria.Checked = true;
-            this.chkEquippedMateria.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEquippedMateria.Location = new System.Drawing.Point(3, 187);
             this.chkEquippedMateria.Name = "chkEquippedMateria";
             this.chkEquippedMateria.Size = new System.Drawing.Size(109, 17);
@@ -439,14 +424,13 @@
             // chkStartParty
             // 
             this.chkStartParty.AutoSize = true;
-            this.chkStartParty.Checked = true;
-            this.chkStartParty.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkStartParty.Location = new System.Drawing.Point(3, 210);
             this.chkStartParty.Name = "chkStartParty";
             this.chkStartParty.Size = new System.Drawing.Size(89, 17);
             this.chkStartParty.TabIndex = 9;
             this.chkStartParty.Text = "Starting Party";
             this.chkStartParty.UseVisualStyleBackColor = true;
+            this.chkStartParty.Visible = false;
             // 
             // flowLayoutPanel4
             // 
@@ -551,8 +535,6 @@
             // chkEnemyStats
             // 
             this.chkEnemyStats.AutoSize = true;
-            this.chkEnemyStats.Checked = true;
-            this.chkEnemyStats.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyStats.Location = new System.Drawing.Point(3, 164);
             this.chkEnemyStats.Name = "chkEnemyStats";
             this.chkEnemyStats.Size = new System.Drawing.Size(85, 17);
@@ -563,8 +545,6 @@
             // chkElementalAffinity
             // 
             this.chkElementalAffinity.AutoSize = true;
-            this.chkElementalAffinity.Checked = true;
-            this.chkElementalAffinity.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkElementalAffinity.Location = new System.Drawing.Point(3, 187);
             this.chkElementalAffinity.Name = "chkElementalAffinity";
             this.chkElementalAffinity.Size = new System.Drawing.Size(106, 17);
@@ -575,8 +555,6 @@
             // chkHeldItems
             // 
             this.chkHeldItems.AutoSize = true;
-            this.chkHeldItems.Checked = true;
-            this.chkHeldItems.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkHeldItems.Location = new System.Drawing.Point(3, 210);
             this.chkHeldItems.Name = "chkHeldItems";
             this.chkHeldItems.Size = new System.Drawing.Size(76, 17);
@@ -587,8 +565,6 @@
             // chkEnemyMP
             // 
             this.chkEnemyMP.AutoSize = true;
-            this.chkEnemyMP.Checked = true;
-            this.chkEnemyMP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyMP.Location = new System.Drawing.Point(3, 233);
             this.chkEnemyMP.Name = "chkEnemyMP";
             this.chkEnemyMP.Size = new System.Drawing.Size(77, 17);
@@ -599,8 +575,6 @@
             // chkEnemyAP
             // 
             this.chkEnemyAP.AutoSize = true;
-            this.chkEnemyAP.Checked = true;
-            this.chkEnemyAP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyAP.Location = new System.Drawing.Point(127, 3);
             this.chkEnemyAP.Name = "chkEnemyAP";
             this.chkEnemyAP.Size = new System.Drawing.Size(75, 17);
@@ -611,8 +585,6 @@
             // chkEnemyHP
             // 
             this.chkEnemyHP.AutoSize = true;
-            this.chkEnemyHP.Checked = true;
-            this.chkEnemyHP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyHP.Location = new System.Drawing.Point(127, 26);
             this.chkEnemyHP.Name = "chkEnemyHP";
             this.chkEnemyHP.Size = new System.Drawing.Size(76, 17);
@@ -623,8 +595,6 @@
             // chkEnemyEXP
             // 
             this.chkEnemyEXP.AutoSize = true;
-            this.chkEnemyEXP.Checked = true;
-            this.chkEnemyEXP.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyEXP.Location = new System.Drawing.Point(127, 49);
             this.chkEnemyEXP.Name = "chkEnemyEXP";
             this.chkEnemyEXP.Size = new System.Drawing.Size(82, 17);
@@ -635,8 +605,6 @@
             // chkEnemyGil
             // 
             this.chkEnemyGil.AutoSize = true;
-            this.chkEnemyGil.Checked = true;
-            this.chkEnemyGil.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyGil.Location = new System.Drawing.Point(127, 72);
             this.chkEnemyGil.Name = "chkEnemyGil";
             this.chkEnemyGil.Size = new System.Drawing.Size(73, 17);
@@ -647,8 +615,6 @@
             // chkStatusImmunities
             // 
             this.chkStatusImmunities.AutoSize = true;
-            this.chkStatusImmunities.Checked = true;
-            this.chkStatusImmunities.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkStatusImmunities.Location = new System.Drawing.Point(127, 95);
             this.chkStatusImmunities.Name = "chkStatusImmunities";
             this.chkStatusImmunities.Size = new System.Drawing.Size(108, 17);
@@ -659,8 +625,6 @@
             // chkEnemyAttacks
             // 
             this.chkEnemyAttacks.AutoSize = true;
-            this.chkEnemyAttacks.Checked = true;
-            this.chkEnemyAttacks.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkEnemyAttacks.Location = new System.Drawing.Point(127, 118);
             this.chkEnemyAttacks.Name = "chkEnemyAttacks";
             this.chkEnemyAttacks.Size = new System.Drawing.Size(97, 17);
@@ -701,8 +665,6 @@
             // chkAttackNames
             // 
             this.chkAttackNames.AutoSize = true;
-            this.chkAttackNames.Checked = true;
-            this.chkAttackNames.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAttackNames.Location = new System.Drawing.Point(127, 210);
             this.chkAttackNames.Name = "chkAttackNames";
             this.chkAttackNames.Size = new System.Drawing.Size(93, 17);
@@ -719,6 +681,7 @@
             this.chkEnemyAI.TabIndex = 20;
             this.chkEnemyAI.Text = "Enemy AI";
             this.chkEnemyAI.UseVisualStyleBackColor = true;
+            this.chkEnemyAI.Visible = false;
             // 
             // label3
             // 

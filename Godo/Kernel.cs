@@ -102,10 +102,9 @@ namespace Godo
              * Additional Effects   (1)
              * ^ Modifier           (1)
              * Status Effects Mask  (4)
-             * Elements Mask        (4)
+             * Elements Mask        (2)
              * Special Attack Flags (2)
             */
-            //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
 
@@ -113,32 +112,69 @@ namespace Godo
             {
                 while (r < 128)
                 {
+                    // Attack %
+                    data[o] = (byte)rnd.Next(50, 150); o++;
+
+                    // Impact Effect
+                    data[o] = data[o]; o++;
+
+                    // Target Hurt Anim
+                    data[o] = data[o]; o++;
+
+                    // Unknown
+                    data[o] = data[o]; o++;
+
+                    // MP Cost
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    // Impact Sound
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    // Camera Single
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    // Camera Multiple
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++;
+
+                    // Target Flag
+                    data[o] = data[o]; o++;
+
+                    // Anim ID
+                    data[o] = data[o]; o++;
+
+                    // Damage Calc
+                    data[o] = data[o]; o++;
+
+                    // Base Power
+                    data[o] = data[o]; o++;
+
+                    // Restore Type
+                    data[o] = data[o]; o++;
+
+                    // Status Toggle Type
+                    data[o] = data[o]; o++;
+
+                    // Additional Effects
+                    data[o] = data[o]; o++;
+
+                    // Modifier for Additional Effects
+                    data[o] = data[o]; o++;
+
+                    // Status Effect Mask
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
+
+                    // Elements Mask
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+
+                    // Special Attack Flags
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++;
                     r++;
@@ -213,18 +249,28 @@ namespace Godo
                     // Avoid using 95h/149 > 9Bh/155 as these are Tifa's limits and will crash if not used by her
                     if (options[1] != false && (r != 2 || r != 6 || r != 7))
                     {
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-1
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-2
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 1-3
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-1
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-2
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 2-3
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-1
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-2
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 3-3
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-1
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-2
-                        data[o] = (byte)rnd.Next(127, 256); o++;      // Limit ID 4-3
+                        int picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 1-1
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 1-2
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 1-3
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 2-1
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 2-2
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 2-3
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 3-1
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 3-2
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 3-3
+                        picker = AllMethods.CheckValidLimitIndex(rnd);
+                        data[o] = (byte)picker; o++;      // Limit ID 4
+                        o++; // 4-2, but cannot be unlocked
+                        o++; // 4-3, but cannot be unlocked
                     }
                     else
                     {
@@ -286,22 +332,22 @@ namespace Godo
                     if (options[3] != false)
                     {
                         data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 1
-                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = (byte)rnd.Next(1); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 2
-                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = (byte)rnd.Next(1); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 3
-                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = (byte)rnd.Next(1); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 4
-                        data[o] = (byte)rnd.Next(10); o++;
+                        data[o] = (byte)rnd.Next(1); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
                     }
@@ -370,7 +416,6 @@ namespace Godo
                     {
                         while (c < 16)
                         {
-                            // Good luck
                             data[o] = (byte)rnd.Next(255); o++;
                             c++;
                         }
@@ -632,16 +677,16 @@ namespace Godo
                     o++;
 
                     // Row Flag - No point changing this, default seems to be FF? Would have thought unchecked would = 0, and checked = 1 but guess not
-                    data[o] = 255; o++;
+                    o++;
 
                     // LvlProgressBar - No point changing this, it's purely visual.
-                    data[o] = (byte)rnd.Next(64); o++;
+                    o++;
 
                     // Learned Limit Skills - Bear in mind there are actually 3 Limits per level; 1-3, 2-3, 3-3, and 4-2/4-3 are unused
                     // Oddly, a character can only learn 5-6 Limits and will stop learning any more after that even if conditions are met.
                     // This was perhaps to prevent players learning the empty #-3 Limit by using the #-2 Limit 65535 times or something.
-                    data[o] = 1; o++;
-                    data[o] = 0; o++; // 2nd byte
+                    data[o] = data[o]; o++;
+                    data[o] = data[o]; o++; // 2nd byte
 
                     // Number of Kills
                     data[o] = data[o]; o++;
@@ -677,25 +722,31 @@ namespace Godo
                     // Current MP - Setting limit of 200 for balance - 10 is game's functional minimum.
                     if (options[21] != false)
                     {
-                        data[o] = (byte)rnd.Next(11, 201); o++; o++; // Returns 10MP minimum, 200 max. 2nd byte is left as zero as we don't exceed 999MP
+                        data[o] = (byte)rnd.Next(11, 201); o++;
+                        o++; // Returns 10MP minimum, 200 max. 2nd byte is left as zero as we don't exceed 999MP
                     }
                     else
                     {
                         o++;
+                        o++;
                     }
 
                     // Base MP - Starting MP on New Game - Setting this to same as Current MP
-                    data[o] = data[o - 2]; o++; o++; // Sets it to the Current MP value
+                    data[o] = data[o - 2]; o++;
+                    o++; // Sets it to the Current MP value
 
                     // Unknown, 4 bytes in length - Defaults are 0s
                     o += 4;
 
                     // Max HP - Set to 
-                    data[o] = data[o - 10]; o++; // Set to Current HP value
-                    data[o] = data[o - 10]; o++;
+                    //data[o] = data[o - 10]; o++; // Set to Current HP value
+                    //data[o] = data[o - 10]; o++;
+                    o += 2;
 
                     // Max MP - Setting limit of 200 for balance
-                    data[o] = data[o - 8]; o++; o++; // Set to Current MP value
+                    //data[o] = data[o - 8]; o++; // Set to Current MP value
+                    //data[o] = data[o - 8]; o++; // Set to Current MP value
+                    o += 2;
 
                     // Current EXP - Likely needs paired with Level to avoid oddities with the gauge
                     data[o] = data[o]; o++;
@@ -708,25 +759,29 @@ namespace Godo
                     {
                         // Randomising all 8 slots completely could be absolute chaos, some rules may need to be applied here
                         // Weapon Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;  // ID of the Materia
+                        int picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;  // ID of the Materia
                         data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
                         data[o] = (byte)rnd.Next(11); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Weapon Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(11); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Weapon Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(11); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Weapon Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(11); o++;
                         data[o] = (byte)rnd.Next(0); o++;
@@ -756,25 +811,29 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Armour Materia Slot #1 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++; // ID of the Materia
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++; // ID of the Materia
                         data[o] = (byte)rnd.Next(256); o++; // AP of the Materia, 3-byte
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Armour Materia Slot #2 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Armour Materia Slot #3 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(0); o++;
 
                         // Armour Materia Slot #4 - Contains the ID + AP of the Materia, can be placed in an empty slot
-                        data[o] = (byte)rnd.Next(91); o++;
+                        picker = AllMethods.CheckValidMateriaIndex(rnd);
+                        data[o] = (byte)picker; o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(256); o++;
                         data[o] = (byte)rnd.Next(0); o++;
@@ -1121,19 +1180,19 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Base Power
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(10, 100); o++;
 
                         // Status Attack
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(32); o++;
 
                         // Growth Rate
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(4); o++;
 
                         // Crit%
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(5, 25); o++;
 
                         // Acc%
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(50, 125); o++;
 
                         // Model ID - Barret, Vincent
                         data[o] = data[o]; o++;
@@ -1161,26 +1220,174 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Stat Boost Type
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(5); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         // Stat Boost Value
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(10, 40); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         // Slots
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        if (data[o - 22] != 0)
+                        {
+                            int empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                        }
+                        else
+                        {
+                            int empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 1); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                        }
 
                         // Sound ID Hit
                         data[o] = data[o]; o++;
@@ -1250,60 +1457,232 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Damage Type - FF Normal, 00 Absorb, 01 Null, 02 Halve
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(0, 3); o++;
+                        if (data[o - 1] == 3)
+                        {
+                            data[o - 1] = 255;
+                        }
 
                         // Defence
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(75); o++;
 
                         // MDefence
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(75); o++;
 
                         // Defence%
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(20); o++;
 
                         // MDef%
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(20); o++;
 
                         // Status Defence
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(32); o++;
 
                         // Unknown
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
                         // Slots
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        int growth = rnd.Next(4);
+                        // Slots
+                        if (growth != 0)
+                        {
+                            int empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(5, 7); o++;
+                                if (data[o - 1] == 6)
+                                {
+                                    data[o] = 7; o++;
+                                }
+                                else
+                                {
+                                    data[o] = 5; o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                        }
+                        else
+                        {
+                            int empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 3); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+
+                            empty = rnd.Next(2);
+                            if (empty == 1)
+                            {
+                                data[o] = (byte)rnd.Next(0, 1); o++;
+                                if (data[o - 1] == 2)
+                                {
+                                    data[o] = 3; o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(0, 2); o++;
+                                }
+                            }
+                            else
+                            {
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                        }
 
                         // Growth
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)growth; o++;
 
                         // Equip Mask
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
-                        // Elem Def
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+
+                        // Elem Defence
+                        int picker = rnd.Next(2);
+                        int[] element = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                        if (picker == 0)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = (byte)element[picker]; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (picker == 1)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = 0; o++;
+                            data[o] = (byte)element[picker]; o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
                         // Always FF
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
-                        // Stat Type
-                        data[o] = data[o]; o++;
+                        // Stat Boost Type
+                        data[o] = (byte)rnd.Next(5); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
-                        // Stat Boost
-                        data[o] = data[o]; o++;
+                        // Stat Boost Value
+                        data[o] = (byte)rnd.Next(10, 40); o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
@@ -1350,29 +1729,85 @@ namespace Godo
                 {
                     while (r < 32)
                     {
-                        // Stat Type
-                        data[o] = data[o]; o++;
+                        // Stat Boost Type
+                        data[o] = (byte)rnd.Next(5); o++;
                         data[o] = data[o]; o++;
 
-                        // Stat Boost
-                        data[o] = data[o]; o++;
+                        // Stat Boost Value
+                        data[o] = (byte)rnd.Next(10, 40); o++;
                         data[o] = data[o]; o++;
 
                         // Elem Strength
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(0, 3); o++;
+                        if (data[o - 1] == 3)
+                        {
+                            data[o - 1] = 255;
+                        }
 
                         // Special Effect
                         data[o] = data[o]; o++;
 
                         // Elem Mask
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        int picker = rnd.Next(2);
+                        int[] element = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                        if (picker == 0)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = (byte)element[picker]; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (picker == 1)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = 0; o++;
+                            data[o] = (byte)element[picker]; o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
                         // Status Mask
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        picker = rnd.Next(4);
+                        int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                        if (picker == 0)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = (byte)status[picker]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (picker == 1)
+                        {
+                            picker = rnd.Next(0, 7); // Prevents Regen being set
+                            data[o] = 0; o++;
+                            data[o] = (byte)status[picker]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (picker == 2)
+                        {
+                            picker = rnd.Next(0, 7); // Prevents Barrier being set
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = (byte)status[picker]; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            picker = rnd.Next(0, 7); // Prevents Peerless being set
+                            if (picker == 8 && data[o - 1] != 8) // Checks for Dual-Drain, sets Dual on previous byte
+                            {
+                                data[o - 1] = 8;
+                            }
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = (byte)status[picker]; o++;
+                        }
 
                         // Equip Mask
                         data[o] = data[o]; o++;
@@ -1414,26 +1849,78 @@ namespace Godo
                 {
                     while (r < 95)
                     {
-                        // Level Up
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        // AP
+                        if (data[o] != 255)
+                        {
+                            data[o] = (byte)rnd.Next(254); o++;
+                            o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
+
+                        if (data[o] != 255)
+                        {
+                            data[o] = (byte)rnd.Next(254); o++;
+                            o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
+
+                        if (data[o] != 255)
+                        {
+                            data[o] = (byte)rnd.Next(254); o++;
+                            o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
+
+                        if (data[o] != 255)
+                        {
+                            data[o] = (byte)rnd.Next(254); o++;
+                            o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
                         // Equip Effect ID
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(16); o++;
 
                         // Status Effects
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        int picker = rnd.Next(3);
+                        int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                        if (picker == 0)
+                        {
+                            picker = rnd.Next(0, 7);
+                            data[o] = (byte)status[picker]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (picker == 1)
+                        {
+                            picker = rnd.Next(0, 7); // Prevents Regen being set
+                            data[o] = 0; o++;
+                            data[o] = (byte)status[picker]; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            picker = rnd.Next(0, 7); // Prevents Peerless being set
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = (byte)status[picker]; o++;
+                        }
 
                         // Element Index
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(16); o++;
 
                         // Materia Type
                         data[o] = data[o]; o++;

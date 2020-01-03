@@ -38,9 +38,9 @@ namespace Godo
 
                 int rngID = 0; // Stores a randomly generated number
                 byte statAdjustMax = (byte)sceneID;
-                byte statAdjustMin = (byte)(sceneID/5);
-                byte expAdjust = (byte)(sceneID/10);
-                byte hpAdjust = (byte)(sceneID/20);
+                byte statAdjustMin = (byte)(sceneID / 5);
+                byte expAdjust = (byte)(sceneID / 10);
+                byte hpAdjust = (byte)(sceneID / 20);
 
                 int r = 0; // For iterating scene records (256 of them)
                 int o = 0; // For iterating array indexes
@@ -53,6 +53,11 @@ namespace Godo
                 bool excludedModel = false;
                 bool enemyAnimGroup = false;
                 bool bossAnimGroup = false;
+
+                // Used to ascertain which models were swapped for which when writing to formation
+                ulong enemyA = 0;
+                ulong enemyB = 0;
+                ulong enemyC = 0;
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                                   //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
@@ -69,6 +74,18 @@ namespace Godo
                             currentModelID[0] = data[o];
                             currentModelID[1] = data[o + 1];
                             ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+                            if (r == 0)
+                            {
+                                enemyA = currentModelIDInt;
+                            }
+                            else if (r == 1)
+                            {
+                                enemyB = currentModelIDInt;
+                            }
+                            else if (r == 2)
+                            {
+                                enemyC = currentModelIDInt;
+                            }
 
                             excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
                             enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
@@ -119,6 +136,7 @@ namespace Godo
                                     }
                                 }
                             }
+                            validModel = false;
                         }
                         else
                         {
@@ -250,7 +268,7 @@ namespace Godo
                 error = "Camera Placement";
                 while (r < 4)
                 {
-                    if ((data[o] != 255 && data[o + 1] != 255) || options[27] != false)
+                    if ((data[o] != 255 && data[o + 1] != 255) && options[27] != false)
                     {
                         // Using the byte array to retain camera data
                         // Primary Battle Idle Camera Position
@@ -345,10 +363,84 @@ namespace Godo
                     //This randomises formation data for each enemy
                     while (c < 6)
                     {
-                        // Increases quantity of enemies - Not applied for bosses
-                        if ((data[o] != 255 && data[o + 1] != 255) && options[29] != false  && bossAnimGroup == false)
+                        // Checks that the current enemy placement entry is not null
+                        if (data[o] != 255 && data[o + 1] != 255)
                         {
-                            // Set the rng so that a null enemy can't be picked
+                            // If we changed the enemy IDs, then we need to match the old IDs to the new ones
+                            // so that we're replacing the references to them correctly in the formation
+                            byte[] currentModelID = new byte[2];
+                            currentModelID[0] = data[o];
+                            currentModelID[1] = data[o + 1];
+                            ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                            if (currentModelIDInt == enemyA)
+                            {
+                                data[o] = enemyIDList[0]; o++;
+                                data[o] = enemyIDList[1]; o++;
+                            }
+                            else if(currentModelIDInt == enemyB)
+                            {
+                                data[o] = enemyIDList[2]; o++;
+                                data[o] = enemyIDList[3]; o++;
+                            }
+                            else if(currentModelIDInt == enemyC)
+                            {
+                                data[o] = enemyIDList[4]; o++;
+                                data[o] = enemyIDList[5]; o++;
+                            }
+                            else
+                            {
+                                o += 2;
+                            }
+
+                            // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
+                            if (options[28] != false)
+                            {
+                                // X Coordinate
+                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = (byte)rnd.Next(256); o++;
+
+                                // Y Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+
+                                // Z Coordinate
+                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = (byte)rnd.Next(256); o++;
+                            }
+                            else
+                            {
+                                // X Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+
+                                // Y Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+
+                                // Z Coordinate
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                            }
+
+                            // Row
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            // Cover Flags (should be related to Row)
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                        }
+                        // If the enemy quantity option is on, we add a new enemy here
+                        else if (options[29] != false && bossAnimGroup == false)
+                        {
+                            // Set the rng so that a null enemy can't be picked for the new entry
                             if (enemyData[2] == 255 && enemyData[3] == 255)
                             {
                                 rngID = rnd.Next(1);
@@ -381,36 +473,17 @@ namespace Godo
                                 data[o] = enemyIDList[4]; o++;
                                 data[o] = enemyIDList[5]; o++;
                             }
+                            // X Coordinate
+                            data[o] = (byte)rnd.Next(256); o++;
+                            data[o] = (byte)rnd.Next(256); o++;
 
-                            // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
-                            if (options[28] != false)
-                            {
-                                // X Coordinate
-                                data[o] = (byte)rnd.Next(256); o++;
-                                data[o] = (byte)rnd.Next(256); o++;
+                            // Y Coordinate
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
 
-                                // Y Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Z Coordinate
-                                data[o] = (byte)rnd.Next(256); o++;
-                                data[o] = (byte)rnd.Next(256); o++;
-                            }
-                            else
-                            {
-                                // X Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Y Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Z Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                            }
+                            // Z Coordinate
+                            data[o] = (byte)rnd.Next(256); o++;
+                            data[o] = (byte)rnd.Next(256); o++;
 
                             // Row
                             data[o] = data[o]; o++;
@@ -507,7 +580,7 @@ namespace Godo
                             if (bossAnimGroup == true)
                             { // Boss parameters
                                 // Enemy Level - This'll likely be set via AI
-                                data[o] = statAdjustMax;
+                                data[o] = statAdjustMax; o++;
 
                                 // Enemy Speed
                                 data[o] = (byte)rnd.Next(10, 64); o++;
@@ -519,21 +592,21 @@ namespace Godo
                                 data[o] = (byte)rnd.Next(0, 16); o++;
 
                                 // Enemy Strength  - This'll likely be set via AI
-                                data[o] = statAdjustMax;
+                                data[o] = statAdjustMax; o++;
 
                                 // Enemy Defence  - This'll likely be set via AI
-                                data[o] = statAdjustMax;
+                                data[o] = statAdjustMax; o++;
 
                                 // Enemy Magic  - This'll likely be set via AI
-                                data[o] = statAdjustMax;
+                                data[o] = statAdjustMax; o++;
 
                                 // Enemy Magic Defence  - This'll likely be set via AI
-                                data[o] = statAdjustMax;
+                                data[o] = statAdjustMax; o++;
                             }
                             else
                             { // Regular enemy parameters
                                 // Enemy Level - This'll likely be set via AI
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
                                 // Enemy Speed
                                 data[o] = (byte)rnd.Next(10, 127); o++;
@@ -545,16 +618,16 @@ namespace Godo
                                 data[o] = (byte)rnd.Next(0, 32); o++;
 
                                 // Enemy Strength  - This'll likely be set via AI
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
                                 // Enemy Defence  - This'll likely be set via AI
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
                                 // Enemy Magic  - This'll likely be set via AI
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
                                 // Enemy Magic Defence  - This'll likely be set via AI
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax);
+                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
                             }
                         }
                         else
@@ -820,27 +893,42 @@ namespace Godo
                         // 1 byte per item, 4 items. Values below 80 are Drop Items (#/63). Values above 80 are Steal Items (#63)
                         if (options[33] != false)
                         {
-                            data[o] = (byte)rnd.Next(2, 63); o++; // Item 1
-                            data[o] = (byte)rnd.Next(82, 87); o++; // Item 2
+                            // Steal Rate 1-4
+                            data[o] = (byte)rnd.Next(8, 63); o++; // Item 1
+                            data[o] = (byte)rnd.Next(88, 127); o++; // Item 2
                             data[o] = 255; o++; // Item 3
                             data[o] = 255; o++; // Item 4
 
                             // Item IDs to be matched to the above drop/steal rates
+                            // Prevents the setting of empty item IDs.
+                            ulong itemIDInt = 105;
+                            while (itemIDInt > 104 && itemIDInt < 128)
+                            {
+                                itemIDInt = (ulong)rnd.Next(320);
+                            }
+                            byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                            byte first = converted[0];
+                            byte second = converted[1];
+
                             // Item 1
-                            data[o] = (byte)rnd.Next(2, 7); o++;
-                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = first; o++;
+                            data[o] = second; o++;
 
+                            // Prevents the setting of empty item IDs.
+                            itemIDInt = 105;
+                            while (itemIDInt > 104 && itemIDInt < 128)
+                            {
+                                itemIDInt = (ulong)rnd.Next(320);
+                            }
+                            converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                            first = converted[0];
+                            second = converted[1];
                             // Item 2
-                            data[o] = (byte)rnd.Next(2, 7); o++;
-                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            data[o] = first; o++;
+                            data[o] = second; o++;
 
-                            // Item 3
-                            data[o] = (byte)rnd.Next(2, 7); o++;
-                            data[o] = (byte)rnd.Next(2, 7); o++;
-
-                            // Item 4
-                            data[o] = (byte)rnd.Next(2, 7); o++;
-                            data[o] = (byte)rnd.Next(2, 7); o++;
+                            // Item 3 & 4 are unchanged
+                            o += 4;
                         }
                         else
                         {
@@ -918,11 +1006,36 @@ namespace Godo
                         }
 
                         // Enemy Morph Item ID - FFFF means no morph
-                        data[o] = (byte)rnd.Next(0, 64); o++;
-                        data[o] = (byte)rnd.Next(0, 64); o++;
+                        if (options[33] != false)
+                        {
+                            // Prevents the setting of empty item IDs.
+                            ulong itemIDInt = 105;
+                            while (itemIDInt > 104 && itemIDInt < 128)
+                            {
+                                itemIDInt = (ulong)rnd.Next(320);
+                            }
+                            byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                            byte first = converted[0];
+                            byte second = converted[1];
+                            data[o] = first; o++;
+                            data[o] = second; o++;
+                            //data[o] = (byte)rnd.Next(0, 64); o++;
+                            //data[o] = (byte)rnd.Next(0, 1); o++;
+                        }
+                        else
+                        {
+                            o += 2;
+                        }
 
                         // Back Attack multiplier
-                        data[o] = (byte)rnd.Next(0, 33); o++;
+                        if (options[31] != false)
+                        {
+                            data[o] = (byte)rnd.Next(0, 33); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // Alignment FF
                         data[o] = 255; o++;
@@ -1124,79 +1237,86 @@ namespace Godo
                 while (r < 32)
                 {
                     // If MP cost does not equal 65536 or Target flags are 0
-                    if ((data[o + 4] != 255 && data[o + 5] != 255) && options[40] != false)
+                    if (data[o + 4] != 255 && data[o + 5] != 255)
                     {
-                        // Attack %
-                        data[o] = (byte)rnd.Next(50, 150); o++;
+                        if (options[40] != false)
+                        {
+                            // Attack %
+                            data[o] = (byte)rnd.Next(50, 150); o++;
 
-                        // Impact Effect ID - Must be FF if Attack Effect ID is not FF
-                        //data[o] = rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
+                            // Impact Effect ID - Must be FF if Attack Effect ID is not FF
+                            //data[o] = rnd.Next(0, 256); o++;
+                            data[o] = data[o]; o++;
 
-                        // Target Hurt Action Index
-                        // 00 = Standard
-                        // 01 = Stunned
-                        // 02 = Heavy
-                        // 03 = Ejected
-                        //data[o] = rnd.Next(0, 4); o++;
-                        data[o] = data[o]; o++;
+                            // Target Hurt Action Index
+                            // 00 = Standard
+                            // 01 = Stunned
+                            // 02 = Heavy
+                            // 03 = Ejected
+                            //data[o] = rnd.Next(0, 4); o++;
+                            data[o] = data[o]; o++;
 
-                        // Unknown
-                        data[o] = 255; o++;
+                            // Unknown
+                            data[o] = 255; o++;
 
-                        // Casting Cost
-                        data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = 0; o++;
+                            // Casting Cost
+                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = 0; o++;
 
-                        // Impact Sound - Must be FFFF if Attack Effect ID is not FF
-                        //data[o] = rnd.Next(0, 256); o++;
-                        //data[o] = rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                            // Impact Sound - Must be FFFF if Attack Effect ID is not FF
+                            //data[o] = rnd.Next(0, 256); o++;
+                            //data[o] = rnd.Next(0, 256); o++;
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
 
-                        // Camera Movement ID for single target - FFFF if none
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                            // Camera Movement ID for single target - FFFF if none
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
 
-                        // Camera Movement ID for multi target - FFFF if none
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                            // Camera Movement ID for multi target - FFFF if none
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
 
-                        // Target Flags - Logic will be tough for this one; will depend on attack element + attack type as some aren't designed for multi-target
-                        data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
+                            // Target Flags - Logic will be tough for this one; will depend on attack element + attack type as some aren't designed for multi-target
+                            data[o] = data[o]; o++;
+                            //data[o] = data[o]; o++;
 
-                        // Attack Effect ID - Must be FF if Impact Effect is not FF
-                        data[o] = data[o]; o++;
-                        //data[o] = data[o]; o++;
+                            // Attack Effect ID - Must be FF if Impact Effect is not FF
+                            data[o] = data[o]; o++;
+                            //data[o] = data[o]; o++;
 
-                        // Damage Calculation
-                        data[o] = data[o]; o++;
+                            // Damage Calculation
+                            data[o] = data[o]; o++;
 
-                        // Base Power
-                        data[o] = (byte)rnd.Next(0, 40); o++;
+                            // Base Power
+                            data[o] = (byte)rnd.Next(0, 40); o++;
 
-                        // Condition Sub-Menu Flags
-                        // 00 = Party HP
-                        // 01 = Party MP
-                        // 02 = Party Status
-                        // Other = None
-                        data[o] = data[o]; o++;
+                            // Condition Sub-Menu Flags
+                            // 00 = Party HP
+                            // 01 = Party MP
+                            // 02 = Party Status
+                            // Other = None
+                            data[o] = data[o]; o++;
 
-                        // Status Effect Change
-                        // 00-3F = Chance to inflict/heal status (#/63)
-                        // 40 = Remove Status
-                        // 80 - Toggle Status
-                        // This is changed later if Status Effects Safe/Unsafe are active
-                        data[o] = data[o]; o++;
+                            // Status Effect Change
+                            // 00-3F = Chance to inflict/heal status (#/63)
+                            // 40 = Remove Status
+                            // 80 - Toggle Status
+                            // This is changed later if Status Effects Safe/Unsafe are active
+                            data[o] = data[o]; o++;
 
-                        // Attack Additional Effects
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
+                            // Attack Additional Effects
+                            //data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = data[o]; o++;
 
-                        // Additional Effects Modifier Value
-                        //data[o] = (byte)rnd.Next(0, 256); o++;
-                        data[o] = data[o]; o++;
+                            // Additional Effects Modifier Value
+                            //data[o] = (byte)rnd.Next(0, 256); o++;
+                            data[o] = data[o]; o++;
+                        }
+                        else
+                        {
+                            o += 20;
+                        }
 
 
                         // Produce an enum class that holds the specific values for each status, then pick one of those or more and 
@@ -1259,7 +1379,7 @@ namespace Godo
                                 data[o] = 0; o++;
 
                             }
-                            else if(picker == 1)
+                            else if (picker == 1)
                             {
                                 picker = rnd.Next(2, 7); // Prevents Petrify and Regen being set
                                 data[o] = 0; o++;
@@ -1267,7 +1387,7 @@ namespace Godo
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
-                            else if(picker == 2)
+                            else if (picker == 2)
                             {
                                 data[o - 3] = 255;
                                 o += 4;
@@ -1294,21 +1414,25 @@ namespace Godo
                             {
                                 picker = rnd.Next(0, 7);
                                 data[o] = (byte)status[picker]; o++;
-                                o += 3;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
                             }
                             else if (picker == 1)
                             {
                                 picker = rnd.Next(0, 6); // Prevents Regen being set
-                                o++;
+                                data[o] = 0; o++;
                                 data[o] = (byte)status[picker]; o++;
-                                o += 2;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
                             }
                             else if (picker == 2)
                             {
                                 picker = rnd.Next(1, 7); // Prevents Barrier being set
-                                o += 2;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
                                 data[o] = (byte)status[picker]; o++;
-                                o++;
+                                data[o] = 0; o++;
                             }
                             else
                             {
@@ -1317,7 +1441,9 @@ namespace Godo
                                 {
                                     data[o - 1] = 8;
                                 }
-                                o += 3;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
                                 data[o] = (byte)status[picker]; o++;
                             }
                         }
@@ -1329,8 +1455,25 @@ namespace Godo
                         // Elements - TODO: restrict to 1 element
                         if (options[43] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 256); o++;
-                            data[o] = (byte)rnd.Next(0, 256); o++;
+                            int picker = rnd.Next(2);
+                            int[] element = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                            if (picker == 0)
+                            {
+                                picker = rnd.Next(0, 7);
+                                data[o] = (byte)element[picker]; o++;
+                                data[o] = 0; o++;
+                            }
+                            else if (picker == 1)
+                            {
+                                picker = rnd.Next(0, 7);
+                                data[o] = 0; o++;
+                                data[o] = (byte)element[picker]; o++;
+                            }
+                            else
+                            {
+                                o += 2;
+                            }
                         }
                         else
                         {

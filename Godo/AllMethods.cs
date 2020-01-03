@@ -134,6 +134,124 @@ namespace Godo
             }
         }
 
+        public static int CheckValidMateriaIndex(Random rnd)
+        {
+            bool valid = false;
+            int picker = 0;
+            while (valid == false)
+            {
+                picker = rnd.Next(91);
+                switch (picker)
+                {
+                    // Invalid Materia; no data
+                    case 22:
+                        break;
+
+                    case 38:
+                        break;
+
+                    case 45:
+                        break;
+
+                    case 46:
+                        break;
+
+                    case 47:
+                        break;
+
+                    case 63:
+                        break;
+
+                    case 66:
+                        break;
+
+                    case 67:
+                        break;
+
+                    // OP Materia: KOTR and Master Command/Magic/Summon
+                    case 48:
+                        break;
+
+                    case 73:
+                        break;
+
+                    case 89:
+                        break;
+
+                    case 90:
+                        break;
+
+                    default:
+                        valid = true;
+                        break;
+                }
+            }
+            return picker;
+        }
+
+        public static int CheckValidLimitIndex(Random rnd)
+        {
+            bool valid = false;
+            int picker = 0;
+            while (valid == false)
+            {
+                picker = rnd.Next(127, 197);
+                switch (picker)
+                {
+                    // Invalid Materia; no data
+                    case 149:
+                        break;
+
+                    case 150:
+                        break;
+
+                    case 151:
+                        break;
+
+                    case 152:
+                        break;
+
+                    case 153:
+                        break;
+
+                    case 154:
+                        break;
+
+                    case 155:
+                        break;
+
+                    case 171:
+                        break;
+
+                    case 172:
+                        break;
+
+                    case 173:
+                        break;
+
+                    case 174:
+                        break;
+
+                    case 175:
+                        break;
+
+                    case 176:
+                        break;
+
+                    case 188:
+                        break;
+
+                    case 189:
+                        break;
+
+                    default:
+                        valid = true;
+                        break;
+                }
+            }
+            return picker;
+        }
+
         // This method generates a random name using two 4-letter words
         public static byte[] NameGenerate(Random rnd)
         {
@@ -149,7 +267,7 @@ namespace Godo
 
             byte[] nameBytes = Encoding.ASCII.GetBytes(pickName); // Encodes the string into ASCII byte values
             nameBytes[0] -= 0x20; // Capitalises the first letter
-            
+
             return nameBytes;
         }
 

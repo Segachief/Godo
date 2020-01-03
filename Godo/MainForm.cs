@@ -18,7 +18,7 @@ namespace Godo
             InitializeComponent();
         }
 
-        string directory;
+        string directory = Directory.GetCurrentDirectory();
         bool[] options = new bool[50];
         Random rnd = new Random();
         int seed;
@@ -45,17 +45,17 @@ namespace Godo
 
         private void BtnOpen_Click(object sender, EventArgs e)
         {
-            OpenFileDialog openFileDialog1 = new OpenFileDialog();
-            //openFileDialog1.InitialDirectory = "D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data";
-            using (var fbd = new FolderBrowserDialog())
-            {
-                DialogResult result = fbd.ShowDialog();
+            //OpenFileDialog openFileDialog1 = new OpenFileDialog();
+            ////openFileDialog1.InitialDirectory = "D:\\Steam\\steamapps\\common\\FINAL FANTASY VII\\data";
+            //using (var fbd = new FolderBrowserDialog())
+            //{
+            //    DialogResult result = fbd.ShowDialog();
 
-                if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
-                {
-                    directory = fbd.SelectedPath;
-                }
-            }
+            //    if (result == DialogResult.OK && !string.IsNullOrWhiteSpace(fbd.SelectedPath))
+            //    {
+            //        directory = fbd.SelectedPath;
+            //    }
+            //}
         }
 
         private void BtnRandoScene_Click(object sender, EventArgs e)

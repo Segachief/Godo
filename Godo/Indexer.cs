@@ -93,11 +93,11 @@ namespace Godo
                             {
                                 while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
                                 {
-                                 /* Step 1: Create an array with all AttackIDs and AttackTypes
-                                  * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
-                                  * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
-                                  * 0 = Phys, 1 = Mag, 2 = Misc
-                                  */
+                                    /* Step 1: Create an array with all AttackIDs and AttackTypes
+                                     * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).
+                                     * If either are FF then we can assume it is the other type. If both are FF, it is a Misc.
+                                     * 0 = Phys, 1 = Mag, 2 = Misc
+                                     */
 
                                     while (c < 32) // Iterate through all 32 entries for attack data in the scene
                                     {
@@ -177,7 +177,7 @@ namespace Godo
                                                     if (uncompressedScene[720 + y] != 255)
                                                     {
                                                         animID = uncompressedScene.Skip(720 + y).Take(1).ToArray();
-                                                        
+
                                                         if (jaggedAttackType[attackIDInt][0] == 0) // Attack Type is physical
                                                         {
                                                             physAnims[physCount] = animID[0];
@@ -204,7 +204,7 @@ namespace Godo
                                                 attackCount++;
                                             }
                                             // Places the phys, mag, misc animations collected so far and places them into the jagged array
-                                            jaggedModelAttackTypes[modelIDInt][0] = new int[] { physAnims[0], physAnims[1], physAnims[2], physAnims[3], physAnims[4], physAnims[5], physAnims[6], physAnims[7], physAnims[8], physAnims[9], physAnims[10], physAnims[11], physAnims[12], physAnims[13], physAnims[14], physAnims[15]};
+                                            jaggedModelAttackTypes[modelIDInt][0] = new int[] { physAnims[0], physAnims[1], physAnims[2], physAnims[3], physAnims[4], physAnims[5], physAnims[6], physAnims[7], physAnims[8], physAnims[9], physAnims[10], physAnims[11], physAnims[12], physAnims[13], physAnims[14], physAnims[15] };
                                             jaggedModelAttackTypes[modelIDInt][1] = new int[] { magAnims[0], magAnims[1], magAnims[2], magAnims[3], magAnims[4], magAnims[5], magAnims[6], magAnims[7], magAnims[8], magAnims[9], magAnims[10], magAnims[11], magAnims[12], magAnims[13], magAnims[14], magAnims[15] };
                                             jaggedModelAttackTypes[modelIDInt][2] = new int[] { miscAnims[0], miscAnims[1], miscAnims[2], miscAnims[3], miscAnims[4], miscAnims[5], miscAnims[6], miscAnims[7], miscAnims[8], miscAnims[9], miscAnims[10], miscAnims[11], miscAnims[12], miscAnims[13], miscAnims[14], miscAnims[15] };
                                         }
