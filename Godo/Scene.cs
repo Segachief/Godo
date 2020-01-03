@@ -494,6 +494,7 @@ namespace Godo
                                 data[o] = enemyIDList[4]; o++;
                                 data[o] = enemyIDList[5]; o++;
                             }
+                            
                             // X Coordinate
                             data[o] = (byte)rnd.Next(256); o++;
                             data[o] = (byte)rnd.Next(256); o++;
@@ -515,10 +516,28 @@ namespace Godo
                             data[o] = data[o]; o++;
 
                             // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
-                            data[o] = 255; o++;
+                            byte[] currentModelID = new byte[2];
+                            currentModelID[0] = data[o];
+                            currentModelID[1] = data[o + 1];
+                            ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                            excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                            if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                            {
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                                data[o] = 255; o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                            }
                         }
                         else
                         {
@@ -801,7 +820,6 @@ namespace Godo
 
                                 byte[] attackID = new byte[2];
                                 attackID = data.Skip(736 + y).Take(2).ToArray();
-                                //attackID = data.Skip(2112 + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
                                 int anim = 0;
                                 int first = 0;
