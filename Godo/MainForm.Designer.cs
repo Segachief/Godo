@@ -28,8 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.btnOpen = new System.Windows.Forms.Button();
-            this.lblFileName = new System.Windows.Forms.Label();
             this.btnRandoScene = new System.Windows.Forms.Button();
             this.txtSeed = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -87,46 +85,42 @@
             this.label4 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
+            this.flowLayoutPanel5 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label2 = new System.Windows.Forms.Label();
+            this.chkPovertyMode = new System.Windows.Forms.CheckBox();
+            this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
+            this.chkStrongerEnemies = new System.Windows.Forms.CheckBox();
+            this.chkWeakerEnemies = new System.Windows.Forms.CheckBox();
+            this.chkMaxDropRates = new System.Windows.Forms.CheckBox();
+            this.label7 = new System.Windows.Forms.Label();
+            this.label8 = new System.Windows.Forms.Label();
+            this.flowLayoutPanel7 = new System.Windows.Forms.FlowLayoutPanel();
+            this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
+            this.label9 = new System.Windows.Forms.Label();
+            this.label10 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
+            this.flowLayoutPanel5.SuspendLayout();
+            this.flowLayoutPanel6.SuspendLayout();
+            this.flowLayoutPanel7.SuspendLayout();
+            this.flowLayoutPanel8.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // btnOpen
-            // 
-            this.btnOpen.Location = new System.Drawing.Point(34, 13);
-            this.btnOpen.Name = "btnOpen";
-            this.btnOpen.Size = new System.Drawing.Size(100, 23);
-            this.btnOpen.TabIndex = 1;
-            this.btnOpen.Text = "Open Directory";
-            this.btnOpen.UseVisualStyleBackColor = true;
-            this.btnOpen.Visible = false;
-            this.btnOpen.Click += new System.EventHandler(this.BtnOpen_Click);
-            // 
-            // lblFileName
-            // 
-            this.lblFileName.AutoSize = true;
-            this.lblFileName.BorderStyle = System.Windows.Forms.BorderStyle.Fixed3D;
-            this.lblFileName.Location = new System.Drawing.Point(143, 18);
-            this.lblFileName.Name = "lblFileName";
-            this.lblFileName.Size = new System.Drawing.Size(2, 15);
-            this.lblFileName.TabIndex = 2;
-            this.lblFileName.Visible = false;
             // 
             // btnRandoScene
             // 
-            this.btnRandoScene.Location = new System.Drawing.Point(143, 62);
+            this.btnRandoScene.Location = new System.Drawing.Point(389, 352);
             this.btnRandoScene.Name = "btnRandoScene";
             this.btnRandoScene.Size = new System.Drawing.Size(100, 23);
             this.btnRandoScene.TabIndex = 3;
-            this.btnRandoScene.Text = "Randomise";
+            this.btnRandoScene.Text = "Apply Changes";
             this.btnRandoScene.UseVisualStyleBackColor = true;
             this.btnRandoScene.Click += new System.EventHandler(this.BtnRandoScene_Click);
             // 
             // txtSeed
             // 
-            this.txtSeed.Location = new System.Drawing.Point(33, 63);
+            this.txtSeed.Location = new System.Drawing.Point(279, 353);
             this.txtSeed.Name = "txtSeed";
             this.txtSeed.Size = new System.Drawing.Size(100, 20);
             this.txtSeed.TabIndex = 4;
@@ -134,7 +128,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(31, 47);
+            this.label1.Location = new System.Drawing.Point(276, 335);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(32, 13);
             this.label1.TabIndex = 5;
@@ -143,17 +137,14 @@
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.chkStatCurves);
+            this.flowLayoutPanel1.Controls.Add(this.chkLevelUpBonus);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitIDs);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitKillUse);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitGauge);
-            this.flowLayoutPanel1.Controls.Add(this.chkLevelUpBonus);
-            this.flowLayoutPanel1.Controls.Add(this.chkStatCurveData);
-            this.flowLayoutPanel1.Controls.Add(this.chkCharacterAI);
-            this.flowLayoutPanel1.Controls.Add(this.chkRandomLookup);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel1.Location = new System.Drawing.Point(153, 168);
+            this.flowLayoutPanel1.Location = new System.Drawing.Point(127, 77);
             this.flowLayoutPanel1.Name = "flowLayoutPanel1";
-            this.flowLayoutPanel1.Size = new System.Drawing.Size(143, 189);
+            this.flowLayoutPanel1.Size = new System.Drawing.Size(143, 190);
             this.flowLayoutPanel1.TabIndex = 9;
             // 
             // chkStatCurves
@@ -169,7 +160,7 @@
             // chkLimitIDs
             // 
             this.chkLimitIDs.AutoSize = true;
-            this.chkLimitIDs.Location = new System.Drawing.Point(3, 26);
+            this.chkLimitIDs.Location = new System.Drawing.Point(3, 49);
             this.chkLimitIDs.Name = "chkLimitIDs";
             this.chkLimitIDs.Size = new System.Drawing.Size(66, 17);
             this.chkLimitIDs.TabIndex = 1;
@@ -179,7 +170,7 @@
             // chkLimitKillUse
             // 
             this.chkLimitKillUse.AutoSize = true;
-            this.chkLimitKillUse.Location = new System.Drawing.Point(3, 49);
+            this.chkLimitKillUse.Location = new System.Drawing.Point(3, 72);
             this.chkLimitKillUse.Name = "chkLimitKillUse";
             this.chkLimitKillUse.Size = new System.Drawing.Size(97, 17);
             this.chkLimitKillUse.TabIndex = 2;
@@ -189,7 +180,7 @@
             // chkLimitGauge
             // 
             this.chkLimitGauge.AutoSize = true;
-            this.chkLimitGauge.Location = new System.Drawing.Point(3, 72);
+            this.chkLimitGauge.Location = new System.Drawing.Point(3, 95);
             this.chkLimitGauge.Name = "chkLimitGauge";
             this.chkLimitGauge.Size = new System.Drawing.Size(117, 17);
             this.chkLimitGauge.TabIndex = 3;
@@ -199,7 +190,7 @@
             // chkLevelUpBonus
             // 
             this.chkLevelUpBonus.AutoSize = true;
-            this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 95);
+            this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 26);
             this.chkLevelUpBonus.Name = "chkLevelUpBonus";
             this.chkLevelUpBonus.Size = new System.Drawing.Size(113, 17);
             this.chkLevelUpBonus.TabIndex = 4;
@@ -209,7 +200,7 @@
             // chkStatCurveData
             // 
             this.chkStatCurveData.AutoSize = true;
-            this.chkStatCurveData.Location = new System.Drawing.Point(3, 118);
+            this.chkStatCurveData.Location = new System.Drawing.Point(3, 49);
             this.chkStatCurveData.Name = "chkStatCurveData";
             this.chkStatCurveData.Size = new System.Drawing.Size(102, 17);
             this.chkStatCurveData.TabIndex = 5;
@@ -220,7 +211,7 @@
             // chkCharacterAI
             // 
             this.chkCharacterAI.AutoSize = true;
-            this.chkCharacterAI.Location = new System.Drawing.Point(3, 141);
+            this.chkCharacterAI.Location = new System.Drawing.Point(3, 3);
             this.chkCharacterAI.Name = "chkCharacterAI";
             this.chkCharacterAI.Size = new System.Drawing.Size(85, 17);
             this.chkCharacterAI.TabIndex = 6;
@@ -231,7 +222,7 @@
             // chkRandomLookup
             // 
             this.chkRandomLookup.AutoSize = true;
-            this.chkRandomLookup.Location = new System.Drawing.Point(3, 164);
+            this.chkRandomLookup.Location = new System.Drawing.Point(3, 26);
             this.chkRandomLookup.Name = "chkRandomLookup";
             this.chkRandomLookup.Size = new System.Drawing.Size(135, 17);
             this.chkRandomLookup.TabIndex = 7;
@@ -248,9 +239,9 @@
             this.flowLayoutPanel2.Controls.Add(this.chkAccessoryData);
             this.flowLayoutPanel2.Controls.Add(this.chkMateriaData);
             this.flowLayoutPanel2.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel2.Location = new System.Drawing.Point(31, 168);
+            this.flowLayoutPanel2.Location = new System.Drawing.Point(15, 77);
             this.flowLayoutPanel2.Name = "flowLayoutPanel2";
-            this.flowLayoutPanel2.Size = new System.Drawing.Size(105, 139);
+            this.flowLayoutPanel2.Size = new System.Drawing.Size(105, 190);
             this.flowLayoutPanel2.TabIndex = 10;
             // 
             // chkAttackData
@@ -317,18 +308,16 @@
             // 
             this.flowLayoutPanel3.Controls.Add(this.chkCharacterID);
             this.flowLayoutPanel3.Controls.Add(this.chkCharacterStats);
-            this.flowLayoutPanel3.Controls.Add(this.chkCharacterName);
+            this.flowLayoutPanel3.Controls.Add(this.chkCharacterHP);
+            this.flowLayoutPanel3.Controls.Add(this.chkCharacterMP);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedWeapon);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedArmour);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedAccessory);
-            this.flowLayoutPanel3.Controls.Add(this.chkCharacterHP);
-            this.flowLayoutPanel3.Controls.Add(this.chkCharacterMP);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedMateria);
-            this.flowLayoutPanel3.Controls.Add(this.chkStartParty);
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel3.Location = new System.Drawing.Point(312, 167);
+            this.flowLayoutPanel3.Location = new System.Drawing.Point(276, 76);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(128, 239);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(128, 191);
             this.flowLayoutPanel3.TabIndex = 11;
             // 
             // chkCharacterID
@@ -354,17 +343,18 @@
             // chkCharacterName
             // 
             this.chkCharacterName.AutoSize = true;
-            this.chkCharacterName.Location = new System.Drawing.Point(3, 49);
+            this.chkCharacterName.Location = new System.Drawing.Point(3, 95);
             this.chkCharacterName.Name = "chkCharacterName";
             this.chkCharacterName.Size = new System.Drawing.Size(103, 17);
             this.chkCharacterName.TabIndex = 2;
             this.chkCharacterName.Text = "Character Name";
             this.chkCharacterName.UseVisualStyleBackColor = true;
+            this.chkCharacterName.Visible = false;
             // 
             // chkEquippedWeapon
             // 
             this.chkEquippedWeapon.AutoSize = true;
-            this.chkEquippedWeapon.Location = new System.Drawing.Point(3, 72);
+            this.chkEquippedWeapon.Location = new System.Drawing.Point(3, 95);
             this.chkEquippedWeapon.Name = "chkEquippedWeapon";
             this.chkEquippedWeapon.Size = new System.Drawing.Size(115, 17);
             this.chkEquippedWeapon.TabIndex = 3;
@@ -374,7 +364,7 @@
             // chkEquippedArmour
             // 
             this.chkEquippedArmour.AutoSize = true;
-            this.chkEquippedArmour.Location = new System.Drawing.Point(3, 95);
+            this.chkEquippedArmour.Location = new System.Drawing.Point(3, 118);
             this.chkEquippedArmour.Name = "chkEquippedArmour";
             this.chkEquippedArmour.Size = new System.Drawing.Size(107, 17);
             this.chkEquippedArmour.TabIndex = 4;
@@ -384,7 +374,7 @@
             // chkEquippedAccessory
             // 
             this.chkEquippedAccessory.AutoSize = true;
-            this.chkEquippedAccessory.Location = new System.Drawing.Point(3, 118);
+            this.chkEquippedAccessory.Location = new System.Drawing.Point(3, 141);
             this.chkEquippedAccessory.Name = "chkEquippedAccessory";
             this.chkEquippedAccessory.Size = new System.Drawing.Size(123, 17);
             this.chkEquippedAccessory.TabIndex = 5;
@@ -394,7 +384,7 @@
             // chkCharacterHP
             // 
             this.chkCharacterHP.AutoSize = true;
-            this.chkCharacterHP.Location = new System.Drawing.Point(3, 141);
+            this.chkCharacterHP.Location = new System.Drawing.Point(3, 49);
             this.chkCharacterHP.Name = "chkCharacterHP";
             this.chkCharacterHP.Size = new System.Drawing.Size(90, 17);
             this.chkCharacterHP.TabIndex = 6;
@@ -404,7 +394,7 @@
             // chkCharacterMP
             // 
             this.chkCharacterMP.AutoSize = true;
-            this.chkCharacterMP.Location = new System.Drawing.Point(3, 164);
+            this.chkCharacterMP.Location = new System.Drawing.Point(3, 72);
             this.chkCharacterMP.Name = "chkCharacterMP";
             this.chkCharacterMP.Size = new System.Drawing.Size(91, 17);
             this.chkCharacterMP.TabIndex = 7;
@@ -414,7 +404,7 @@
             // chkEquippedMateria
             // 
             this.chkEquippedMateria.AutoSize = true;
-            this.chkEquippedMateria.Location = new System.Drawing.Point(3, 187);
+            this.chkEquippedMateria.Location = new System.Drawing.Point(3, 164);
             this.chkEquippedMateria.Name = "chkEquippedMateria";
             this.chkEquippedMateria.Size = new System.Drawing.Size(109, 17);
             this.chkEquippedMateria.TabIndex = 8;
@@ -424,7 +414,7 @@
             // chkStartParty
             // 
             this.chkStartParty.AutoSize = true;
-            this.chkStartParty.Location = new System.Drawing.Point(3, 210);
+            this.chkStartParty.Location = new System.Drawing.Point(3, 72);
             this.chkStartParty.Name = "chkStartParty";
             this.chkStartParty.Size = new System.Drawing.Size(89, 17);
             this.chkStartParty.TabIndex = 9;
@@ -435,31 +425,25 @@
             // flowLayoutPanel4
             // 
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyModels);
-            this.flowLayoutPanel4.Controls.Add(this.chkBattleBG);
-            this.flowLayoutPanel4.Controls.Add(this.chkDisableEscape);
-            this.flowLayoutPanel4.Controls.Add(this.chkCamera);
-            this.flowLayoutPanel4.Controls.Add(this.chkEnemyPlacement);
-            this.flowLayoutPanel4.Controls.Add(this.chkEnemyQuantity);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyName);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyStats);
-            this.flowLayoutPanel4.Controls.Add(this.chkElementalAffinity);
-            this.flowLayoutPanel4.Controls.Add(this.chkHeldItems);
-            this.flowLayoutPanel4.Controls.Add(this.chkEnemyMP);
-            this.flowLayoutPanel4.Controls.Add(this.chkEnemyAP);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyHP);
+            this.flowLayoutPanel4.Controls.Add(this.chkEnemyMP);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyEXP);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyGil);
-            this.flowLayoutPanel4.Controls.Add(this.chkStatusImmunities);
+            this.flowLayoutPanel4.Controls.Add(this.chkEnemyAP);
+            this.flowLayoutPanel4.Controls.Add(this.chkAttackNames);
             this.flowLayoutPanel4.Controls.Add(this.chkEnemyAttacks);
+            this.flowLayoutPanel4.Controls.Add(this.chkRandomElements);
             this.flowLayoutPanel4.Controls.Add(this.chkStatusSafe);
             this.flowLayoutPanel4.Controls.Add(this.chkStatusUnsafe);
-            this.flowLayoutPanel4.Controls.Add(this.chkRandomElements);
-            this.flowLayoutPanel4.Controls.Add(this.chkAttackNames);
-            this.flowLayoutPanel4.Controls.Add(this.chkEnemyAI);
+            this.flowLayoutPanel4.Controls.Add(this.chkElementalAffinity);
+            this.flowLayoutPanel4.Controls.Add(this.chkStatusImmunities);
+            this.flowLayoutPanel4.Controls.Add(this.chkHeldItems);
             this.flowLayoutPanel4.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-            this.flowLayoutPanel4.Location = new System.Drawing.Point(454, 167);
+            this.flowLayoutPanel4.Location = new System.Drawing.Point(559, 76);
             this.flowLayoutPanel4.Name = "flowLayoutPanel4";
-            this.flowLayoutPanel4.Size = new System.Drawing.Size(340, 271);
+            this.flowLayoutPanel4.Size = new System.Drawing.Size(313, 190);
             this.flowLayoutPanel4.TabIndex = 12;
             // 
             // chkEnemyModels
@@ -475,7 +459,7 @@
             // chkBattleBG
             // 
             this.chkBattleBG.AutoSize = true;
-            this.chkBattleBG.Location = new System.Drawing.Point(3, 26);
+            this.chkBattleBG.Location = new System.Drawing.Point(3, 3);
             this.chkBattleBG.Name = "chkBattleBG";
             this.chkBattleBG.Size = new System.Drawing.Size(71, 17);
             this.chkBattleBG.TabIndex = 1;
@@ -485,7 +469,7 @@
             // chkDisableEscape
             // 
             this.chkDisableEscape.AutoSize = true;
-            this.chkDisableEscape.Location = new System.Drawing.Point(3, 49);
+            this.chkDisableEscape.Location = new System.Drawing.Point(3, 26);
             this.chkDisableEscape.Name = "chkDisableEscape";
             this.chkDisableEscape.Size = new System.Drawing.Size(100, 17);
             this.chkDisableEscape.TabIndex = 2;
@@ -495,7 +479,7 @@
             // chkCamera
             // 
             this.chkCamera.AutoSize = true;
-            this.chkCamera.Location = new System.Drawing.Point(3, 72);
+            this.chkCamera.Location = new System.Drawing.Point(3, 26);
             this.chkCamera.Name = "chkCamera";
             this.chkCamera.Size = new System.Drawing.Size(62, 17);
             this.chkCamera.TabIndex = 3;
@@ -505,7 +489,7 @@
             // chkEnemyPlacement
             // 
             this.chkEnemyPlacement.AutoSize = true;
-            this.chkEnemyPlacement.Location = new System.Drawing.Point(3, 95);
+            this.chkEnemyPlacement.Location = new System.Drawing.Point(3, 49);
             this.chkEnemyPlacement.Name = "chkEnemyPlacement";
             this.chkEnemyPlacement.Size = new System.Drawing.Size(118, 17);
             this.chkEnemyPlacement.TabIndex = 4;
@@ -515,27 +499,27 @@
             // chkEnemyQuantity
             // 
             this.chkEnemyQuantity.AutoSize = true;
-            this.chkEnemyQuantity.Location = new System.Drawing.Point(3, 118);
+            this.chkEnemyQuantity.Location = new System.Drawing.Point(3, 3);
             this.chkEnemyQuantity.Name = "chkEnemyQuantity";
-            this.chkEnemyQuantity.Size = new System.Drawing.Size(100, 17);
+            this.chkEnemyQuantity.Size = new System.Drawing.Size(93, 17);
             this.chkEnemyQuantity.TabIndex = 5;
-            this.chkEnemyQuantity.Text = "Enemy Quantity";
+            this.chkEnemyQuantity.Text = "Enemy Swarm";
             this.chkEnemyQuantity.UseVisualStyleBackColor = true;
             // 
             // chkEnemyName
             // 
             this.chkEnemyName.AutoSize = true;
-            this.chkEnemyName.Location = new System.Drawing.Point(3, 141);
+            this.chkEnemyName.Location = new System.Drawing.Point(3, 26);
             this.chkEnemyName.Name = "chkEnemyName";
-            this.chkEnemyName.Size = new System.Drawing.Size(89, 17);
+            this.chkEnemyName.Size = new System.Drawing.Size(94, 17);
             this.chkEnemyName.TabIndex = 6;
-            this.chkEnemyName.Text = "Enemy Name";
+            this.chkEnemyName.Text = "Enemy Names";
             this.chkEnemyName.UseVisualStyleBackColor = true;
             // 
             // chkEnemyStats
             // 
             this.chkEnemyStats.AutoSize = true;
-            this.chkEnemyStats.Location = new System.Drawing.Point(3, 164);
+            this.chkEnemyStats.Location = new System.Drawing.Point(3, 49);
             this.chkEnemyStats.Name = "chkEnemyStats";
             this.chkEnemyStats.Size = new System.Drawing.Size(85, 17);
             this.chkEnemyStats.TabIndex = 7;
@@ -545,7 +529,7 @@
             // chkElementalAffinity
             // 
             this.chkElementalAffinity.AutoSize = true;
-            this.chkElementalAffinity.Location = new System.Drawing.Point(3, 187);
+            this.chkElementalAffinity.Location = new System.Drawing.Point(104, 118);
             this.chkElementalAffinity.Name = "chkElementalAffinity";
             this.chkElementalAffinity.Size = new System.Drawing.Size(106, 17);
             this.chkElementalAffinity.TabIndex = 8;
@@ -555,7 +539,7 @@
             // chkHeldItems
             // 
             this.chkHeldItems.AutoSize = true;
-            this.chkHeldItems.Location = new System.Drawing.Point(3, 210);
+            this.chkHeldItems.Location = new System.Drawing.Point(104, 164);
             this.chkHeldItems.Name = "chkHeldItems";
             this.chkHeldItems.Size = new System.Drawing.Size(76, 17);
             this.chkHeldItems.TabIndex = 9;
@@ -565,7 +549,7 @@
             // chkEnemyMP
             // 
             this.chkEnemyMP.AutoSize = true;
-            this.chkEnemyMP.Location = new System.Drawing.Point(3, 233);
+            this.chkEnemyMP.Location = new System.Drawing.Point(3, 95);
             this.chkEnemyMP.Name = "chkEnemyMP";
             this.chkEnemyMP.Size = new System.Drawing.Size(77, 17);
             this.chkEnemyMP.TabIndex = 10;
@@ -575,7 +559,7 @@
             // chkEnemyAP
             // 
             this.chkEnemyAP.AutoSize = true;
-            this.chkEnemyAP.Location = new System.Drawing.Point(127, 3);
+            this.chkEnemyAP.Location = new System.Drawing.Point(3, 164);
             this.chkEnemyAP.Name = "chkEnemyAP";
             this.chkEnemyAP.Size = new System.Drawing.Size(75, 17);
             this.chkEnemyAP.TabIndex = 11;
@@ -585,7 +569,7 @@
             // chkEnemyHP
             // 
             this.chkEnemyHP.AutoSize = true;
-            this.chkEnemyHP.Location = new System.Drawing.Point(127, 26);
+            this.chkEnemyHP.Location = new System.Drawing.Point(3, 72);
             this.chkEnemyHP.Name = "chkEnemyHP";
             this.chkEnemyHP.Size = new System.Drawing.Size(76, 17);
             this.chkEnemyHP.TabIndex = 12;
@@ -595,7 +579,7 @@
             // chkEnemyEXP
             // 
             this.chkEnemyEXP.AutoSize = true;
-            this.chkEnemyEXP.Location = new System.Drawing.Point(127, 49);
+            this.chkEnemyEXP.Location = new System.Drawing.Point(3, 118);
             this.chkEnemyEXP.Name = "chkEnemyEXP";
             this.chkEnemyEXP.Size = new System.Drawing.Size(82, 17);
             this.chkEnemyEXP.TabIndex = 13;
@@ -605,7 +589,7 @@
             // chkEnemyGil
             // 
             this.chkEnemyGil.AutoSize = true;
-            this.chkEnemyGil.Location = new System.Drawing.Point(127, 72);
+            this.chkEnemyGil.Location = new System.Drawing.Point(3, 141);
             this.chkEnemyGil.Name = "chkEnemyGil";
             this.chkEnemyGil.Size = new System.Drawing.Size(73, 17);
             this.chkEnemyGil.TabIndex = 14;
@@ -615,7 +599,7 @@
             // chkStatusImmunities
             // 
             this.chkStatusImmunities.AutoSize = true;
-            this.chkStatusImmunities.Location = new System.Drawing.Point(127, 95);
+            this.chkStatusImmunities.Location = new System.Drawing.Point(104, 141);
             this.chkStatusImmunities.Name = "chkStatusImmunities";
             this.chkStatusImmunities.Size = new System.Drawing.Size(108, 17);
             this.chkStatusImmunities.TabIndex = 15;
@@ -625,7 +609,7 @@
             // chkEnemyAttacks
             // 
             this.chkEnemyAttacks.AutoSize = true;
-            this.chkEnemyAttacks.Location = new System.Drawing.Point(127, 118);
+            this.chkEnemyAttacks.Location = new System.Drawing.Point(104, 26);
             this.chkEnemyAttacks.Name = "chkEnemyAttacks";
             this.chkEnemyAttacks.Size = new System.Drawing.Size(97, 17);
             this.chkEnemyAttacks.TabIndex = 16;
@@ -635,7 +619,7 @@
             // chkStatusSafe
             // 
             this.chkStatusSafe.AutoSize = true;
-            this.chkStatusSafe.Location = new System.Drawing.Point(127, 141);
+            this.chkStatusSafe.Location = new System.Drawing.Point(104, 72);
             this.chkStatusSafe.Name = "chkStatusSafe";
             this.chkStatusSafe.Size = new System.Drawing.Size(196, 17);
             this.chkStatusSafe.TabIndex = 17;
@@ -645,7 +629,7 @@
             // chkStatusUnsafe
             // 
             this.chkStatusUnsafe.AutoSize = true;
-            this.chkStatusUnsafe.Location = new System.Drawing.Point(127, 164);
+            this.chkStatusUnsafe.Location = new System.Drawing.Point(104, 95);
             this.chkStatusUnsafe.Name = "chkStatusUnsafe";
             this.chkStatusUnsafe.Size = new System.Drawing.Size(208, 17);
             this.chkStatusUnsafe.TabIndex = 18;
@@ -655,7 +639,7 @@
             // chkRandomElements
             // 
             this.chkRandomElements.AutoSize = true;
-            this.chkRandomElements.Location = new System.Drawing.Point(127, 187);
+            this.chkRandomElements.Location = new System.Drawing.Point(104, 49);
             this.chkRandomElements.Name = "chkRandomElements";
             this.chkRandomElements.Size = new System.Drawing.Size(167, 17);
             this.chkRandomElements.TabIndex = 21;
@@ -665,7 +649,7 @@
             // chkAttackNames
             // 
             this.chkAttackNames.AutoSize = true;
-            this.chkAttackNames.Location = new System.Drawing.Point(127, 210);
+            this.chkAttackNames.Location = new System.Drawing.Point(104, 3);
             this.chkAttackNames.Name = "chkAttackNames";
             this.chkAttackNames.Size = new System.Drawing.Size(93, 17);
             this.chkAttackNames.TabIndex = 19;
@@ -675,7 +659,7 @@
             // chkEnemyAI
             // 
             this.chkEnemyAI.AutoSize = true;
-            this.chkEnemyAI.Location = new System.Drawing.Point(127, 233);
+            this.chkEnemyAI.Location = new System.Drawing.Point(3, 118);
             this.chkEnemyAI.Name = "chkEnemyAI";
             this.chkEnemyAI.Size = new System.Drawing.Size(71, 17);
             this.chkEnemyAI.TabIndex = 20;
@@ -686,7 +670,7 @@
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(28, 144);
+            this.label3.Location = new System.Drawing.Point(18, 62);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(90, 13);
             this.label3.TabIndex = 13;
@@ -695,7 +679,7 @@
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(150, 143);
+            this.label4.Location = new System.Drawing.Point(130, 62);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(79, 13);
             this.label4.TabIndex = 14;
@@ -704,7 +688,7 @@
             // label5
             // 
             this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(308, 144);
+            this.label5.Location = new System.Drawing.Point(279, 61);
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(87, 13);
             this.label5.TabIndex = 15;
@@ -713,17 +697,161 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(451, 143);
+            this.label6.Location = new System.Drawing.Point(562, 61);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(65, 13);
             this.label6.TabIndex = 16;
             this.label6.Text = "Enemy Data";
             // 
+            // flowLayoutPanel5
+            // 
+            this.flowLayoutPanel5.Controls.Add(this.chkEnemyQuantity);
+            this.flowLayoutPanel5.Controls.Add(this.chkDisableEscape);
+            this.flowLayoutPanel5.Controls.Add(this.chkPovertyMode);
+            this.flowLayoutPanel5.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel5.Location = new System.Drawing.Point(12, 335);
+            this.flowLayoutPanel5.Name = "flowLayoutPanel5";
+            this.flowLayoutPanel5.Size = new System.Drawing.Size(108, 103);
+            this.flowLayoutPanel5.TabIndex = 17;
+            // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(15, 320);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(76, 13);
+            this.label2.TabIndex = 18;
+            this.label2.Text = "Special Hacks";
+            // 
+            // chkPovertyMode
+            // 
+            this.chkPovertyMode.AutoSize = true;
+            this.chkPovertyMode.Location = new System.Drawing.Point(3, 49);
+            this.chkPovertyMode.Name = "chkPovertyMode";
+            this.chkPovertyMode.Size = new System.Drawing.Size(92, 17);
+            this.chkPovertyMode.TabIndex = 6;
+            this.chkPovertyMode.Text = "Poverty Mode";
+            this.chkPovertyMode.UseVisualStyleBackColor = true;
+            // 
+            // flowLayoutPanel6
+            // 
+            this.flowLayoutPanel6.Controls.Add(this.chkStrongerEnemies);
+            this.flowLayoutPanel6.Controls.Add(this.chkWeakerEnemies);
+            this.flowLayoutPanel6.Controls.Add(this.chkMaxDropRates);
+            this.flowLayoutPanel6.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel6.Location = new System.Drawing.Point(127, 335);
+            this.flowLayoutPanel6.Name = "flowLayoutPanel6";
+            this.flowLayoutPanel6.Size = new System.Drawing.Size(143, 103);
+            this.flowLayoutPanel6.TabIndex = 19;
+            // 
+            // chkStrongerEnemies
+            // 
+            this.chkStrongerEnemies.AutoSize = true;
+            this.chkStrongerEnemies.Location = new System.Drawing.Point(3, 3);
+            this.chkStrongerEnemies.Name = "chkStrongerEnemies";
+            this.chkStrongerEnemies.Size = new System.Drawing.Size(109, 17);
+            this.chkStrongerEnemies.TabIndex = 5;
+            this.chkStrongerEnemies.Text = "Stronger Enemies";
+            this.chkStrongerEnemies.UseVisualStyleBackColor = true;
+            // 
+            // chkWeakerEnemies
+            // 
+            this.chkWeakerEnemies.AutoSize = true;
+            this.chkWeakerEnemies.Location = new System.Drawing.Point(3, 26);
+            this.chkWeakerEnemies.Name = "chkWeakerEnemies";
+            this.chkWeakerEnemies.Size = new System.Drawing.Size(107, 17);
+            this.chkWeakerEnemies.TabIndex = 2;
+            this.chkWeakerEnemies.Text = "Weaker Enemies";
+            this.chkWeakerEnemies.UseVisualStyleBackColor = true;
+            // 
+            // chkMaxDropRates
+            // 
+            this.chkMaxDropRates.AutoSize = true;
+            this.chkMaxDropRates.Location = new System.Drawing.Point(3, 49);
+            this.chkMaxDropRates.Name = "chkMaxDropRates";
+            this.chkMaxDropRates.Size = new System.Drawing.Size(132, 17);
+            this.chkMaxDropRates.TabIndex = 6;
+            this.chkMaxDropRates.Text = "Max Drop/Steal Rates";
+            this.chkMaxDropRates.UseVisualStyleBackColor = true;
+            // 
+            // label7
+            // 
+            this.label7.AutoSize = true;
+            this.label7.Location = new System.Drawing.Point(130, 320);
+            this.label7.Name = "label7";
+            this.label7.Size = new System.Drawing.Size(82, 13);
+            this.label7.TabIndex = 20;
+            this.label7.Text = "Balance Tuning";
+            // 
+            // label8
+            // 
+            this.label8.AutoSize = true;
+            this.label8.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label8.Location = new System.Drawing.Point(10, 30);
+            this.label8.Name = "label8";
+            this.label8.Size = new System.Drawing.Size(137, 13);
+            this.label8.TabIndex = 21;
+            this.label8.Text = "Randomisation Options";
+            // 
+            // flowLayoutPanel7
+            // 
+            this.flowLayoutPanel7.Controls.Add(this.chkCharacterAI);
+            this.flowLayoutPanel7.Controls.Add(this.chkRandomLookup);
+            this.flowLayoutPanel7.Controls.Add(this.chkStatCurveData);
+            this.flowLayoutPanel7.Controls.Add(this.chkStartParty);
+            this.flowLayoutPanel7.Controls.Add(this.chkCharacterName);
+            this.flowLayoutPanel7.Controls.Add(this.chkEnemyAI);
+            this.flowLayoutPanel7.Location = new System.Drawing.Point(13, 17);
+            this.flowLayoutPanel7.Name = "flowLayoutPanel7";
+            this.flowLayoutPanel7.Size = new System.Drawing.Size(10, 10);
+            this.flowLayoutPanel7.TabIndex = 22;
+            this.flowLayoutPanel7.Visible = false;
+            // 
+            // flowLayoutPanel8
+            // 
+            this.flowLayoutPanel8.Controls.Add(this.chkBattleBG);
+            this.flowLayoutPanel8.Controls.Add(this.chkCamera);
+            this.flowLayoutPanel8.Controls.Add(this.chkEnemyPlacement);
+            this.flowLayoutPanel8.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+            this.flowLayoutPanel8.Location = new System.Drawing.Point(410, 76);
+            this.flowLayoutPanel8.Name = "flowLayoutPanel8";
+            this.flowLayoutPanel8.Size = new System.Drawing.Size(143, 191);
+            this.flowLayoutPanel8.TabIndex = 23;
+            // 
+            // label9
+            // 
+            this.label9.AutoSize = true;
+            this.label9.Location = new System.Drawing.Point(413, 61);
+            this.label9.Name = "label9";
+            this.label9.Size = new System.Drawing.Size(79, 13);
+            this.label9.TabIndex = 24;
+            this.label9.Text = "Formation Data";
+            // 
+            // label10
+            // 
+            this.label10.AutoSize = true;
+            this.label10.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label10.Location = new System.Drawing.Point(9, 295);
+            this.label10.Name = "label10";
+            this.label10.Size = new System.Drawing.Size(145, 13);
+            this.label10.TabIndex = 25;
+            this.label10.Text = "Game-Tweaking Options";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.BackColor = System.Drawing.SystemColors.Control;
+            this.ClientSize = new System.Drawing.Size(891, 452);
+            this.Controls.Add(this.label10);
+            this.Controls.Add(this.label9);
+            this.Controls.Add(this.flowLayoutPanel8);
+            this.Controls.Add(this.label8);
+            this.Controls.Add(this.label7);
+            this.Controls.Add(this.flowLayoutPanel6);
+            this.Controls.Add(this.label2);
+            this.Controls.Add(this.flowLayoutPanel5);
+            this.Controls.Add(this.flowLayoutPanel7);
             this.Controls.Add(this.label6);
             this.Controls.Add(this.label5);
             this.Controls.Add(this.label4);
@@ -735,10 +863,8 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.txtSeed);
             this.Controls.Add(this.btnRandoScene);
-            this.Controls.Add(this.lblFileName);
-            this.Controls.Add(this.btnOpen);
             this.Name = "MainForm";
-            this.Text = "Form1";
+            this.Text = "Godo: FF7 Randomiser/Tuner";
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
@@ -747,14 +873,20 @@
             this.flowLayoutPanel3.PerformLayout();
             this.flowLayoutPanel4.ResumeLayout(false);
             this.flowLayoutPanel4.PerformLayout();
+            this.flowLayoutPanel5.ResumeLayout(false);
+            this.flowLayoutPanel5.PerformLayout();
+            this.flowLayoutPanel6.ResumeLayout(false);
+            this.flowLayoutPanel6.PerformLayout();
+            this.flowLayoutPanel7.ResumeLayout(false);
+            this.flowLayoutPanel7.PerformLayout();
+            this.flowLayoutPanel8.ResumeLayout(false);
+            this.flowLayoutPanel8.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
         }
 
         #endregion
-        private System.Windows.Forms.Button btnOpen;
-        private System.Windows.Forms.Label lblFileName;
         private System.Windows.Forms.Button btnRandoScene;
         private System.Windows.Forms.TextBox txtSeed;
         private System.Windows.Forms.Label label1;
@@ -812,6 +944,19 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Label label6;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel5;
+        private System.Windows.Forms.CheckBox chkPovertyMode;
+        private System.Windows.Forms.Label label2;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel6;
+        private System.Windows.Forms.CheckBox chkStrongerEnemies;
+        private System.Windows.Forms.CheckBox chkWeakerEnemies;
+        private System.Windows.Forms.CheckBox chkMaxDropRates;
+        private System.Windows.Forms.Label label7;
+        private System.Windows.Forms.Label label8;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel7;
+        private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel8;
+        private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.Label label10;
     }
 }
 

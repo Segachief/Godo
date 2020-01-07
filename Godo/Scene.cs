@@ -619,7 +619,7 @@ namespace Godo
                         {
                             if (bossAnimGroup == true)
                             { // Boss parameters
-                                // Enemy Level - This'll likely be set via AI
+                                // Enemy Level
                                 data[o] = statAdjustMax; o++;
 
                                 // Enemy Speed
@@ -631,21 +631,21 @@ namespace Godo
                                 // Enemy Evade
                                 data[o] = (byte)rnd.Next(0, 16); o++;
 
-                                // Enemy Strength  - This'll likely be set via AI
+                                // Enemy Strength
                                 data[o] = statAdjustMax; o++;
 
-                                // Enemy Defence  - This'll likely be set via AI
+                                // Enemy Defence
                                 data[o] = statAdjustMax; o++;
 
-                                // Enemy Magic  - This'll likely be set via AI
+                                // Enemy Magic
                                 data[o] = statAdjustMax; o++;
 
-                                // Enemy Magic Defence  - This'll likely be set via AI
+                                // Enemy Magic Defence
                                 data[o] = statAdjustMax; o++;
                             }
                             else
                             { // Regular enemy parameters
-                                // Enemy Level - This'll likely be set via AI
+                                // Enemy Level
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
                                 // Enemy Speed
@@ -657,18 +657,105 @@ namespace Godo
                                 // Enemy Evade
                                 data[o] = (byte)rnd.Next(0, 32); o++;
 
-                                // Enemy Strength  - This'll likely be set via AI
+                                // Enemy Strength
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
-                                // Enemy Defence  - This'll likely be set via AI
+                                // Enemy Defence
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
-                                // Enemy Magic  - This'll likely be set via AI
+                                // Enemy Magic
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
 
-                                // Enemy Magic Defence  - This'll likely be set via AI
+                                // Enemy Magic Defence
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
                             }
+                        }
+                        else if(options[47] != false)
+                        {
+                            // Enemy Level
+                            if (data[o] < 170)
+                            {
+                                data[o] = (byte)(data[o] * 1.5); o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o];
+                            }
+
+                            // Enemy Speed
+                            data[o] = data[o]; o++;
+
+                            // Enemy Luck
+                            data[o] = data[o]; o++;
+
+                            // Enemy Evade
+                            data[o] = data[o]; o++;
+
+                            // Enemy Strength
+                            if (data[o] < 215)
+                            {
+                                data[o] = (byte)(data[o] + 40); o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o];
+                            }
+
+                            // Enemy Defence
+                            if (data[o] < 190)
+                            {
+                                data[o] = (byte)(data[o] + 65); o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o];
+                            }
+
+                            // Enemy Magic
+                            if (data[o] < 215)
+                            {
+                                data[o] = (byte)(data[o] + 40); o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o];
+                            }
+
+                            // Enemy Magic Defence
+                            if (data[o] < 220)
+                            {
+                                data[o] = (byte)(data[o] + 35); o++;
+                            }
+                            else
+                            {
+                                data[o] = data[o];
+                            }
+                        }
+                        else if (options[48] != false)
+                        {
+                            // Enemy Level
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Speed
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Luck
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Evade
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Strength
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Defence
+                            data[o] = (byte)(data[o] * 0.25); o++;
+
+                            // Enemy Magic
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Magic Defence
+                            data[o] = (byte)(data[o] * 0.25); o++;
                         }
                         else
                         {
@@ -972,13 +1059,53 @@ namespace Godo
                             // Item 3 & 4 are unchanged
                             o += 4;
                         }
+                        else if (options[49] != false)
+                        {
+                            // This needs to check if it is a drop or steal, then set max chance
+                            if (data[o] != 255 && data[o] < 64)
+                            {
+                                data[o] = 63; o++;
+                            }
+                            else if (data[o] != 255 && data[o] > 63)
+                            {
+                                data[o] = 127;// whatever max steal rate is
+                            }
+                            else
+                            {
+                                data[o] = 255; o++;
+                            }
+                            // then do other 3 item rates
+                        }
+                        else if (options[46] != false)
+                        {
+                            // Rates
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+
+                            // Item 1-4
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
+                        }
                         else
                         {
+                            // Rates
                             data[o] = data[o]; o++;
                             data[o] = data[o]; o++;
                             data[o] = data[o]; o++;
                             data[o] = data[o]; o++;
 
+                            // Item 1-4
                             data[o] = data[o]; o++;
                             data[o] = data[o]; o++;
 
@@ -1041,6 +1168,13 @@ namespace Godo
                                 data[o] = 0; o++;
                             }
                         }
+                        else if (options[46] != false)
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
                         else
                         {
                             data[o] = data[o]; o++;
@@ -1061,8 +1195,11 @@ namespace Godo
                             byte second = converted[1];
                             data[o] = first; o++;
                             data[o] = second; o++;
-                            //data[o] = (byte)rnd.Next(0, 64); o++;
-                            //data[o] = (byte)rnd.Next(0, 1); o++;
+                        }
+                        else if (options[46] != false)
+                        {
+                            data[o] = 255; o++;
+                            data[o] = 255; o++;
                         }
                         else
                         {
@@ -1082,7 +1219,7 @@ namespace Godo
                         // Alignment FF
                         data[o] = 255; o++;
 
-                        // Enemy HP - Should probably be set by AI
+                        // Enemy HP
                         if (options[36] != false)
                         {
                             if (bossAnimGroup == true)
@@ -1126,6 +1263,13 @@ namespace Godo
                                 data[o] = 0; o++;
                             }
                         }
+                        else if (options[46] != false)
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
                         else
                         {
                             data[o] = data[o]; o++;
@@ -1151,6 +1295,13 @@ namespace Godo
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
+                        }
+                        else if(options[46] != false)
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
                         }
                         else
                         {

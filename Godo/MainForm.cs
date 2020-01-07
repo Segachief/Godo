@@ -76,7 +76,7 @@ namespace Godo
                         //rnd = new Random(Guid.NewGuid().GetHashCode());
                     }
                     options = OptionsArrayBuild();
-                    string fileName = lblFileName.Text;
+                    //string fileName = lblFileName.Text;
                     byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd, seed);
                     GZipper.PrepareKernel(directory, kernelLookup, options, rnd, seed);
                     MessageBox.Show("Rando Complete: seed = " + seed);
@@ -103,7 +103,7 @@ namespace Godo
                 }
                 catch
                 {
-                    MessageBox.Show("Randomisation failed - Check that valid files are in correct locations");
+                    MessageBox.Show("Error: Randomisation Failed - Check that valid files are in correct locations; if so, report the bug along with selected parameters and files used.");
                 }
             }
             else
@@ -312,6 +312,24 @@ namespace Godo
             if (chkEnemyAI.Checked)
             {
                 options[45] = true;
+            }
+
+            // Tuning & Hacks - Some used to be in Enemy Data and are higher up in the list
+            if(chkPovertyMode.Checked)
+            {
+                options[46] = true;
+            }
+            if (chkStrongerEnemies.Checked)
+            {
+                options[47] = true;
+            }
+            if (chkWeakerEnemies.Checked)
+            {
+                options[48] = true;
+            }
+            if (chkMaxDropRates.Checked)
+            {
+                options[49] = true;
             }
             return options;
         }
