@@ -440,19 +440,27 @@ namespace Godo
                             }
 
                             // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
-                            if (options[28] != false)
+                            if (options[29] != false)
                             {
                                 // X Coordinate
-                                data[o] = (byte)rnd.Next(256); o++;
-                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Y Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Z Coordinate
-                                data[o] = (byte)rnd.Next(256); o++;
-                                data[o] = (byte)rnd.Next(256); o++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+
+                                // Row
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+
+                                // Cover Flags (should be related to Row)
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
                             }
                             else
                             {
@@ -467,15 +475,15 @@ namespace Godo
                                 // Z Coordinate
                                 data[o] = data[o]; o++;
                                 data[o] = data[o]; o++;
-                            }
 
-                            // Row
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                                // Row
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
 
-                            // Cover Flags (should be related to Row)
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                                // Cover Flags
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                            }               
 
                             // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
                             excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
