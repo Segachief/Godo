@@ -27,7 +27,6 @@ namespace Godo
         {
             //Formatting
             this.Text = "Godo";
-            this.BackColor = Color.DarkRed;
             this.Location = new Point(300, 300);
             this.MaximizeBox = false;
 

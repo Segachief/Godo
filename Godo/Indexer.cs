@@ -12,56 +12,110 @@ namespace Godo
 {
     public class Indexer
     {
-        // Contains methods for acquiring scene data for calculations/assignment
-
+        // This uses specific camera settings instead of all of them
         public static ArrayList GetCameraData(int[][] jaggedSceneInfo, string targetScene)
         {
-            int r = 0;
-            int o = 0;
             ArrayList listedCameraData = new ArrayList();
 
-            while (r < 256)
+            byte[] cameraA =
             {
-                int bytesRead;
-                byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
+                0x4A,
+                0x26, 0x98, 0xF3, 0xF8, 0x14, 0x6F, 0x00, 0x00, 0xFE, 0xC2, 0xFD, 0x4C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C
+            };
 
-                using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
-                {
-                    // Calls method to convert little endian values into an integer
-                    byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
-                    brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
-                    brg.Read(compressedScene, 0, compressedScene.Length);
+            byte[] cameraB =
+            {
+                0x4A,
+                0x12, 0x62, 0xFB, 0xB9, 0x23, 0x11, 0x00, 0x00, 0xFD, 0xDF, 0x00, 0xAD,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C
+            };
 
-                    using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
-                    {
-                        using (MemoryStream decompressedOutput = new MemoryStream())
-                        {
-                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
-                            {
-                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
-                                {
-                                    decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                    // If this scene has valid camera data, then pull it out.
-                                    byte[] camera = new byte[48];
-                                    if (uncompressedScene[87] != 255 && uncompressedScene[88] != 255)
-                                    {
-                                        camera = uncompressedScene.Skip(88).Take(48).ToArray();
-                                        listedCameraData.Add(camera);
-                                    }
-                                }
-                                zipInput.Close();
-                            }
-                            decompressedOutput.Close();
-                        }
-                        inputWrapper.Close();
-                    }
-                    brg.Close();
-                }
-                r++;
-                o++;
-            }
+            byte[] cameraC =
+           {
+                0x00,
+                0x15, 0xCD, 0xFE, 0x38, 0x2F, 0x47, 0x00, 0x00, 0xFC, 0x10, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C
+            };
+
+            byte[] cameraD =
+           {
+                0x2D,
+                0x37, 0x25, 0xF8, 0xF9, 0x19, 0x9F, 0x00, 0x00, 0xFC, 0x0F, 0xFF, 0x8C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C
+            };
+
+            byte[] cameraE =
+           {
+                0x03,
+                0x00, 0x00, 0xF8, 0xF8, 0x28, 0xAC, 0x00, 0x00, 0xFE, 0xD0, 0xFC, 0xAC,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C,
+                0x27, 0x10, 0xEC, 0x78, 0x17, 0x70, 0x00, 0x00, 0x01, 0x90, 0x01, 0x2C
+            };
+
+            listedCameraData.Add(cameraA);
+            listedCameraData.Add(cameraB);
+            listedCameraData.Add(cameraC);
+            listedCameraData.Add(cameraD);
+            listedCameraData.Add(cameraE);
+
             return listedCameraData;
         }
+
+        // Old Method; retrieves camera data from the scene.bin before modification.
+        // Contains methods for acquiring scene data for calculations/assignment
+        //public static ArrayList GetCameraData(int[][] jaggedSceneInfo, string targetScene)
+        //{
+        //    int r = 0;
+        //    int o = 0;
+        //    ArrayList listedCameraData = new ArrayList();
+
+        //    while (r < 256)
+        //    {
+        //        int bytesRead;
+        //        byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
+
+        //        using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
+        //        {
+        //            // Calls method to convert little endian values into an integer
+        //            byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
+        //            brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
+        //            brg.Read(compressedScene, 0, compressedScene.Length);
+
+        //            using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
+        //            {
+        //                using (MemoryStream decompressedOutput = new MemoryStream())
+        //                {
+        //                    using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
+        //                    {
+        //                        while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
+        //                        {
+        //                            decompressedOutput.Write(uncompressedScene, 0, bytesRead);
+        //                            // If this scene has valid camera data, then pull it out.
+        //                            byte[] camera = new byte[48];
+        //                            if (uncompressedScene[87] != 255 && uncompressedScene[88] != 255)
+        //                            {
+        //                                camera = uncompressedScene.Skip(88).Take(48).ToArray();
+        //                                listedCameraData.Add(camera);
+        //                            }
+        //                        }
+        //                        zipInput.Close();
+        //                    }
+        //                    decompressedOutput.Close();
+        //                }
+        //                inputWrapper.Close();
+        //            }
+        //            brg.Close();
+        //        }
+        //        r++;
+        //        o++;
+        //    }
+        //    return listedCameraData;
+        //}
 
         public static int[][][] GetAttackData(int[][] jaggedSceneInfo, string targetScene)
         {

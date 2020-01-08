@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -62,6 +63,34 @@ namespace Godo
 
                 byte[] nameBytes; // For assigning FF7 Ascii bytes after method processing
                                   //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
+
+                // Two formations to handle 6 enemies each; A: two line, B: triangle
+                ArrayList listedFormationData = new ArrayList();
+                byte[] formationA =
+                {
+                    0xFA, 0xEC, 0x00, 0x00, 0xFA, 0x88, 0x00, 0x01, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0xFB, 0x50, 0x00, 0x01, 0x00, 0x00,
+                    0x05, 0x14, 0x00, 0x00, 0xFA, 0x88, 0x00, 0x01, 0x00, 0x00,
+                    0xFA, 0xEC, 0x00, 0x00, 0xF5, 0x10, 0x00, 0x02, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0xFB, 0x50, 0x00, 0x02, 0x00, 0x00,
+                    0x05, 0x14, 0x00, 0x00, 0xF5, 0x10, 0x00, 0x02, 0x00, 0x00
+                };
+
+                byte[] formationB =
+                {
+                    0x00, 0x00, 0x00, 0x00, 0xFB, 0x50, 0x00, 0x01, 0x00, 0x04,
+                    0xFE, 0x0C, 0x00, 0x00, 0xF7, 0x68, 0x00, 0x02, 0x00, 0x06,
+                    0x01, 0xF4, 0x00, 0x00, 0xF7, 0x68, 0x00, 0x02, 0x00, 0x0C,
+                    0xFC, 0x18, 0x00, 0x00, 0xF3, 0x80, 0x00, 0x03, 0x00, 0x03,
+                    0x00, 0x00, 0x00, 0x00, 0xF3, 0x80, 0x00, 0x03, 0x00, 0x04,
+                    0x03, 0xE8, 0x00, 0x00, 0xF3, 0x80, 0x00, 0x03, 0x00, 0x18
+                };
+
+                listedFormationData.Add(formationA);
+                listedFormationData.Add(formationB);
+                int rand = (byte)rnd.Next(listedFormationData.Count);
+                byte[] form = (byte[])listedFormationData[rand];
+
 
                 #region Enemy IDs
                 // Enemy IDs
@@ -249,8 +278,16 @@ namespace Godo
                         */
                         data[o] = data[o]; o++;
 
-                        // Indexed pre-battle camera position (where the camera starts from when battle loads in)
-                        data[o] = data[o]; o++;
+                        if (options[27] != false)
+                        {
+                            // Indexed pre-battle camera position (where the camera starts from when battle loads in)
+                            // Camera array puts its first value in here.
+                            data[o] = camera[k]; o++; k++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                        }
                     }
                     else
                     {
@@ -259,6 +296,7 @@ namespace Godo
                         {
                             data[o] = data[o]; o++;
                             c++;
+                            k++; // Shouldn't be needed as camera won't be written if this is reached but just in case
                         }
                         c = 0;
                     }
@@ -494,26 +532,26 @@ namespace Godo
                                 data[o] = enemyIDList[4]; o++;
                                 data[o] = enemyIDList[5]; o++;
                             }
-                            
+
                             // X Coordinate
-                            data[o] = (byte)rnd.Next(256); o++;
-                            data[o] = (byte)rnd.Next(256); o++;
+                            data[o] = (byte)form[k]; o++; k++;
+                            data[o] = (byte)form[k]; o++; k++;
 
                             // Y Coordinate
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            data[o] = (byte)form[k]; o++; k++;
+                            data[o] = (byte)form[k]; o++; k++;
 
                             // Z Coordinate
-                            data[o] = (byte)rnd.Next(256); o++;
-                            data[o] = (byte)rnd.Next(256); o++;
+                            data[o] = (byte)form[k]; o++; k++;
+                            data[o] = (byte)form[k]; o++; k++;
 
                             // Row
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            data[o] = (byte)form[k]; o++; k++;
+                            data[o] = (byte)form[k]; o++; k++;
 
                             // Cover Flags (should be related to Row)
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            data[o] = (byte)form[k]; o++; k++;
+                            data[o] = (byte)form[k]; o++; k++;
 
                             // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
                             byte[] currentModelID = new byte[2];
@@ -670,7 +708,7 @@ namespace Godo
                                 data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
                             }
                         }
-                        else if(options[47] != false)
+                        else if (options[47] != false)
                         {
                             // Enemy Level
                             if (data[o] < 170)
@@ -1296,7 +1334,7 @@ namespace Godo
                                 data[o] = 0; o++;
                             }
                         }
-                        else if(options[46] != false)
+                        else if (options[46] != false)
                         {
                             data[o] = 0; o++;
                             data[o] = 0; o++;
