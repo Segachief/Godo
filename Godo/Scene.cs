@@ -1181,7 +1181,12 @@ namespace Godo
                         data[o] = 255; o++;
 
                         // Enemy MP
-                        if (options[34] != false)
+                        if (options[50] != false)
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[34] != false)
                         {
                             if (bossAnimGroup == true)
                             {
@@ -1201,7 +1206,21 @@ namespace Godo
                         }
 
                         // Enemy AP
-                        if (options[35] != false)
+                        if (options[59] != false)
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[46] != false)
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[35] != false)
                         {
                             if (bossAnimGroup == true)
                             {
@@ -1213,13 +1232,6 @@ namespace Godo
                                 data[o] = (byte)rnd.Next(0, statAdjustMin); o++;
                                 data[o] = 0; o++;
                             }
-                        }
-                        else if (options[46] != false)
-                        {
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
                         }
                         else
                         {
@@ -1292,8 +1304,25 @@ namespace Godo
                         }
 
                         // EXP Points
-                        if (options[37] != false)
+                        if(options[57] != false)
                         {
+                            // No EXP
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[46] != false)
+                        {
+                            // Poverty Mode EXP
+                            data[o] = data[o]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[37] != false)
+                        {
+                            // Randomised EXP
                             if (bossAnimGroup == true)
                             {
                                 data[o] = (byte)rnd.Next(0, 256); o++;
@@ -1308,13 +1337,6 @@ namespace Godo
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
-                        }
-                        else if (options[46] != false)
-                        {
-                            data[o] = data[o]; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
                         }
                         else
                         {
@@ -1325,8 +1347,25 @@ namespace Godo
                         }
 
                         // Gil
-                        if (options[38] != false)
+                        if(options[58] != false)
                         {
+                            // No Gil
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[46] != false)
+                        {
+                            // Poverty Mode Gil
+                            data[o] = data[o]; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else if (options[38] != false)
+                        {
+                            // Randomised Gil
                             if (bossAnimGroup == true)
                             {
                                 data[o] = (byte)rnd.Next(0, 256); o++;
@@ -1341,13 +1380,6 @@ namespace Godo
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
-                        }
-                        else if (options[46] != false)
-                        {
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
                         }
                         else
                         {

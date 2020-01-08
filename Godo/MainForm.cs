@@ -330,7 +330,58 @@ namespace Godo
             {
                 options[49] = true;
             }
+            if (chkSpellspring.Checked)
+            {
+                options[50] = true;
+            }
+
+            // Restriction Rules
+            if (chkNoPhysicals.Checked)
+            {
+                options[51] = true;
+            }
+            if (chkNoLimits.Checked)
+            {
+                options[52] = true;
+            }
+            if (chkNoSpells.Checked)
+            {
+                options[53] = true;
+            }
+            if (chkNoSummons.Checked)
+            {
+                options[54] = true;
+            }
+            if (chkNoItems.Checked)
+            {
+                options[55] = true;
+            }
+            if (chkNoMateria.Checked)
+            {
+                options[56] = true;
+            }
+            if (chkNoExp.Checked)
+            {
+                options[57] = true;
+            }
+            if (chkNoGil.Checked)
+            {
+                options[58] = true;
+            }
+            if (chkNoAP.Checked)
+            {
+                options[59] = true;
+            }
+            if (chkInitialEquip.Checked)
+            {
+                options[60] = true;
+            }
             return options;
+        }
+
+        private void ChkCharacterAI_CheckedChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

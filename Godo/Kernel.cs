@@ -125,8 +125,16 @@ namespace Godo
                     data[o] = data[o]; o++;
 
                     // MP Cost
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
+                    if (options[50] != false)
+                    {
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                    }
+                    else
+                    {
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                    }
 
                     // Impact Sound
                     data[o] = data[o]; o++;
@@ -329,7 +337,30 @@ namespace Godo
                         o += 16;
                     }
 
-                    if (options[3] != false)
+                    if(options[52] != false)
+                    {
+                        // Limits will never fill
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                        data[o] = 255; o++;
+                    }
+                    else if (options[3] != false)
                     {
                         data[o] = (byte)rnd.Next(255); o++;     // Gauge Resistance for Limit Level 1
                         data[o] = (byte)rnd.Next(1); o++;
@@ -482,8 +513,17 @@ namespace Godo
                 // Not much point randomising this but included for completeness
                 while (r < 56)
                 {
-                    data[o] = data[o]; o++;
-                    r++;
+                    if (options[53] != false)
+                    {
+                        data[o] = 7; o++;
+                        data[o] = 49; o++;
+                        r += 2;
+                    }
+                    else
+                    {
+                        data[o] = data[o]; o++;
+                        r++;
+                    }             
                 }
             }
             catch
@@ -1071,8 +1111,16 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Use Restriction Mask
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        if (options[55] != false && data[o] != 255)
+                        {
+                            data[o] = 254; o++;
+                            data[o] = 255; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
 
                         // Target Flags
                         data[o] = data[o]; o++;
@@ -1174,8 +1222,14 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Damage Calc
-                        data[o] = data[o]; o++;
-
+                        if (options[51] != false)
+                        {
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                        }
                         // Always FF
                         data[o] = data[o]; o++;
 
@@ -1411,6 +1465,17 @@ namespace Godo
                         r++;
                     }
                 }
+                if (options[60] != false)
+                {
+                    while (r < 128)
+                    {
+                        o += 14;
+                        data[o] = 0; o++;
+                        data[o] = 0; o++;
+                        o += 28;
+                        r++;
+                    }
+                }
             }
             catch
             {
@@ -1484,7 +1549,6 @@ namespace Godo
 
                         // Slots
                         int growth = rnd.Next(4);
-                        // Slots
                         if (growth != 0)
                         {
                             int empty = rnd.Next(2);
@@ -1842,10 +1906,27 @@ namespace Godo
             //Random rnd = new Random(Guid.NewGuid().GetHashCode()); // TODO: Have it take a seed as argument
             int r = 0;
             int o = 0;
+            int c = 0;
 
             try
             {
-                if (options[13] != false)
+                // Nulls all Materia for No Materia option
+                if (options[56] != false)
+                {
+                    while(r < 95)
+                    {
+                        while(c < 20)
+                        {
+                            data[o] = 255; o++;
+                            c++;
+                        }
+                        r++;
+                        c = 0;
+                    }
+                    r = 0;
+                    o = 0;
+                }
+                else if (options[13] != false)
                 {
                     while (r < 95)
                     {
@@ -1934,6 +2015,27 @@ namespace Godo
                         data[o] = data[o]; o++;
                         r++;
                     }
+                }
+                o = 0;
+                if(options[54] != false)
+                { // Nulls Summon Materia
+                    while(r < 74)
+                    {
+                        o += 20;
+                        r++;
+                    }
+                    while (r < 95)
+                    {
+                        while (c < 20)
+                        {
+                            data[o] = 255; o++;
+                            c++;
+                        }
+                        r++;
+                        c = 0;
+                    }
+                    r = 0;
+                    o = 0;
                 }
             }
             catch
