@@ -19,7 +19,7 @@ namespace Godo
         }
 
         string directory = Directory.GetCurrentDirectory();
-        bool[] options = new bool[50];
+        bool[] options = new bool[61];
         Random rnd = new Random();
         int seed;
 
