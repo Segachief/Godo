@@ -1211,14 +1211,10 @@ namespace Godo
                         {
                             data[o] = 0; o++;
                             data[o] = 0; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
                         }
                         else if (options[46] != false)
                         {
                             data[o] = data[o]; o++;
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
                         else if (options[35] != false)

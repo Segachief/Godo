@@ -250,6 +250,10 @@ namespace Godo
                     // 's' represents the number of scenes currently in the block, only 16 scenes can fit into one block
                     if (sizeLimit >= 8192 || s == 16)
                     {
+                        if (blockCount != 0)
+                        {
+                            s += kernelLookup[blockCount - 1];
+                        }
                         kernelLookup[blockCount] = (byte)s;
                         blockCount++;
 

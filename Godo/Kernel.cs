@@ -497,6 +497,8 @@ namespace Godo
                         r++;
                     }
                 }
+                r = 0;
+                c = 0;
 
                 // Scene Lookup Table
                 // This must be updated with the lookup table data built in the Scene randomisation section.
@@ -506,7 +508,7 @@ namespace Godo
                     data[o] = kernelLookup[c]; o++; c++;
                     r++;
                 }
-                r = o;
+                r = 0;
                 c = 0;
 
                 // Spell Order List
@@ -515,9 +517,8 @@ namespace Godo
                 {
                     if (options[53] != false)
                     {
-                        data[o] = 7; o++;
-                        data[o] = 49; o++;
-                        r += 2;
+                        data[o] = 255; o++;
+                        r++;
                     }
                     else
                     {
@@ -1110,17 +1111,9 @@ namespace Godo
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
 
-                        // Use Restriction Mask
-                        if (options[55] != false && data[o] != 255)
-                        {
-                            data[o] = 254; o++;
-                            data[o] = 255; o++;
-                        }
-                        else
-                        {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                        }
+                        // Use Restriction Mask         
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
 
                         // Target Flags
                         data[o] = data[o]; o++;
@@ -1159,6 +1152,19 @@ namespace Godo
                         // Special Attack Flags
                         data[o] = data[o]; o++;
                         data[o] = data[o]; o++;
+                        r++;
+                    }
+                }
+                if (options[55] != false)
+                {
+                    r = 0;
+                    o = 0;
+                    while (r < 128)
+                    {
+                        o += 10;
+                        data[o] = 254; o++;
+                        data[o] = 255; o++;
+                        o += 16;
                         r++;
                     }
                 }
@@ -1222,14 +1228,8 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Damage Calc
-                        if (options[51] != false)
-                        {
-                            data[o] = 0; o++;
-                        }
-                        else
-                        {
-                            data[o] = data[o]; o++;
-                        }
+                        data[o] = data[o]; o++;
+
                         // Always FF
                         data[o] = data[o]; o++;
 
@@ -1465,8 +1465,22 @@ namespace Godo
                         r++;
                     }
                 }
+                if (options[51] != false)
+                {
+                    r = 0;
+                    o = 0;
+                    while (r < 128)
+                    {
+                        o += 2;
+                        data[o] = 0; o++;
+                        o += 41;
+                        r++;
+                    }
+                }
                 if (options[60] != false)
                 {
+                    r = 0;
+                    o = 0;
                     while (r < 128)
                     {
                         o += 14;
