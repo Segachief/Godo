@@ -177,11 +177,12 @@ namespace Godo
 
                 // Sends random camera data to be used
                 int rand = (byte)rnd.Next(listedCameraData.Count);
+                byte[] initCam = Indexer.InitialCamera();
                 byte[] randCam = (byte[])listedCameraData[rand];
                 int sceneID = r;
 
                 // Sends decompressed scene data to be randomised
-                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd, jaggedModelAttackTypes, seed);
+                Scene.RandomiseScene(uncompressedScene, randCam, sceneID, options, rnd, jaggedModelAttackTypes, seed, initCam);
 
                 // Recompress the altered uncompressed data back into GZip
                 byte[] recompressedScene;

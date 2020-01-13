@@ -12,7 +12,7 @@ namespace Godo
     public class Scene
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID, bool[] options, Random rnd, int[][][] jaggedModelAttackTypes, int seed)
+        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID, bool[] options, Random rnd, int[][][] jaggedModelAttackTypes, int seed, byte[] initCam)
         {
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
@@ -78,19 +78,18 @@ namespace Godo
 
                 byte[] formationB =
                 {
-                    0x00, 0x00, 0x00, 0x00, 0x50, 0xFB, 0x01, 0x00, 0x04, 0x00,
-                    0x0C, 0xFE, 0x00, 0x00, 0x68, 0xF7, 0x02, 0x00, 0x06, 0x00,
-                    0xF4, 0x01, 0x00, 0x00, 0x68, 0xF7, 0x02, 0x00, 0x0C, 0x00,
-                    0x18, 0xFC, 0x00, 0x00, 0x80, 0xF3, 0x03, 0x00, 0x03, 0x00,
-                    0x00, 0x00, 0x00, 0x00, 0x80, 0xF3, 0x03, 0x00, 0x04, 0x00,
-                    0xE8, 0x03, 0x00, 0x00, 0x80, 0xF3, 0x03, 0x00, 0x18, 0x00
+                    0x00, 0x00, 0x00, 0x00, 0x50, 0xFB, 0x01, 0x00, 0x00, 0x00,
+                    0x0C, 0xFE, 0x00, 0x00, 0x68, 0xF7, 0x01, 0x00, 0x00, 0x00,
+                    0xF4, 0x01, 0x00, 0x00, 0x68, 0xF7, 0x01, 0x00, 0x00, 0x00,
+                    0x18, 0xFC, 0x00, 0x00, 0x80, 0xF3, 0x02, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x80, 0xF3, 0x02, 0x00, 0x00, 0x00,
+                    0xE8, 0x03, 0x00, 0x00, 0x80, 0xF3, 0x02, 0x00, 0x00, 0x00
                 };
 
                 listedFormationData.Add(formationA);
                 listedFormationData.Add(formationB);
                 int rand = (byte)rnd.Next(listedFormationData.Count);
                 byte[] form = (byte[])listedFormationData[rand];
-
 
                 #region Enemy IDs
                 // Enemy IDs
@@ -282,7 +281,7 @@ namespace Godo
                         {
                             // Indexed pre-battle camera position (where the camera starts from when battle loads in)
                             // Camera array puts its first value in here.
-                            data[o] = camera[k]; o++; k++;
+                            data[o] = initCam[k]; o++; k++;
                         }
                         else
                         {
@@ -303,6 +302,7 @@ namespace Godo
                     r++;
                 }
                 r = 0;
+                k = 0;
 
                 //array = battleSetup.Select(b => (byte)b).ToArray();
                 //bw.BaseStream.Position = 0x00008;
@@ -404,202 +404,242 @@ namespace Godo
 
                 #region Battle Formation Data
                 error = "Battle Formation";
-                while (r < 4)
+                if (excludedScene != true)
                 {
-                    //This randomises formation data for each enemy
-                    while (c < 6)
+                    while (r < 4)
                     {
-                        // Checks that the current enemy placement entry is not null
-                        if (data[o] != 255 && data[o + 1] != 255)
+                        //This randomises formation data for each enemy
+                        while (c < 6)
                         {
-                            // If we changed the enemy IDs, then we need to match the old IDs to the new ones
-                            // so that we're replacing the references to them correctly in the formation
-                            byte[] currentModelID = new byte[2];
-                            currentModelID[0] = data[o];
-                            currentModelID[1] = data[o + 1];
-                            ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+                            // Checks that the current enemy placement entry is not null
+                            if (data[o] != 255 && data[o + 1] != 255)
+                            {
+                                // If we changed the enemy IDs, then we need to match the old IDs to the new ones
+                                // so that we're replacing the references to them correctly in the formation
+                                byte[] currentModelID = new byte[2];
+                                currentModelID[0] = data[o];
+                                currentModelID[1] = data[o + 1];
+                                ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
 
-                            if (currentModelIDInt == enemyA)
-                            {
-                                data[o] = enemyIDList[0]; o++;
-                                data[o] = enemyIDList[1]; o++;
-                            }
-                            else if (currentModelIDInt == enemyB)
-                            {
-                                data[o] = enemyIDList[2]; o++;
-                                data[o] = enemyIDList[3]; o++;
-                            }
-                            else if (currentModelIDInt == enemyC)
-                            {
-                                data[o] = enemyIDList[4]; o++;
-                                data[o] = enemyIDList[5]; o++;
-                            }
-                            else
-                            {
-                                o += 2;
-                            }
+                                if (currentModelIDInt == enemyA)
+                                {
+                                    data[o] = enemyIDList[0]; o++;
+                                    data[o] = enemyIDList[1]; o++;
+                                }
+                                else if (currentModelIDInt == enemyB)
+                                {
+                                    if (enemyIDList[2] != 255 && enemyIDList[3] != 255)
+                                    {
+                                        data[o] = enemyIDList[2]; o++;
+                                        data[o] = enemyIDList[3]; o++;
+                                    }
+                                    else if (options[29] != false)
+                                    {
+                                        data[o] = enemyIDList[0]; o++;
+                                        data[o] = enemyIDList[1]; o++;
+                                    }
+                                    else
+                                    {
+                                        o += 2;
+                                    }
+                                }
+                                else if (currentModelIDInt == enemyC)
+                                {
+                                    if (enemyIDList[4] != 255 && enemyIDList[5] != 255)
+                                    {
+                                        data[o] = enemyIDList[4]; o++;
+                                        data[o] = enemyIDList[5]; o++;
+                                    }
+                                    else if (options[29] != false)
+                                    {
+                                        data[o] = enemyIDList[0]; o++;
+                                        data[o] = enemyIDList[1]; o++;
+                                    }
+                                    else
+                                    {
+                                        o += 2;
+                                    }
+                                }
+                                else
+                                {
+                                    if (options[29] != false)
+                                    {
+                                        data[o] = enemyIDList[0]; o++;
+                                        data[o] = enemyIDList[1]; o++;
+                                    }
+                                    else
+                                    {
+                                        o += 2;
+                                    }
+                                }
 
-                            // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
-                            if (options[29] != false)
+                                // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
+                                if (options[29] != false)
+                                {
+                                    // X Coordinate
+                                    data[o] = form[k]; o++; k++;
+                                    data[o] = form[k]; o++; k++;
+
+                                    // Y Coordinate
+                                    data[o] = form[k]; o++; k++;
+                                    data[o] = form[k]; o++; k++;
+
+                                    // Z Coordinate
+                                    data[o] = form[k]; o++; k++;
+                                    data[o] = form[k]; o++; k++;
+
+                                    // Row
+                                    data[o] = form[k]; o++; k++;
+                                    data[o] = form[k]; o++; k++;
+
+                                    // Cover Flags (should be related to Row)
+                                    data[o] = form[k]; o++; k++;
+                                    data[o] = form[k]; o++; k++;
+                                }
+                                else
+                                {
+                                    // X Coordinate
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+
+                                    // Y Coordinate
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+
+                                    // Z Coordinate
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+
+                                    // Row
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+
+                                    // Cover Flags
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                }
+
+                                // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
+                                excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                                enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                                bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                                if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                                {
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                }
+                                else
+                                {
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                }
+                            }
+                            // If the enemy quantity option is on, we add a new enemy here
+                            else if (options[29] != false && bossAnimGroup == false)
                             {
+                                // Set the rng so that a null enemy can't be picked for the new entry
+                                if (enemyData[2] == 255 && enemyData[3] == 255)
+                                {
+                                    rngID = 0;
+                                }
+                                else if (enemyData[4] == 255 && enemyData[5] == 255)
+                                {
+                                    rngID = rnd.Next(2);
+                                }
+                                else
+                                {
+                                    rngID = rnd.Next(3);
+                                }
+
+                                // Pick a random enemy
+                                if (rngID == 0)
+                                {
+                                    // Sets enemy A as the formation enemy ID
+                                    data[o] = enemyIDList[0]; o++;
+                                    data[o] = enemyIDList[1]; o++;
+                                }
+                                else if (rngID == 1)
+                                {
+                                    // Sets enemy B as the formation enemy ID
+                                    data[o] = enemyIDList[2]; o++;
+                                    data[o] = enemyIDList[3]; o++;
+                                }
+                                else if(rngID == 2)
+                                {
+                                    // Sets enemy C as the formation enemy ID
+                                    data[o] = enemyIDList[4]; o++;
+                                    data[o] = enemyIDList[5]; o++;
+                                }
+                                else
+                                {
+                                    data[o] = enemyIDList[0]; o++;
+                                    data[o] = enemyIDList[1]; o++;
+                                }
+
                                 // X Coordinate
-                                data[o] = form[k]; o++; k++;
-                                data[o] = form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
 
                                 // Y Coordinate
-                                data[o] = form[k]; o++; k++;
-                                data[o] = form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
 
                                 // Z Coordinate
-                                data[o] = form[k]; o++; k++;
-                                data[o] = form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
 
                                 // Row
-                                data[o] = form[k]; o++; k++;
-                                data[o] = form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
 
                                 // Cover Flags (should be related to Row)
-                                data[o] = form[k]; o++; k++;
-                                data[o] = form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = (byte)form[k]; o++; k++;
+
+                                // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
+                                byte[] currentModelID = new byte[2];
+                                currentModelID[0] = data[o];
+                                currentModelID[1] = data[o + 1];
+                                ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                                excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                                enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                                bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                                if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                                {
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                    data[o] = 255; o++;
+                                }
+                                else
+                                {
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                    data[o] = data[o]; o++;
+                                }
                             }
                             else
                             {
-                                // X Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Y Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Z Coordinate
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Row
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-
-                                // Cover Flags
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                            }               
-
-                            // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                            excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                            if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                            {
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
+                                while (k < 16)
+                                {
+                                    data[o] = data[o];
+                                    o++;
+                                    k++;
+                                }
+                                k = 0;
                             }
-                            else
-                            {
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                            }
+                            c++;
                         }
-                        // If the enemy quantity option is on, we add a new enemy here
-                        else if (options[29] != false && bossAnimGroup == false)
-                        {
-                            // Set the rng so that a null enemy can't be picked for the new entry
-                            if (enemyData[2] == 255 && enemyData[3] == 255)
-                            {
-                                rngID = rnd.Next(1);
-                            }
-                            else if (enemyData[4] == 255 && enemyData[5] == 255)
-                            {
-                                rngID = rnd.Next(2);
-                            }
-                            else
-                            {
-                                rngID = rnd.Next(3);
-                            }
-
-                            // Pick a random enemy
-                            if (rngID == 0)
-                            {
-                                // Sets enemy A as the formation enemy ID
-                                data[o] = enemyIDList[0]; o++;
-                                data[o] = enemyIDList[1]; o++;
-                            }
-                            else if (rngID == 1)
-                            {
-                                // Sets enemy B as the formation enemy ID
-                                data[o] = enemyIDList[2]; o++;
-                                data[o] = enemyIDList[3]; o++;
-                            }
-                            else
-                            {
-                                // Sets enemy C as the formation enemy ID
-                                data[o] = enemyIDList[4]; o++;
-                                data[o] = enemyIDList[5]; o++;
-                            }
-
-                            // X Coordinate
-                            data[o] = (byte)form[k]; o++; k++;
-                            data[o] = (byte)form[k]; o++; k++;
-
-                            // Y Coordinate
-                            data[o] = (byte)form[k]; o++; k++;
-                            data[o] = (byte)form[k]; o++; k++;
-
-                            // Z Coordinate
-                            data[o] = (byte)form[k]; o++; k++;
-                            data[o] = (byte)form[k]; o++; k++;
-
-                            // Row
-                            data[o] = (byte)form[k]; o++; k++;
-                            data[o] = (byte)form[k]; o++; k++;
-
-                            // Cover Flags (should be related to Row)
-                            data[o] = (byte)form[k]; o++; k++;
-                            data[o] = (byte)form[k]; o++; k++;
-
-                            // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                            byte[] currentModelID = new byte[2];
-                            currentModelID[0] = data[o];
-                            currentModelID[1] = data[o + 1];
-                            ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
-
-                            excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                            if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                            {
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                                data[o] = 255; o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                                data[o] = data[o]; o++;
-                            }
-                        }
-                        else
-                        {
-                            while (k < 16)
-                            {
-                                data[o] = data[o];
-                                o++;
-                                k++;
-                            }
-                            k = 0;
-                        }
-                        c++;
+                        c = 0;
+                        k = 0;
+                        r++;
                     }
-                    c = 0;
-                    k = 0;
-                    r++;
                 }
                 r = 0;
                 //array = formationPlacement.Select(b => (byte)b).ToArray();
