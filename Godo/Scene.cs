@@ -969,16 +969,19 @@ namespace Godo
 
                         // Action Animation Index
                         /* 
-                         * Way this'll work is:
-                         * Grab the associated AttackID from further down
+                         * This is the most complex and sensitive part of the scene randomisation, if Model Swap is enabled
+                         * 1) Grabs the associated AttackID from further down
                          * Check that attack's data (what is it using; impact, spell, neither)
                          * Assign Animation Indice based on a random value within the JaggedModelAttackType's ModelID's attack type container
                          */
                         if (options[24] != false)
                         {
-                            int[][] jaggedAttackType = new int[1024][]; // Attack ID > Attack Type
+                            // Attack ID > Attack Type - An Array of this scene's attacks and whether they are physical, magical, or misc
+                            int[][] jaggedAttackType = new int[1280][];
                             int y = 0;
-                            while (c < 32) // Iterate through all 32 entries for attack data in the scene
+
+                            // Iterate through all 32 entries for attacks in this scene
+                            while (c < 32)
                             {
                                 byte[] attackID = new byte[2];
                                 int type;
@@ -1007,8 +1010,10 @@ namespace Godo
                                     }
                                 }
                                 c++;
-                                k += 2;
-                                y += 28;
+                                k += 2; // Attack ID in the list - wait, shouldn't this be from the actual attack data itself, not the enemy list? May have found the source of error.
+                                // Attack IDs aren't organised necessarily in an enemy's list and may omit some of them if not all being used. That's how wrong data is getting assigned
+                                // to wrong attacks. If enemy doesn't use all the attacks, then it assigns to a different one. This is priority 1 for fix.
+                                y += 28; // Jumps to next attack to get impact/spell anim info - above should be doing same jump, now that I think about it
                             }
                             c = 0;
                             k = 0;
