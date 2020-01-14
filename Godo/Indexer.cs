@@ -15,9 +15,11 @@ namespace Godo
 
         public static byte[] InitialCamera()
         {
+            // Using dupe values for stability/testing, restore original later
             byte[] initialCamera =
-{
-                0x4A, 0x4A, 0x00, 0x2D, 0x03
+            {
+                //0x4A, 0x4A, 0x00, 0x2D, 0x03
+                0x4A, 0x4A, 0x4A, 0x4A, 0x4A
             };
             return initialCamera;
         }

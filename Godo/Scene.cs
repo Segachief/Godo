@@ -38,10 +38,6 @@ namespace Godo
                 int[] enemyAI = new int[4096];              // 4096 bytes for Enemy AI, 3 sets
 
                 int rngID = 0; // Stores a randomly generated number
-                byte statAdjustMax = (byte)sceneID;
-                byte statAdjustMin = (byte)(sceneID / 5);
-                byte expAdjust = (byte)(sceneID / 10);
-                byte hpAdjust = (byte)(sceneID / 20);
 
                 int r = 0; // For iterating scene records (256 of them)
                 int o = 0; // For iterating array indexes
@@ -92,17 +88,20 @@ namespace Godo
                 byte[] form = (byte[])listedFormationData[rand];
 
                 #region Enemy IDs
-                // Enemy IDs
+                // Enemy IDs - Model Swap
                 if (options[24] != false)
                 {
                     while (r < 3)
                     {
-                        if (data[o] != 255 && data[o + 1] != 255) // Don't want to add an enemy if there's none to begin with
+                        // Don't want to add an enemy if there's none to begin with
+                        if (data[o] != 255 && data[o + 1] != 255)
                         {
                             byte[] currentModelID = new byte[2];
                             currentModelID[0] = data[o];
                             currentModelID[1] = data[o + 1];
                             ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                            // Stores the original Model ID for potential use later in Battle Formation section
                             if (r == 0)
                             {
                                 enemyA = currentModelIDInt;
@@ -116,18 +115,37 @@ namespace Godo
                                 enemyC = currentModelIDInt;
                             }
 
+                            // Models that are a dependency/have dependencies or otherwise shouldn't be changed
                             excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+
+                            // If the enemy appears in an excluded scene, it isn't changed
                             excludedScene = AllMethods.CheckExcludedScene(sceneID);
 
-                            while (validModel != true) // Checks that model ID assigned exists
+                            // Boss group that have multiple idles/damaged animations and which have the same anim IDs for these
+                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+
+                            // Enemies that support multiple idle/damaged animations and which have the same anim IDs for these
+                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+
+                            while (validModel != true) // Checks that model ID assigned exists/is valid
                             {
-                                if (bossAnimGroup == true)
+                                if (excludedModel == true)
+                                {
+                                    // Does not change - Current Model is a dependency of some kind
+                                    o += 2;
+                                    validModel = true;
+                                }
+                                else if (excludedScene == true)
+                                {
+                                    // This scene is excluded from ModelID changes
+                                    o += 2;
+                                    validModel = true;
+                                }
+                                else if (bossAnimGroup == true)
                                 {
                                     // Select a random index from Boss Anim Group
                                     ulong[] bossSet = { 10, 11, 22, 33, 37, 71, 81, 195 };
-                                    ulong modelIDCheck = (ulong)rnd.Next(8);
+                                    ulong modelIDCheck = (ulong)rnd.Next(7);
                                     modelIDCheck = bossSet[modelIDCheck];
                                     byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
                                     data[o] = model[0]; o++;
@@ -138,28 +156,20 @@ namespace Godo
                                 {
                                     // Select a random index from Enemy Anim Group
                                     ulong[] animSet = { 86, 131, 143, 147, 170, 202, 278, 339, 340, 341, 342, 343, 344, 347, 349, 350 };
-                                    ulong modelIDCheck = (ulong)rnd.Next(16);
+                                    ulong modelIDCheck = (ulong)rnd.Next(15);
                                     modelIDCheck = animSet[modelIDCheck];
                                     byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
                                     data[o] = model[0]; o++;
                                     data[o] = model[1]; o++;
                                     validModel = true;
-                                }
-                                else if (excludedModel == true)
-                                {
-                                    // Do not change - Current Model is a dependency
-                                    o += 2;
-                                    validModel = true;
-                                }
-                                else if (excludedScene == true)
-                                {
-                                    // This scene is excluded from ModelID changes
-                                    o += 2;
-                                    validModel = true;
-                                }
+                                }         
                                 else
                                 {
+                                    // If the filters all returned false, then a standard randomisation is performed
                                     ulong modelIDCheck = (ulong)rnd.Next(676);
+
+                                    // Checks that the new ModelID doesn't match any of the filters or isn't present in the jagged array.
+                                    // If any of the filters here return true, or the modelID doesn't exist in the jagged array, we loop through again.
                                     excludedModel = AllMethods.CheckExcludedModel(modelIDCheck);
                                     enemyAnimGroup = AllMethods.CheckAnimSet(modelIDCheck);
                                     bossAnimGroup = AllMethods.CheckBossSet(modelIDCheck);
@@ -176,14 +186,15 @@ namespace Godo
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // If enemy was FFFF then assume it was a null entry and proceed without changes
+                            o += 2;
                         }
                         r++;
                     }
                 }
                 else
                 {
+                    // Model Swap turned OFF, so we just use the pre-existing Model IDs
                     o += 6;
                 }
 
@@ -211,19 +222,20 @@ namespace Godo
                 error = "Battle Setup";
                 while (r < 4)
                 {
+                    // If first value is FF (Battle BG), then assume it is an empty formation and skip
                     if (data[o] != 255)
                     {
-                        // Battle Location
+                        // Battle BG/Location
                         if (options[25] != false)
                         {
-                            data[o] = (byte)rnd.Next(89); o++;
+                            data[o] = (byte)rnd.Next(89); o++; // ID of the Battle BG
                             battleBG = data[o - 1]; // Records battle BG value to check for supernova viability later
                             data[o] = data[o]; o++; // Always 0; despite being a 2-byte value, valid values never exceed 59h
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Retain the Battle BG
+                            o += 2;
                         }
 
                         // Next Formation ID, this transitions to another enemy formation directly after current enemies defeated; like Battle Square but not random.
@@ -234,12 +246,11 @@ namespace Godo
                         if (options[26] != false)
                         {
                             data[o] = 9; o++;
-                            data[o] = data[o]; o++;
+                            data[o] = 0; o++;
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            o += 2;
                         }
 
                         // Unused - 2byte
@@ -247,16 +258,16 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Battle Square - Possible Next Battles (4x 2-byte formation IDs, one is selected at random; default value for no battle is 03E7
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++; // Value of 03E7h
-
-                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++; // Battle 1
                         data[o] = data[o]; o++;
 
-                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++; // Battle 2
                         data[o] = data[o]; o++;
 
+                        data[o] = data[o]; o++; // Battle 3
                         data[o] = data[o]; o++;
+
+                        data[o] = data[o]; o++; // Battle 4
                         data[o] = data[o]; o++;
 
                         // Escapable Flag (misc flags such as disabling pre-emptive)
@@ -279,25 +290,20 @@ namespace Godo
 
                         if (options[27] != false)
                         {
-                            // Indexed pre-battle camera position (where the camera starts from when battle loads in)
-                            // Camera array puts its first value in here.
+                            // Indexed pre-battle camera position
+                            // This is linked to the camera data, need to be careful what value is used
+                            // Array has 4 bytes for the four formations, should iterate 4 times and no more.
                             data[o] = initCam[k]; o++; k++;
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
+                            o++;
                         }
                     }
                     else
                     {
-                        // Populate this entry with unaltered data
-                        while (c < 20)
-                        {
-                            data[o] = data[o]; o++;
-                            c++;
-                            k++; // Shouldn't be needed as camera won't be written if this is reached but just in case
-                        }
-                        c = 0;
+                        o += 20;
+                        k++; // Initial Camera increment
                     }
                     r++;
                 }
@@ -377,19 +383,12 @@ namespace Godo
                         data[o] = camera[k]; o++; k++;
 
                         // Unused Battle Camera Position - FF Padding
-                        for (int i = 0; i < 12; i++)
-                        {
-                            data[o] = 255; o++; k++;
-                        }
+                        o += 12;
                     }
                     else
-                    {
-                        while (c < 48)
-                        {
-                            data[o] = data[o]; o++;
-                            c++;
-                        }
-                        c = 0;
+                    {    
+                        // Skip and retain data
+                        o += 48;
                     }
                     r++;
                     k = 0;
@@ -404,11 +403,19 @@ namespace Godo
 
                 #region Battle Formation Data
                 error = "Battle Formation";
-                if (excludedScene != true)
+                if (excludedScene == true)
+                {
+                    // This scene is excluded, so skip the entire battle formation data and leave as-is
+                    o += 64;
+                }
+                else
                 {
                     while (r < 4)
                     {
-                        //This randomises formation data for each enemy
+                        // First, to allocate the Enemy IDs to the 6 possible formation slots.
+                        // This is complicated by Model Swapping and the Enemy Swarm functions.
+                        // First, we do the Model Swap (if any exist).
+                        // Next, we do the enemy swarm function which looks at the current Model IDs and uses those.
                         while (c < 6)
                         {
                             // Checks that the current enemy placement entry is not null
@@ -416,11 +423,15 @@ namespace Godo
                             {
                                 // If we changed the enemy IDs, then we need to match the old IDs to the new ones
                                 // so that we're replacing the references to them correctly in the formation
+
+                                // We get the current Model ID first from this formation entry
                                 byte[] currentModelID = new byte[2];
                                 currentModelID[0] = data[o];
                                 currentModelID[1] = data[o + 1];
                                 ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
 
+                                // It gets compared to the original Model IDs that we collected at the start before
+                                // randomisation to determine if it is Enemy A, B, or C.
                                 if (currentModelIDInt == enemyA)
                                 {
                                     data[o] = enemyIDList[0]; o++;
@@ -428,52 +439,67 @@ namespace Godo
                                 }
                                 else if (currentModelIDInt == enemyB)
                                 {
-                                    if (enemyIDList[2] != 255 && enemyIDList[3] != 255)
-                                    {
-                                        data[o] = enemyIDList[2]; o++;
-                                        data[o] = enemyIDList[3]; o++;
-                                    }
-                                    else if (options[29] != false)
-                                    {
-                                        data[o] = enemyIDList[0]; o++;
-                                        data[o] = enemyIDList[1]; o++;
-                                    }
-                                    else
-                                    {
-                                        o += 2;
-                                    }
+                                    // This can't be null, because the check at start would have hit it
+                                    // So the commented logic shouldn't be needed after all
+                                    data[o] = enemyIDList[2]; o++;
+                                    data[o] = enemyIDList[3]; o++;
+
+                                    //if (enemyIDList[2] != 255 && enemyIDList[3] != 255)
+                                    //{
+                                    //    data[o] = enemyIDList[2]; o++;
+                                    //    data[o] = enemyIDList[3]; o++;
+                                    //}
+                                    //else if (options[29] != false)
+                                    //{
+                                    //    data[o] = enemyIDList[0]; o++;
+                                    //    data[o] = enemyIDList[1]; o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    o += 2;
+                                    //}
                                 }
                                 else if (currentModelIDInt == enemyC)
                                 {
-                                    if (enemyIDList[4] != 255 && enemyIDList[5] != 255)
-                                    {
-                                        data[o] = enemyIDList[4]; o++;
-                                        data[o] = enemyIDList[5]; o++;
-                                    }
-                                    else if (options[29] != false)
-                                    {
-                                        data[o] = enemyIDList[0]; o++;
-                                        data[o] = enemyIDList[1]; o++;
-                                    }
-                                    else
-                                    {
-                                        o += 2;
-                                    }
+                                    // Same here
+                                    data[o] = enemyIDList[4]; o++;
+                                    data[o] = enemyIDList[5]; o++;
+
+                                    //if (enemyIDList[4] != 255 && enemyIDList[5] != 255)
+                                    //{
+                                    //    data[o] = enemyIDList[4]; o++;
+                                    //    data[o] = enemyIDList[5]; o++;
+                                    //}
+                                    //else if (options[29] != false)
+                                    //{
+                                    //    data[o] = enemyIDList[0]; o++;
+                                    //    data[o] = enemyIDList[1]; o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    o += 2;
+                                    //}
                                 }
                                 else
                                 {
+                                    // Enemy Swarm
                                     if (options[29] != false)
                                     {
+                                        // We can assume that the first enemy is never null, very few scenes have Enemy A as no entry
+                                        // And those that do are unused
                                         data[o] = enemyIDList[0]; o++;
                                         data[o] = enemyIDList[1]; o++;
                                     }
                                     else
                                     {
+                                        // If we got here, the Enemy ID for this formation wasn't null and yet did not match with Enemy A, B, or C + Enemy Swarm was disabled
+                                        MessageBox.Show("Logical error occurred in Scene ID: " + sceneID + " for Battle Formation Line 500 - Please report bug to Sega Chief if seen.");
                                         o += 2;
                                     }
                                 }
 
-                                // ToDo: Establish a reasonable range for these values - Perhaps omit the Y coord
+                                // XYZ + Row/Cover Flags for the enemy, populated by a pre-built array from Indexer.cs
+                                // Is only used if Enemy Swarm is enabled for giving the new enemies coords
                                 if (options[29] != false)
                                 {
                                     // X Coordinate
@@ -520,123 +546,128 @@ namespace Godo
                                 }
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                                excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                                enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                                bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                                if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                                {
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                }
-                                else
-                                {
+
+                                // Best this is disabled and it just retains what's there, prevents issues
+                                //excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                                //enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                                //bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                                //if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                                //{
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //}
+                                //else
+                                //{
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
-                                }
+                                //}
                             }
-                            // If the enemy quantity option is on, we add a new enemy here
+                            // If Enemy Swarm is enabled, we attempt to add a new enemy here as the current entry is null
+                            // We don't want to do this, however, if the Boss flag was enabled at any point
                             else if (options[29] != false && bossAnimGroup == false)
                             {
-                                // Set the rng so that a null enemy can't be picked for the new entry
-                                if (enemyData[2] == 255 && enemyData[3] == 255)
-                                {
-                                    rngID = 0;
-                                }
-                                else if (enemyData[4] == 255 && enemyData[5] == 255)
-                                {
-                                    rngID = rnd.Next(2);
-                                }
-                                else
-                                {
-                                    rngID = rnd.Next(3);
-                                }
+                                // For now, just going to add Enemy A as the duped enemy.
+                                // Later, will revive the RND for Enemy A, B, C
+                                data[o] = enemyIDList[0]; o++;
+                                data[o] = enemyIDList[1]; o++;
 
-                                // Pick a random enemy
-                                if (rngID == 0)
-                                {
-                                    // Sets enemy A as the formation enemy ID
-                                    data[o] = enemyIDList[0]; o++;
-                                    data[o] = enemyIDList[1]; o++;
-                                }
-                                else if (rngID == 1)
-                                {
-                                    // Sets enemy B as the formation enemy ID
-                                    data[o] = enemyIDList[2]; o++;
-                                    data[o] = enemyIDList[3]; o++;
-                                }
-                                else if(rngID == 2)
-                                {
-                                    // Sets enemy C as the formation enemy ID
-                                    data[o] = enemyIDList[4]; o++;
-                                    data[o] = enemyIDList[5]; o++;
-                                }
-                                else
-                                {
-                                    data[o] = enemyIDList[0]; o++;
-                                    data[o] = enemyIDList[1]; o++;
-                                }
+                                //// Set the rng so that a null enemy can't be picked for the new entry
+                                //if (enemyData[2] == 255 && enemyData[3] == 255)
+                                //{
+                                //    rngID = 0;
+                                //}
+                                //else if (enemyData[4] == 255 && enemyData[5] == 255)
+                                //{
+                                //    rngID = rnd.Next(2);
+                                //}
+                                //else
+                                //{
+                                //    rngID = rnd.Next(3);
+                                //}
+
+                                //// Pick a random enemy
+                                //if (rngID == 0)
+                                //{
+                                //    // Sets enemy A as the formation enemy ID
+                                //    data[o] = enemyIDList[0]; o++;
+                                //    data[o] = enemyIDList[1]; o++;
+                                //}
+                                //else if (rngID == 1)
+                                //{
+                                //    // Sets enemy B as the formation enemy ID
+                                //    data[o] = enemyIDList[2]; o++;
+                                //    data[o] = enemyIDList[3]; o++;
+                                //}
+                                //else if(rngID == 2)
+                                //{
+                                //    // Sets enemy C as the formation enemy ID
+                                //    data[o] = enemyIDList[4]; o++;
+                                //    data[o] = enemyIDList[5]; o++;
+                                //}
+                                //else
+                                //{
+                                //    data[o] = enemyIDList[0]; o++;
+                                //    data[o] = enemyIDList[1]; o++;
+                                //}
+
 
                                 // X Coordinate
-                                data[o] = (byte)form[k]; o++; k++;
-                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Y Coordinate
-                                data[o] = (byte)form[k]; o++; k++;
-                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Z Coordinate
-                                data[o] = (byte)form[k]; o++; k++;
-                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Row
-                                data[o] = (byte)form[k]; o++; k++;
-                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Cover Flags (should be related to Row)
-                                data[o] = (byte)form[k]; o++; k++;
-                                data[o] = (byte)form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
+                                data[o] = form[k]; o++; k++;
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-                                byte[] currentModelID = new byte[2];
-                                currentModelID[0] = data[o];
-                                currentModelID[1] = data[o + 1];
-                                ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
 
-                                excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                                enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                                bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                                if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                                {
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                    data[o] = 255; o++;
-                                }
-                                else
-                                {
+                                // As above, disabling this as it isn't a good idea - Retain flags instead
+                                //byte[] currentModelID = new byte[2];
+                                //currentModelID[0] = data[o];
+                                //currentModelID[1] = data[o + 1];
+                                //ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                                //excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+                                //enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                                //bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                                //if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
+                                //{
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //    data[o] = 255; o++;
+                                //}
+                                //else
+                                //{
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
-                                }
+                                //}
                             }
                             else
                             {
-                                while (k < 16)
-                                {
-                                    data[o] = data[o];
-                                    o++;
-                                    k++;
-                                }
-                                k = 0;
+                                // Entry left unchanged
+                                o += 16;
+                                k += 10;
                             }
-                            c++;
                         }
-                        c = 0;
                         k = 0;
                         r++;
                     }
@@ -653,9 +684,11 @@ namespace Godo
                 while (r < 3)
                 {
                     int i = 0;
-                    // If enemy name is empty, assume no enemy is there and just retain pre-existing data
+
+                    // If first byte is empty, assume no enemy is there and just retain pre-existing data
                     if (data[o] != 255)
                     {
+                        // Enemy Name option
                         if (options[30] != false)
                         {
                             // Enemy Name, 32 bytes ascii
@@ -694,23 +727,61 @@ namespace Godo
                         }
                         else
                         {
-                            while (i < 32)  // Option is Off, so keep default name
-                            {
-                                o++;
-                                i++;
-                            }
-                            i = 0;
+                            // Keeping default name
+                                o += 32;
                         }
 
+
+                        // Enemy Stats
                         if (options[31] != false)
                         {
-                            if (bossAnimGroup == true)
-                            { // Boss parameters
+                            if(sceneID < 74)
+                            {
+                                // World Map Encounters
+                                byte statWorldMax = (byte)(sceneID + rnd.Next(15, 25));
+                                byte statWorldMin = (byte)(sceneID / rnd.Next(4));
+
                                 // Enemy Level
-                                data[o] = statAdjustMax; o++;
+                                data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
 
                                 // Enemy Speed
-                                data[o] = (byte)rnd.Next(10, 64); o++;
+                                data[o] = (byte)rnd.Next(statWorldMin, 128); o++;
+
+                                // Enemy Luck
+                                data[o] = (byte)rnd.Next(0, statWorldMin); o++;
+
+                                // Enemy Evade
+                                data[o] = (byte)rnd.Next(0, statWorldMin); o++;
+
+                                // Enemy StrengthstatAdjustMax
+                                data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
+
+                                // Enemy Defence
+                                data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
+
+                                // Enemy Magic
+                                data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
+
+                                // Enemy Magic Defence
+                                data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
+                            }
+                            else if (bossAnimGroup == true)
+                            {
+                                // Boss parameters
+                                byte levelBossMax = (byte)(sceneID - 60);
+                                byte levelBossMin = (byte)(sceneID - 75);
+                                byte atkBossMax = (byte)(sceneID - 30);
+                                byte atkBossMin = (byte)(sceneID - 45);
+                                byte magBossMax = (byte)(sceneID - 60 + (sceneID / 8));
+                                byte magBossMin = (byte)(sceneID - 70 + (sceneID / 12));
+                                byte defBossMax = (byte)(sceneID - 60);
+                                byte defBossMin = (byte)(sceneID - 70);
+
+                                // Enemy Level
+                                data[o] = (byte)rnd.Next(levelBossMin, levelBossMax); o++;
+
+                                // Enemy Speed
+                                data[o] = (byte)rnd.Next(48, 127); o++;
 
                                 // Enemy Luck
                                 data[o] = (byte)rnd.Next(0, 32); o++;
@@ -719,134 +790,121 @@ namespace Godo
                                 data[o] = (byte)rnd.Next(0, 16); o++;
 
                                 // Enemy Strength
-                                data[o] = statAdjustMax; o++;
+                                data[o] = (byte)rnd.Next(atkBossMin, atkBossMax); o++;
 
                                 // Enemy Defence
-                                data[o] = statAdjustMax; o++;
+                                data[o] = (byte)rnd.Next(defBossMin, defBossMax); o++;
 
                                 // Enemy Magic
-                                data[o] = statAdjustMax; o++;
+                                data[o] = (byte)rnd.Next(magBossMin, magBossMax); o++;
 
                                 // Enemy Magic Defence
-                                data[o] = statAdjustMax; o++;
+                                data[o] = (byte)rnd.Next(defBossMin, defBossMax); o++;
                             }
                             else
-                            { // Regular enemy parameters
+                            {
+                                // Field enemy parameters
+                                byte levelFieldMax = (byte)(sceneID - 70);
+                                byte levelFieldMin = (byte)(sceneID - 75);
+                                byte atkFieldMax = (byte)(sceneID - 60);
+                                byte atkFieldMin = (byte)(sceneID - 70);
+                                byte magFieldMax = (byte)(sceneID - 60 + (sceneID / 12));
+                                byte magFieldMin = (byte)(sceneID - 70 + (sceneID / 16));
+                                byte defenceFieldMax = (byte)(sceneID - 65);
+                                byte defenceFieldMin = (byte)(sceneID - 70);
+
                                 // Enemy Level
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
+                                data[o] = (byte)rnd.Next(levelFieldMin, levelFieldMax); o++;
 
                                 // Enemy Speed
-                                data[o] = (byte)rnd.Next(10, 127); o++;
+                                data[o] = (byte)rnd.Next(24, 127); o++;
 
                                 // Enemy Luck
-                                data[o] = (byte)rnd.Next(0, 64); o++;
-
-                                // Enemy Evade
                                 data[o] = (byte)rnd.Next(0, 32); o++;
 
-                                // Enemy Strength
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
+                                // Enemy Evade
+                                data[o] = (byte)rnd.Next(0, 16); o++;
+
+                                // Enemy StrengthstatAdjustMax
+                                data[o] = (byte)rnd.Next(atkFieldMin, atkFieldMax); o++;
 
                                 // Enemy Defence
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
+                                data[o] = (byte)rnd.Next(defenceFieldMin, defenceFieldMax); o++;
 
                                 // Enemy Magic
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
+                                data[o] = (byte)rnd.Next(atkFieldMin, atkFieldMax); o++;
 
                                 // Enemy Magic Defence
-                                data[o] = (byte)rnd.Next(statAdjustMin, statAdjustMax); o++;
+                                data[o] = (byte)rnd.Next(defenceFieldMin, defenceFieldMax); o++;
                             }
-                        }
-                        else if (options[47] != false)
-                        {
-                            // Enemy Level
-                            if (data[o] < 170)
-                            {
-                                data[o] = (byte)(data[o] * 1.5); o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o];
-                            }
-
-                            // Enemy Speed
-                            data[o] = data[o]; o++;
-
-                            // Enemy Luck
-                            data[o] = data[o]; o++;
-
-                            // Enemy Evade
-                            data[o] = data[o]; o++;
-
-                            // Enemy Strength
-                            if (data[o] < 215)
-                            {
-                                data[o] = (byte)(data[o] + 40); o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o];
-                            }
-
-                            // Enemy Defence
-                            if (data[o] < 190)
-                            {
-                                data[o] = (byte)(data[o] + 65); o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o];
-                            }
-
-                            // Enemy Magic
-                            if (data[o] < 215)
-                            {
-                                data[o] = (byte)(data[o] + 40); o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o];
-                            }
-
-                            // Enemy Magic Defence
-                            if (data[o] < 220)
-                            {
-                                data[o] = (byte)(data[o] + 35); o++;
-                            }
-                            else
-                            {
-                                data[o] = data[o];
-                            }
-                        }
-                        else if (options[48] != false)
-                        {
-                            // Enemy Level
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Speed
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Luck
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Evade
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Strength
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Defence
-                            data[o] = (byte)(data[o] * 0.25); o++;
-
-                            // Enemy Magic
-                            data[o] = (byte)(data[o] * 0.75); o++;
-
-                            // Enemy Magic Defence
-                            data[o] = (byte)(data[o] * 0.25); o++;
                         }
                         else
                         {
+                            // No Stat changes at this time
                             o += 8;
+                        }
+
+                        // Stronger Enemies option
+                        if (options[47] != false)
+                        {
+                            // We go back 8 places to reroll the stats
+                            o -= 8;
+
+                            // We perform checks to avoid going over 255
+                            // Gaze upon my ternarys, ye almighty, and despair
+
+                            // Enemy Level
+                            data[o] = (data[o] <= 212) ? (byte)(data[o] * 1.2) : data[o] = 255; o++;
+
+                            // Enemy Speed
+                            data[o] = (data[o] <= 225) ? (byte)(data[o] + 30) : data[o] = 255; o++;
+
+                            // Enemy Luck
+                            data[o] = (data[o] <= 225) ? (byte)(data[o] + 30) : data[o] = 255; o++;
+
+                            // Enemy Evasion
+                            data[o] = (data[o] <= 245) ? (byte)(data[o] + 10) : data[o] = 255; o++;
+
+                            // Enemy Strength
+                            data[o] = (data[o] <= 230) ? (byte)(data[o] + 25) : data[o] = 255; o++;
+
+                            // Enemy Defence
+                            data[o] = (data[o] <= 225) ? (byte)(data[o] + 30) : data[o] = 255; o++;
+
+                            // Enemy Magic
+                            data[o] = (data[o] <= 212) ? (byte)(data[o] * 1.2) : data[o] = 255; o++;
+
+                            // Enemy Magic Defence
+                            data[o] = (data[o] <= 212) ? (byte)(data[o] * 1.2) : data[o] = 255; o++;
+                        }
+                        else if (options[48] != false)
+                        {
+                            // We go back 8 places to reroll the stats
+                            o -= 8;
+
+                            // Enemy Level
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Speed
+                            data[o] = (byte)(data[o] * 0.50); o++;
+
+                            // Enemy Luck
+                            data[o] = 0; o++;
+
+                            // Enemy Evasion
+                            data[o] = 0; o++;
+
+                            // Enemy Strength
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Defence
+                            data[o] = (byte)(data[o] * 0.25); o++;
+
+                            // Enemy Magic
+                            data[o] = (byte)(data[o] * 0.75); o++;
+
+                            // Enemy Magic Defence
+                            data[o] = (byte)(data[o] * 0.25); o++;
                         }
 
                         // Enemy Elemental Types
@@ -873,7 +931,8 @@ namespace Godo
                         */
                         if (options[32] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 17); o++; // 4 elemental/status properties have been set
+                            // 2 elemental properties have been set (may include statuses; unused FF7 thing where you take 2x damage while under a status)
+                            data[o] = (byte)rnd.Next(0, 17); o++;
                             data[o] = (byte)rnd.Next(0, 17); o++;
                             data[o] = 255; o++;
                             data[o] = 255; o++;
@@ -904,24 +963,8 @@ namespace Godo
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
+                            // No change to elemental affinities
+                            o += 16;
                         }
 
                         // Action Animation Index
@@ -1426,7 +1469,6 @@ namespace Godo
                             data[o] = data[o]; o++;
                         }
 
-                        //Random rndStatusSafe = new Random(seed);
                         int picker = rnd.Next(4);
                         int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 
@@ -1523,12 +1565,8 @@ namespace Godo
                     }
                     else
                     {
-                        while (c < 184)
-                        {
-                            data[o] = data[o]; o++;
-                            c++;
-                        }
-                        c = 0;
+                        // Retain enemy info
+                        o += 184;
                     }
                     r++;
                 }

@@ -87,6 +87,7 @@
             this.label6 = new System.Windows.Forms.Label();
             this.flowLayoutPanel5 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkPovertyMode = new System.Windows.Forms.CheckBox();
+            this.chkSpellspring = new System.Windows.Forms.CheckBox();
             this.label2 = new System.Windows.Forms.Label();
             this.flowLayoutPanel6 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkStrongerEnemies = new System.Windows.Forms.CheckBox();
@@ -98,12 +99,10 @@
             this.flowLayoutPanel8 = new System.Windows.Forms.FlowLayoutPanel();
             this.label9 = new System.Windows.Forms.Label();
             this.label10 = new System.Windows.Forms.Label();
-            this.chkSpellspring = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel9 = new System.Windows.Forms.FlowLayoutPanel();
             this.chkNoPhysicals = new System.Windows.Forms.CheckBox();
             this.chkNoLimits = new System.Windows.Forms.CheckBox();
             this.chkNoSpells = new System.Windows.Forms.CheckBox();
-            this.label11 = new System.Windows.Forms.Label();
             this.chkNoSummons = new System.Windows.Forms.CheckBox();
             this.chkNoItems = new System.Windows.Forms.CheckBox();
             this.chkNoMateria = new System.Windows.Forms.CheckBox();
@@ -111,6 +110,7 @@
             this.chkNoGil = new System.Windows.Forms.CheckBox();
             this.chkNoAP = new System.Windows.Forms.CheckBox();
             this.chkInitialEquip = new System.Windows.Forms.CheckBox();
+            this.label11 = new System.Windows.Forms.Label();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel3.SuspendLayout();
@@ -232,7 +232,6 @@
             this.chkCharacterAI.Text = "Character AI";
             this.chkCharacterAI.UseVisualStyleBackColor = true;
             this.chkCharacterAI.Visible = false;
-            this.chkCharacterAI.CheckedChanged += new System.EventHandler(this.ChkCharacterAI_CheckedChanged);
             // 
             // chkRandomLookup
             // 
@@ -741,6 +740,16 @@
             this.chkPovertyMode.Text = "Poverty Mode";
             this.chkPovertyMode.UseVisualStyleBackColor = true;
             // 
+            // chkSpellspring
+            // 
+            this.chkSpellspring.AutoSize = true;
+            this.chkSpellspring.Location = new System.Drawing.Point(3, 72);
+            this.chkSpellspring.Name = "chkSpellspring";
+            this.chkSpellspring.Size = new System.Drawing.Size(77, 17);
+            this.chkSpellspring.TabIndex = 7;
+            this.chkSpellspring.Text = "Spellspring";
+            this.chkSpellspring.UseVisualStyleBackColor = true;
+            // 
             // label2
             // 
             this.label2.AutoSize = true;
@@ -854,16 +863,6 @@
             this.label10.TabIndex = 25;
             this.label10.Text = "Game-Tweaking Options";
             // 
-            // chkSpellspring
-            // 
-            this.chkSpellspring.AutoSize = true;
-            this.chkSpellspring.Location = new System.Drawing.Point(3, 72);
-            this.chkSpellspring.Name = "chkSpellspring";
-            this.chkSpellspring.Size = new System.Drawing.Size(77, 17);
-            this.chkSpellspring.TabIndex = 7;
-            this.chkSpellspring.Text = "Spellspring";
-            this.chkSpellspring.UseVisualStyleBackColor = true;
-            // 
             // flowLayoutPanel9
             // 
             this.flowLayoutPanel9.Controls.Add(this.chkNoPhysicals);
@@ -911,15 +910,6 @@
             this.chkNoSpells.TabIndex = 6;
             this.chkNoSpells.Text = "No Spells";
             this.chkNoSpells.UseVisualStyleBackColor = true;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(286, 308);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(87, 13);
-            this.label11.TabIndex = 27;
-            this.label11.Text = "Restriction Rules";
             // 
             // chkNoSummons
             // 
@@ -991,6 +981,15 @@
             this.chkInitialEquip.Text = "Initial Equipment Only";
             this.chkInitialEquip.UseVisualStyleBackColor = true;
             // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(286, 308);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(87, 13);
+            this.label11.TabIndex = 27;
+            this.label11.Text = "Restriction Rules";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1021,6 +1020,7 @@
             this.Controls.Add(this.btnRandoScene);
             this.Name = "MainForm";
             this.Text = "Godo: FF7 Randomiser/Tuner";
+            //this.Load += new System.EventHandler(this.MainForm_Load);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);
