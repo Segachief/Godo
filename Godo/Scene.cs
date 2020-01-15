@@ -43,6 +43,7 @@ namespace Godo
                 int o = 0; // For iterating array indexes
                 int c = 0; // For iterating records
                 int k = 0; // See above
+                int y = 0;
 
                 byte battleBG = 0;
 
@@ -87,115 +88,111 @@ namespace Godo
                 int rand = (byte)rnd.Next(listedFormationData.Count);
                 byte[] form = (byte[])listedFormationData[rand];
 
+                int[][] jaggedAttackType = new int[1280][];
+                int enemyAttackListOffset = 736;
+
                 #region Enemy IDs
                 // Enemy IDs - Model Swap
-                if (options[24] != false)
+                while (r < 3)
                 {
-                    while (r < 3)
+                    byte[] currentModelID = new byte[2];
+                    currentModelID[0] = data[o];
+                    currentModelID[1] = data[o + 1];
+                    ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+
+                    // Stores the original Model ID for potential use later in Battle Formation section
+                    if (r == 0)
                     {
-                        // Don't want to add an enemy if there's none to begin with
-                        if (data[o] != 255 && data[o + 1] != 255)
+                        enemyA = currentModelIDInt;
+                    }
+                    else if (r == 1)
+                    {
+                        enemyB = currentModelIDInt;
+                    }
+                    else if (r == 2)
+                    {
+                        enemyC = currentModelIDInt;
+                    }
+
+                    // Models that are a dependency/have dependencies or otherwise shouldn't be changed
+                    excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
+
+                    // If the enemy appears in an excluded scene, it isn't changed
+                    excludedScene = AllMethods.CheckExcludedScene(sceneID);
+
+                    // Boss group that have multiple idles/damaged animations and which have the same anim IDs for these
+                    bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
+
+                    // Enemies that support multiple idle/damaged animations and which have the same anim IDs for these
+                    enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+
+                    do // Checks that model ID assigned exists/is valid - Terminates when validModel is True
+                    {
+                        // Model Swap option
+                        if (options[24] != false)
                         {
-                            byte[] currentModelID = new byte[2];
-                            currentModelID[0] = data[o];
-                            currentModelID[1] = data[o + 1];
-                            ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
-
-                            // Stores the original Model ID for potential use later in Battle Formation section
-                            if (r == 0)
+                            if (excludedModel == true)
                             {
-                                enemyA = currentModelIDInt;
+                                // Does not change - Current Model is a dependency of some kind
+                                o += 2;
+                                validModel = true;
                             }
-                            else if (r == 1)
+                            else if (excludedScene == true)
                             {
-                                enemyB = currentModelIDInt;
+                                // This scene is excluded from ModelID changes
+                                o += 2;
+                                validModel = true;
                             }
-                            else if (r == 2)
+                            else if (bossAnimGroup == true)
                             {
-                                enemyC = currentModelIDInt;
+                                // Select a random index from Boss Anim Group
+                                ulong[] bossSet = { 10, 11, 22, 33, 37, 71, 81, 195 };
+                                ulong modelIDCheck = (ulong)rnd.Next(7);
+                                modelIDCheck = bossSet[modelIDCheck];
+                                byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
+                                data[o] = model[0]; o++;
+                                data[o] = model[1]; o++;
+                                validModel = true;
                             }
-
-                            // Models that are a dependency/have dependencies or otherwise shouldn't be changed
-                            excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-
-                            // If the enemy appears in an excluded scene, it isn't changed
-                            excludedScene = AllMethods.CheckExcludedScene(sceneID);
-
-                            // Boss group that have multiple idles/damaged animations and which have the same anim IDs for these
-                            bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-
-                            // Enemies that support multiple idle/damaged animations and which have the same anim IDs for these
-                            enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-
-                            while (validModel != true) // Checks that model ID assigned exists/is valid
+                            else if (enemyAnimGroup == true)
                             {
-                                if (excludedModel == true)
+                                // Select a random index from Enemy Anim Group
+                                ulong[] animSet = { 86, 131, 143, 147, 170, 202, 278, 339, 340, 341, 342, 343, 344, 347, 349, 350 };
+                                ulong modelIDCheck = (ulong)rnd.Next(15);
+                                modelIDCheck = animSet[modelIDCheck];
+                                byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
+                                data[o] = model[0]; o++;
+                                data[o] = model[1]; o++;
+                                validModel = true;
+                            }
+                            else
+                            {
+                                // If the filters all returned false, then a standard randomisation is performed
+                                ulong modelIDCheck = (ulong)rnd.Next(676);
+
+                                // Checks that the new ModelID doesn't match any of the filters or isn't present in the jagged array.
+                                // If any of the filters here return true, or the modelID doesn't exist in the jagged array, we loop through again.
+                                excludedModel = AllMethods.CheckExcludedModel(modelIDCheck);
+                                enemyAnimGroup = AllMethods.CheckAnimSet(modelIDCheck);
+                                bossAnimGroup = AllMethods.CheckBossSet(modelIDCheck);
+                                if (jaggedModelAttackTypes[modelIDCheck] != null && excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
                                 {
-                                    // Does not change - Current Model is a dependency of some kind
-                                    o += 2;
-                                    validModel = true;
-                                }
-                                else if (excludedScene == true)
-                                {
-                                    // This scene is excluded from ModelID changes
-                                    o += 2;
-                                    validModel = true;
-                                }
-                                else if (bossAnimGroup == true)
-                                {
-                                    // Select a random index from Boss Anim Group
-                                    ulong[] bossSet = { 10, 11, 22, 33, 37, 71, 81, 195 };
-                                    ulong modelIDCheck = (ulong)rnd.Next(7);
-                                    modelIDCheck = bossSet[modelIDCheck];
                                     byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
                                     data[o] = model[0]; o++;
                                     data[o] = model[1]; o++;
                                     validModel = true;
                                 }
-                                else if (enemyAnimGroup == true)
-                                {
-                                    // Select a random index from Enemy Anim Group
-                                    ulong[] animSet = { 86, 131, 143, 147, 170, 202, 278, 339, 340, 341, 342, 343, 344, 347, 349, 350 };
-                                    ulong modelIDCheck = (ulong)rnd.Next(15);
-                                    modelIDCheck = animSet[modelIDCheck];
-                                    byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
-                                    data[o] = model[0]; o++;
-                                    data[o] = model[1]; o++;
-                                    validModel = true;
-                                }         
-                                else
-                                {
-                                    // If the filters all returned false, then a standard randomisation is performed
-                                    ulong modelIDCheck = (ulong)rnd.Next(676);
-
-                                    // Checks that the new ModelID doesn't match any of the filters or isn't present in the jagged array.
-                                    // If any of the filters here return true, or the modelID doesn't exist in the jagged array, we loop through again.
-                                    excludedModel = AllMethods.CheckExcludedModel(modelIDCheck);
-                                    enemyAnimGroup = AllMethods.CheckAnimSet(modelIDCheck);
-                                    bossAnimGroup = AllMethods.CheckBossSet(modelIDCheck);
-                                    if (jaggedModelAttackTypes[modelIDCheck] != null && excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                                    {
-                                        byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
-                                        data[o] = model[0]; o++;
-                                        data[o] = model[1]; o++;
-                                        validModel = true;
-                                    }
-                                }
                             }
-                            validModel = false;
                         }
                         else
                         {
-                            // If enemy was FFFF then assume it was a null entry and proceed without changes
+                            // Model Swap not enabled, proceed without reallocation
+                            validModel = true;
                             o += 2;
                         }
-                        r++;
-                    }
-                }
-                else
-                {
-                    // Model Swap turned OFF, so we just use the pre-existing Model IDs
-                    o += 6;
+                    } while (validModel != true);
+                    validModel = false;
+                    r++;
                 }
 
                 // Stores the enemy IDs for use later in enforcing consistency
@@ -286,7 +283,16 @@ namespace Godo
                             07 - A third side attack
                             08 - Normal battle that locks you in the front row, change command is disabled
                         */
-                        data[o] = data[o]; o++;
+                        if (options[29] != false && bossAnimGroup == false)
+                        {
+                            // If using enemy swarm, we're updating coords so drop the Pincers/Backs etc.
+                            // Unless it's a boss fight like Air Buster
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = data[o]; o++;
+                        }
 
                         if (options[27] != false)
                         {
@@ -386,7 +392,7 @@ namespace Godo
                         o += 12;
                     }
                     else
-                    {    
+                    {
                         // Skip and retain data
                         o += 48;
                     }
@@ -516,10 +522,10 @@ namespace Godo
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
                                 // Best this is disabled and it just retains what's there, prevents issues
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
                             }
                             // If Enemy Swarm is enabled, we attempt to add a new enemy here as the current entry is null
                             // We don't want to do this, however, if the Boss flag was enabled at any point
@@ -553,10 +559,10 @@ namespace Godo
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
                                 // As above, disabling this as it isn't a good idea - Retain flags instead
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
-                                    data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
+                                data[o] = data[o]; o++;
                             }
                             else
                             {
@@ -578,8 +584,54 @@ namespace Godo
                 //o = 0;
                 #endregion
 
+
                 #region Enemy Data
                 error = "Enemy Data";
+
+                // Before processing enemy data, we first build an array for all this scene's attacks and their type if Enemy Swap is on
+                if (options[24] != false)
+                {
+                    // Iterate through all 32 entries for attacks in this scene
+                    while (c < 32)
+                    {
+                        byte[] attackID = new byte[2];
+                        int type;
+
+                        // Checks AttackID isn't blank and then takes it, converts it into Int for array index
+                        if (data[2113 + k] != 255)
+                        {
+                            // Attack IDs are stored separately from the attack data, appearing after it; hence difference in offset
+                            attackID = data.Skip(2112 + k).Take(2).ToArray();
+                            int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+
+                            // Checks impact effect ID to determine if physical
+                            if (data[1217 + y] != 255)
+                            {
+                                type = 0; // Assigns this AttackID as Physical
+                                jaggedAttackType[attackIDInt] = new int[] { type };
+                            }
+                            // Checks Attack Effect ID to determine if Magic
+                            else if (data[1229 + y] != 255)
+                            {
+                                type = 1; // Assigns this AttackID as Magic
+                                jaggedAttackType[attackIDInt] = new int[] { type };
+                            }
+                            else
+                            {
+                                type = 2; // Assigns this AttackID as Misc
+                                jaggedAttackType[attackIDInt] = new int[] { type };
+                            }
+                        }
+                        c++;
+                        k += 2; // Next Attack ID
+                        y += 28; // Next Attack Data
+                    }
+                    c = 0;
+                    k = 0;
+                    y = 0;
+                }
+
+                // Iterate through the 3 enemies and their specific data
                 while (r < 3)
                 {
                     int i = 0;
@@ -627,14 +679,14 @@ namespace Godo
                         else
                         {
                             // Keeping default name
-                                o += 32;
+                            o += 32;
                         }
 
 
                         // Enemy Stats
                         if (options[31] != false)
                         {
-                            if(sceneID < 74)
+                            if (sceneID < 74)
                             {
                                 // World Map Encounters
                                 byte statWorldMax = (byte)(sceneID + rnd.Next(15, 25));
@@ -866,60 +918,10 @@ namespace Godo
                             o += 16;
                         }
 
-                        // Action Animation Index
-                        /* 
-                         * This is the most complex and sensitive part of the scene randomisation, if Model Swap is enabled
-                         * 1) Grabs the associated AttackID from further down
-                         * Check that attack's data (what is it using; impact, spell, neither)
-                         * Assign Animation Indice based on a random value within the JaggedModelAttackType's ModelID's attack type container
-                         */
+                        // Animation Index List - Process if Model Swap is on
                         if (options[24] != false)
                         {
-                            // Attack ID > Attack Type - An Array of this scene's attacks and whether they are physical, magical, or misc
-                            int[][] jaggedAttackType = new int[1280][];
-                            int y = 0;
-
-                            // Iterate through all 32 entries for attacks in this scene
-                            while (c < 32)
-                            {
-                                byte[] attackID = new byte[2];
-                                int type;
-
-                                // Checks AttackID isn't blank and then takes it, converts it into Int for array index
-                                if (data[2113 + k] != 255)
-                                {
-                                    // Attack IDs are stored separately from the attack data, appearing after it; hence difference in offset
-                                    attackID = data.Skip(2112 + k).Take(2).ToArray();
-                                    int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
-
-                                    // Checks impact effect ID to determine if physical
-                                    if (data[1217 + y] != 255)
-                                    {
-                                        type = 0; // Assigns this AttackID as Physical
-                                        jaggedAttackType[attackIDInt] = new int[] { type };
-                                    }
-                                    // Checks Attack Effect ID to determine if Magic
-                                    else if (data[1229 + y] != 255)
-                                    {
-                                        type = 1; // Assigns this AttackID as Magic
-                                        jaggedAttackType[attackIDInt] = new int[] { type };
-                                    }
-                                    else
-                                    {
-                                        type = 2; // Assigns this AttackID as Misc
-                                        jaggedAttackType[attackIDInt] = new int[] { type };
-                                    }
-                                }
-                                c++;
-                                k += 2; // Next Attack ID
-                                y += 28; // Next Attack Data
-                            }
-                            c = 0;
-                            k = 0;
-                            y = 0;
-
-
-                            // Now we retrieve the model ID so we can locate the correct location in our jagged array
+                            // We retrieve the model ID so we can locate the correct data in our jagged array of available animations per Model
                             byte[] modelID = new byte[2];
                             if (r == 0)
                             {
@@ -946,7 +948,7 @@ namespace Godo
                             {
                                 // Identifies the Attack ID set for the enemy, converts it into an int, so we can locate it in our Attack Type array
                                 byte[] attackID = new byte[2];
-                                attackID = data.Skip(736 + y).Take(2).ToArray();
+                                attackID = data.Skip(enemyAttackListOffset + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
 
 
@@ -1035,7 +1037,9 @@ namespace Godo
                                 y += 2; // Next Anim ID
                                 c++;
                             }
+                            enemyAttackListOffset += 184; // Offset for next enemy's attack list
                             c = 0;
+                            y = 0;
                         }
                         else
                         {
@@ -1314,7 +1318,7 @@ namespace Godo
                                 else
                                 {
                                     data[o] = (byte)rnd.Next(hpBossMin, hpBossMax); o++;
-                                }  
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
@@ -1344,7 +1348,7 @@ namespace Godo
 
                         // EXP Points
                         // No EXP option
-                        if(options[57] != false)
+                        if (options[57] != false)
                         {
                             data[o] = 0; o++;
                             data[o] = 0; o++;
@@ -1416,7 +1420,7 @@ namespace Godo
 
                         // Gil
                         // No Gil option
-                        if(options[58] != false)
+                        if (options[58] != false)
                         {
                             data[o] = 0; o++;
                             data[o] = 0; o++;
