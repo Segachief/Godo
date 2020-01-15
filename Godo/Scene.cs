@@ -406,7 +406,7 @@ namespace Godo
                 if (excludedScene == true)
                 {
                     // This scene is excluded, so skip the entire battle formation data and leave as-is
-                    o += 64;
+                    o += 384;
                 }
                 else
                 {
@@ -440,45 +440,14 @@ namespace Godo
                                 else if (currentModelIDInt == enemyB)
                                 {
                                     // This can't be null, because the check at start would have hit it
-                                    // So the commented logic shouldn't be needed after all
                                     data[o] = enemyIDList[2]; o++;
                                     data[o] = enemyIDList[3]; o++;
-
-                                    //if (enemyIDList[2] != 255 && enemyIDList[3] != 255)
-                                    //{
-                                    //    data[o] = enemyIDList[2]; o++;
-                                    //    data[o] = enemyIDList[3]; o++;
-                                    //}
-                                    //else if (options[29] != false)
-                                    //{
-                                    //    data[o] = enemyIDList[0]; o++;
-                                    //    data[o] = enemyIDList[1]; o++;
-                                    //}
-                                    //else
-                                    //{
-                                    //    o += 2;
-                                    //}
                                 }
                                 else if (currentModelIDInt == enemyC)
                                 {
                                     // Same here
                                     data[o] = enemyIDList[4]; o++;
                                     data[o] = enemyIDList[5]; o++;
-
-                                    //if (enemyIDList[4] != 255 && enemyIDList[5] != 255)
-                                    //{
-                                    //    data[o] = enemyIDList[4]; o++;
-                                    //    data[o] = enemyIDList[5]; o++;
-                                    //}
-                                    //else if (options[29] != false)
-                                    //{
-                                    //    data[o] = enemyIDList[0]; o++;
-                                    //    data[o] = enemyIDList[1]; o++;
-                                    //}
-                                    //else
-                                    //{
-                                    //    o += 2;
-                                    //}
                                 }
                                 else
                                 {
@@ -546,25 +515,11 @@ namespace Godo
                                 }
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-
                                 // Best this is disabled and it just retains what's there, prevents issues
-                                //excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                                //enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                                //bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                                //if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                                //{
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //}
-                                //else
-                                //{
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
-                                //}
                             }
                             // If Enemy Swarm is enabled, we attempt to add a new enemy here as the current entry is null
                             // We don't want to do this, however, if the Boss flag was enabled at any point
@@ -574,45 +529,6 @@ namespace Godo
                                 // Later, will revive the RND for Enemy A, B, C
                                 data[o] = enemyIDList[0]; o++;
                                 data[o] = enemyIDList[1]; o++;
-
-                                //// Set the rng so that a null enemy can't be picked for the new entry
-                                //if (enemyData[2] == 255 && enemyData[3] == 255)
-                                //{
-                                //    rngID = 0;
-                                //}
-                                //else if (enemyData[4] == 255 && enemyData[5] == 255)
-                                //{
-                                //    rngID = rnd.Next(2);
-                                //}
-                                //else
-                                //{
-                                //    rngID = rnd.Next(3);
-                                //}
-
-                                //// Pick a random enemy
-                                //if (rngID == 0)
-                                //{
-                                //    // Sets enemy A as the formation enemy ID
-                                //    data[o] = enemyIDList[0]; o++;
-                                //    data[o] = enemyIDList[1]; o++;
-                                //}
-                                //else if (rngID == 1)
-                                //{
-                                //    // Sets enemy B as the formation enemy ID
-                                //    data[o] = enemyIDList[2]; o++;
-                                //    data[o] = enemyIDList[3]; o++;
-                                //}
-                                //else if(rngID == 2)
-                                //{
-                                //    // Sets enemy C as the formation enemy ID
-                                //    data[o] = enemyIDList[4]; o++;
-                                //    data[o] = enemyIDList[5]; o++;
-                                //}
-                                //else
-                                //{
-                                //    data[o] = enemyIDList[0]; o++;
-                                //    data[o] = enemyIDList[1]; o++;
-                                //}
 
 
                                 // X Coordinate
@@ -636,30 +552,11 @@ namespace Godo
                                 data[o] = form[k]; o++; k++;
 
                                 // Initial Condition Flags; only the last 5 bits are considered - FF FF FF FF is default
-
                                 // As above, disabling this as it isn't a good idea - Retain flags instead
-                                //byte[] currentModelID = new byte[2];
-                                //currentModelID[0] = data[o];
-                                //currentModelID[1] = data[o + 1];
-                                //ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
-
-                                //excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-                                //enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
-                                //bossAnimGroup = AllMethods.CheckBossSet(currentModelIDInt);
-                                //if (excludedModel != true && enemyAnimGroup != true && bossAnimGroup != true)
-                                //{
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //    data[o] = 255; o++;
-                                //}
-                                //else
-                                //{
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
                                     data[o] = data[o]; o++;
-                                //}
                             }
                             else
                             {
@@ -667,7 +564,9 @@ namespace Godo
                                 o += 16;
                                 k += 10;
                             }
+                            c++;
                         }
+                        c = 0;
                         k = 0;
                         r++;
                     }
@@ -1065,7 +964,7 @@ namespace Godo
                                         {
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][0].Length);
                                             terminate++;
-                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][0][anim] == 0);
+                                        } while (terminate < 32 && jaggedModelAttackTypes[modelIDInt][0][anim] == 0);
                                         if (terminate < 32)
                                         {
                                             data[o] = (byte)jaggedModelAttackTypes[modelIDInt][0][anim]; o++;
@@ -1087,7 +986,7 @@ namespace Godo
                                         {
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][1].Length);
                                             terminate++;
-                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0);
+                                        } while (terminate < 32 && jaggedModelAttackTypes[modelIDInt][1][anim] == 0);
                                         if (terminate < 32)
                                         {
                                             data[o] = (byte)jaggedModelAttackTypes[modelIDInt][1][anim]; o++;
@@ -1105,7 +1004,7 @@ namespace Godo
                                         {
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][2].Length);
                                             terminate++;
-                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0);
+                                        } while (terminate < 32 && jaggedModelAttackTypes[modelIDInt][2][anim] == 0);
                                         if (terminate < 32)
                                         {
                                             data[o] = (byte)jaggedModelAttackTypes[modelIDInt][2][anim]; o++;
