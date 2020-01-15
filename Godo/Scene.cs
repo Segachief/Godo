@@ -989,15 +989,17 @@ namespace Godo
                                 // Checks AttackID isn't blank and then takes it, converts it into Int for array index
                                 if (data[2113 + k] != 255)
                                 {
+                                    // Attack IDs are stored separately from the attack data, appearing after it; hence difference in offset
                                     attackID = data.Skip(2112 + k).Take(2).ToArray();
                                     int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
 
-                                    // Checks anim and impact to determine attack type
+                                    // Checks impact effect ID to determine if physical
                                     if (data[1217 + y] != 255)
                                     {
                                         type = 0; // Assigns this AttackID as Physical
                                         jaggedAttackType[attackIDInt] = new int[] { type };
                                     }
+                                    // Checks Attack Effect ID to determine if Magic
                                     else if (data[1229 + y] != 255)
                                     {
                                         type = 1; // Assigns this AttackID as Magic
@@ -1010,128 +1012,135 @@ namespace Godo
                                     }
                                 }
                                 c++;
-                                k += 2; // Attack ID in the list - wait, shouldn't this be from the actual attack data itself, not the enemy list? May have found the source of error.
-                                // Attack IDs aren't organised necessarily in an enemy's list and may omit some of them if not all being used. That's how wrong data is getting assigned
-                                // to wrong attacks. If enemy doesn't use all the attacks, then it assigns to a different one. This is priority 1 for fix.
-                                y += 28; // Jumps to next attack to get impact/spell anim info - above should be doing same jump, now that I think about it
+                                k += 2; // Next Attack ID
+                                y += 28; // Next Attack Data
                             }
                             c = 0;
                             k = 0;
                             y = 0;
 
+
+                            // Now we retrieve the model ID so we can locate the correct location in our jagged array
+                            byte[] modelID = new byte[2];
+                            if (r == 0)
+                            {
+                                modelID[0] = enemyIDList[0];
+                                modelID[1] = enemyIDList[1];
+                            }
+                            else if (r == 1)
+                            {
+                                modelID[0] = enemyIDList[2];
+                                modelID[1] = enemyIDList[3];
+                            }
+                            else if (r == 2)
+                            {
+                                modelID[0] = enemyIDList[4];
+                                modelID[1] = enemyIDList[5];
+                            }
+
+                            // Convert it into an int so we can use it as an array index
+                            int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+
+                            // This is where the list of 16 Animation Indexes get updated to match the enemy's 16 registered AttackIDs
+                            // Iterate through the 16 attacks of the model and update the data
                             while (c < 16)
                             {
-                                byte[] modelID = new byte[2];
-                                if (r == 0)
-                                {
-                                    modelID[0] = enemyIDList[0];
-                                    modelID[1] = enemyIDList[1];
-                                }
-                                else if (r == 1)
-                                {
-                                    modelID[0] = enemyIDList[2];
-                                    modelID[1] = enemyIDList[3];
-                                }
-                                else if (r == 2)
-                                {
-                                    modelID[0] = enemyIDList[4];
-                                    modelID[1] = enemyIDList[5];
-                                }
-
-                                int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
-
+                                // Identifies the Attack ID set for the enemy, converts it into an int, so we can locate it in our Attack Type array
                                 byte[] attackID = new byte[2];
                                 attackID = data.Skip(736 + y).Take(2).ToArray();
                                 int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
-                                int anim = 0;
-                                int first = 0;
-                                int terminate = 0;
 
+
+                                int anim = 0; // Anim ID
+                                int terminate = 0; // Terminates random selection if no valid animation can be found for the required type
+
+                                // Does this work? Had trouble with checking 65535 in the past; double check this
                                 if (attackIDInt != 65535)
                                 {
+                                    // If the Attack ID has a type of 0 (Physical)
                                     if (jaggedAttackType[attackIDInt][0] == 0)
                                     {
-                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][0][anim] == 0)
+                                        // Execute at least once, and then again until either condition is met or 32 loops made
+                                        do
                                         {
-                                            first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][0].Length);
                                             terminate++;
-                                            if (terminate > 32)
-                                            {
-                                                break;
-                                            }
-                                        }
+                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][0][anim] == 0);
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][0][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][0][anim]; o++;
                                         }
-                                        o++;
-                                        first = 0;
+                                        else
+                                        {
+                                            // Universally, all models have an animation of #3.
+                                            // But this is a risk as the animation may not be suitable.
+                                            // Possible solution: Track back and revert ModelID at start and in formation ref
+                                            // (also any changed entries here would need reverted.
+                                            data[o] = 3; o++;
+                                        }
                                     }
+                                    // If the Attack ID has a type of 1 (Magical)
                                     else if (jaggedAttackType[attackIDInt][0] == 1)
                                     {
-                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0)
+                                        // Execute at least once, and then again until either condition is met or 32 loops made
+                                        do
                                         {
-                                            first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][1].Length);
                                             terminate++;
-                                            if (terminate > 32)
-                                            {
-                                                break;
-                                            }
-                                        }
+                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][1][anim] == 0);
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][1][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][1][anim]; o++;
                                         }
-                                        o++;
-                                        first = 0;
+                                        else
+                                        {
+                                            data[o] = 3; o++;
+                                        }
                                     }
+                                    // If the Attack ID has a type of 2 (Misc)
                                     else if (jaggedAttackType[attackIDInt][0] == 2)
                                     {
-                                        while (first == 0 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0)
+                                        // Execute at least once, and then again until either condition is met or 32 loops made
+                                        do
                                         {
-                                            first++;
                                             anim = rnd.Next(0, jaggedModelAttackTypes[modelIDInt][2].Length);
                                             terminate++;
-                                            if (terminate > 32)
-                                            {
-                                                break;
-                                            }
-                                        }
+                                        } while (terminate < 32 || jaggedModelAttackTypes[modelIDInt][2][anim] == 0);
                                         if (terminate < 32)
                                         {
-                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][2][anim];
+                                            data[o] = (byte)jaggedModelAttackTypes[modelIDInt][2][anim]; o++;
                                         }
-                                        o++;
-                                        first = 0;
+                                        else
+                                        {
+                                            // This is probably the riskiest assignment as a misc attack has FF on both its Impact + Attack Effect ID Flags
+                                            // Perhaps a var can be set here to add values to the attack's data in order to prevent a crash if this gets hit?
+                                            // It would be a bit odd for a misc to have either, but at least it would keep the game running.
+                                            data[o] = 3; o++;
+                                        }
                                     }
                                     else
                                     {
-                                        // If this was hit, something is wrong with animation setting in jaggedAttackType of Indexer
-                                        data[o] = data[o]; o++;
+                                        // If this is hit, the AttackType Indexer did not store an AttackID correctly
+                                        data[o] = 3; o++;
+                                        MessageBox.Show("The Animation Indexer for Model Swap failed to identify an AttackID; a backup animation value was set for stability");
                                     }
-
-                                    //if (terminate == 32)
-                                    //{
-                                    //    // We have a ModelID that does not have a required animation; we must re-roll this scene
-                                    //    reroll = 0;
-                                    //}
                                 }
                                 else
                                 {
-                                    o++;
+                                    // If Attack ID was FFFF then Animation Index should also be FF.
+                                    // Setting value directly instead of skipping helps identify left-over assignments if Attack IDs are set but have FF for the Animation Index.
+                                    data[o] = 255; o++;
                                 }
                                 anim = 0;
                                 terminate = 0;
-                                y += 2;
+                                y += 2; // Next Anim ID
                                 c++;
                             }
                             c = 0;
-                            //Array.Clear(jaggedAttackType, 0, jaggedAttackType.Length);
                         }
                         else
                         {
+                            // Model Swap not enabled; leaves the Animation Index list alone
                             o += 16;
                         }
 
@@ -1153,64 +1162,62 @@ namespace Godo
                         }
                         c = 0;
 
-                        // Obtain Rates
-                        // 1 byte per item, 4 items. Values below 80 are Drop Items (#/63). Values above 80 are Steal Items (#63)
+
+                        // Item Obtain Rates
+                        // 1 byte per item, 4 items. Values below 80h/128d are Drop Items (#/63 chance). Values above 80h/128d are Steal Items (#/63 chance)
                         if (options[33] != false)
                         {
-                            // Steal Rate 1-4
-                            data[o] = (byte)rnd.Next(8, 63); o++; // Item 1
-                            data[o] = (byte)rnd.Next(88, 127); o++; // Item 2
-                            data[o] = 255; o++; // Item 3
-                            data[o] = 255; o++; // Item 4
+                            data[o] = (byte)rnd.Next(22, 100); o++; // Item 1 - Drop
+                            data[o] = (byte)rnd.Next(140, 180); o++; // Item 2 - Steal
+                            // Item Rates 3 + 4 are skipped/retained
+                            o += 2;
 
-                            // Item IDs to be matched to the above drop/steal rates
-                            // Prevents the setting of empty item IDs.
-                            ulong itemIDInt = 105;
-                            while (itemIDInt > 104 && itemIDInt < 128)
+                            // Set Item IDs for the above Drop/Steal Rates
+                            while (c < 2)
                             {
-                                itemIDInt = (ulong)rnd.Next(320);
+                                ulong itemIDInt = (ulong)rnd.Next(320);
+
+                                // Prevents the setting of empty item IDs.
+                                while (itemIDInt > 104 && itemIDInt < 128)
+                                {
+                                    itemIDInt = (ulong)rnd.Next(320);
+                                }
+                                // Converts into little endian
+                                byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                                byte first = converted[0];
+                                byte second = converted[1];
+
+                                data[o] = first; o++;
+                                data[o] = second; o++;
+                                c++;
                             }
-                            byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
-                            byte first = converted[0];
-                            byte second = converted[1];
-
-                            // Item 1
-                            data[o] = first; o++;
-                            data[o] = second; o++;
-
-                            // Prevents the setting of empty item IDs.
-                            itemIDInt = 105;
-                            while (itemIDInt > 104 && itemIDInt < 128)
-                            {
-                                itemIDInt = (ulong)rnd.Next(320);
-                            }
-                            converted = AllMethods.GetLittleEndianConvert(itemIDInt);
-                            first = converted[0];
-                            second = converted[1];
-                            // Item 2
-                            data[o] = first; o++;
-                            data[o] = second; o++;
-
-                            // Item 3 & 4 are unchanged
+                            // Item IDs 3 + 4 are skipped/retained
                             o += 4;
                         }
+                        // Max Drop/Steal Rate option
                         else if (options[49] != false)
                         {
-                            // This needs to check if it is a drop or steal, then set max chance
-                            if (data[o] != 255 && data[o] < 64)
+                            while (c < 4)
                             {
-                                data[o] = 63; o++;
+                                // If Item is a Drop
+                                if (data[o] != 255 && data[o] < 128)
+                                {
+                                    data[o] = 127; o++;
+                                }
+                                // If item is a Steal
+                                else if (data[o] != 255 && data[o] > 63)
+                                {
+                                    data[o] = 254;
+                                }
+                                else
+                                {
+                                    // Rate is FF so skip it
+                                    o++;
+                                }
+                                c++;
                             }
-                            else if (data[o] != 255 && data[o] > 63)
-                            {
-                                data[o] = 127;// whatever max steal rate is
-                            }
-                            else
-                            {
-                                data[o] = 255; o++;
-                            }
-                            // then do other 3 item rates
                         }
+                        // Poverty Mode, wipe all the items
                         else if (options[46] != false)
                         {
                             // Rates
@@ -1219,7 +1226,7 @@ namespace Godo
                             data[o] = 255; o++;
                             data[o] = 255; o++;
 
-                            // Item 1-4
+                            // Item IDs 1-4
                             data[o] = 255; o++;
                             data[o] = 255; o++;
 
@@ -1234,111 +1241,129 @@ namespace Godo
                         }
                         else
                         {
-                            // Rates
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
-                            // Item 1-4
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // No Change, retain all Item Data
+                            o += 12;
                         }
 
                         // Manipulate/Berserk Attack IDs
                         // The first listed attack is the Berserk option; all 3 attacks can be selected for use under Manipulate
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
-
-                        // Unknown Data
-                        data[o] = 255; o++;
-                        data[o] = 255; o++;
-
-                        // Enemy MP
-                        if (options[50] != false)
+                        // If Status Immunities option is on, we must make sure an attack is set in here for Berserk
+                        if (options[39] != false)
                         {
-                            data[o] = 0; o++;
-                            data[o] = 0; o++;
-                        }
-                        else if (options[34] != false)
-                        {
-                            if (bossAnimGroup == true)
+                            // If no attack is set in slot 1, we get the first AttackID for this enemy and set that
+                            if (data[o] == 255 && data[o + 1] == 255)
                             {
-                                data[o] = 11; o++;
-                                data[o] = 184; o++;
+                                byte[] attackID = new byte[2];
+                                attackID = data.Skip(736).Take(2).ToArray();
+
+                                data[o] = attackID[0]; o++;
+                                data[o] = attackID[1]; o++;
                             }
                             else
                             {
-                                data[o] = (byte)rnd.Next(0, 11); o++;
-                                data[o] = (byte)rnd.Next(0, 184); o++;
+                                // Otherwise, leave it alone
+                                o += 2;
+                            }
+                            // Rest are left alone
+                            o += 4;
+                        }
+                        else
+                        {
+                            // Attack 1
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            // Attack 2
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+
+                            // Attack 3
+                            data[o] = data[o]; o++;
+                            data[o] = data[o]; o++;
+                        }
+
+                        // Unknown Data - Padding
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+
+                        // Enemy MP
+                        if (options[34] != false)
+                        {
+                            if (bossAnimGroup == true)
+                            {
+                                // For bosses
+                                data[o] = (byte)rnd.Next(50, 100); o++;
+                                data[o] = (byte)rnd.Next(50, 100); o++;
+                            }
+                            else
+                            {
+                                // For standard enemies
+                                data[o] = (byte)rnd.Next(40, 255); o++;
+                                data[o] = (byte)rnd.Next(0, 5); o++;
                             }
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave MP alone
+                            o += 2;
                         }
 
                         // Enemy AP
+                        // No AP Option
                         if (options[59] != false)
                         {
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
+                        // Poverty Option - AP limited to 1 byte
                         else if (options[46] != false)
                         {
                             data[o] = data[o]; o++;
                             data[o] = 0; o++;
                         }
+                        // Randomise AP
                         else if (options[35] != false)
                         {
                             if (bossAnimGroup == true)
                             {
+                                // Bosses: Max value of 1024 AP
                                 data[o] = 0; o++;
                                 data[o] = 4; o++;
                             }
                             else
                             {
-                                data[o] = (byte)rnd.Next(0, statAdjustMin); o++;
+                                // Enemies: Max value of 255 AP
+                                data[o] = 255; o++;
                                 data[o] = 0; o++;
                             }
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave AP alone
+                            o += 2;
                         }
 
                         // Enemy Morph Item ID - FFFF means no morph
                         if (options[33] != false)
                         {
                             // Prevents the setting of empty item IDs.
-                            ulong itemIDInt = 105;
+                            ulong itemIDInt = (ulong)rnd.Next(320);
+
+                            // Prevents the setting of empty item IDs.
                             while (itemIDInt > 104 && itemIDInt < 128)
                             {
                                 itemIDInt = (ulong)rnd.Next(320);
                             }
+                            // Converts into little endian
                             byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
                             byte first = converted[0];
                             byte second = converted[1];
+
                             data[o] = first; o++;
                             data[o] = second; o++;
                         }
+                        // PoverTy Mode, clear Morph
                         else if (options[46] != false)
                         {
                             data[o] = 255; o++;
@@ -1346,13 +1371,14 @@ namespace Godo
                         }
                         else
                         {
+                            // Retain Morph data
                             o += 2;
                         }
 
                         // Back Attack multiplier
                         if (options[31] != false)
                         {
-                            data[o] = (byte)rnd.Next(0, 33); o++;
+                            data[o] = (byte)rnd.Next(0, 64); o++;
                         }
                         else
                         {
@@ -1360,124 +1386,211 @@ namespace Godo
                         }
 
                         // Alignment FF
-                        data[o] = 255; o++;
+                        data[o] = data[o]; o++;
 
                         // Enemy HP
                         if (options[36] != false)
                         {
-                            if (bossAnimGroup == true)
+                            if (sceneID < 74)
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = (byte)(hpAdjust + 2); o++;
+                                // World Map Encounters
+                                byte hpWorldMax = (byte)(sceneID / 4);
+                                byte hpWorldMin = (byte)(sceneID / 8);
+
+                                data[o] = (byte)rnd.Next(100, 255); o++;
+                                data[o] = (byte)rnd.Next(hpWorldMin, hpWorldMax); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else if (bossAnimGroup == true)
+                            {
+                                byte hpBossMax = (byte)(sceneID / 4);
+                                byte hpBossMin = (byte)(sceneID / 8);
+
+                                data[o] = 255; o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(2, hpBossMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(hpBossMin, hpBossMax); o++;
+                                }  
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                             else
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = hpAdjust; o++;
+                                byte hpFieldMax = (byte)(sceneID / 8);
+                                byte hpFieldMin = (byte)(sceneID / 16);
+
+                                data[o] = (byte)rnd.Next(10, 255); o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(1, hpFieldMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(hpFieldMin, hpFieldMax); o++;
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave HP alone
+                            o += 4;
                         }
 
                         // EXP Points
+                        // No EXP option
                         if(options[57] != false)
                         {
-                            // No EXP
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
+                        // Poverty Mode EXP - 1byte
                         else if (options[46] != false)
                         {
-                            // Poverty Mode EXP
                             data[o] = data[o]; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
+                        // Randomise EXP
                         else if (options[37] != false)
                         {
-                            // Randomised EXP
-                            if (bossAnimGroup == true)
+                            if (sceneID < 74)
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = expAdjust; o++;
+                                // World Map Encounters
+                                byte expWorldMax = (byte)(sceneID / 2);
+                                byte expWorldMin = (byte)(sceneID / 4);
+
+                                data[o] = (byte)rnd.Next(100, 255); o++;
+                                data[o] = (byte)rnd.Next(expWorldMin, expWorldMax); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else if (bossAnimGroup == true)
+                            {
+                                byte expBossMax = (byte)sceneID;
+                                byte expBossMin = (byte)(sceneID / 2);
+
+                                data[o] = 255; o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(2, expBossMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(expBossMin, expBossMax); o++;
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                             else
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = (byte)rnd.Next(0, 2); o++;
+                                byte expFieldMax = (byte)(sceneID / 3);
+                                byte expFieldMin = (byte)(sceneID / 5);
+
+                                data[o] = (byte)rnd.Next(10, 255); o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(1, expFieldMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(expFieldMin, expFieldMax); o++;
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave EXP alone
+                            o += 4;
                         }
 
                         // Gil
+                        // No Gil option
                         if(options[58] != false)
                         {
-                            // No Gil
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
+                        // Poverty Mode - 1 byte
                         else if (options[46] != false)
                         {
-                            // Poverty Mode Gil
                             data[o] = data[o]; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                             data[o] = 0; o++;
                         }
+                        // Randomise Gil
                         else if (options[38] != false)
                         {
-                            // Randomised Gil
-                            if (bossAnimGroup == true)
+                            if (sceneID < 74)
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = expAdjust; o++;
+                                // World Map Encounters
+                                byte gilWorldMax = (byte)(sceneID / 2);
+                                byte gilWorldMin = (byte)(sceneID / 4);
+
+                                data[o] = (byte)rnd.Next(100, 255); o++;
+                                data[o] = (byte)rnd.Next(gilWorldMin, gilWorldMax); o++;
+                                data[o] = 0; o++;
+                                data[o] = 0; o++;
+                            }
+                            else if (bossAnimGroup == true)
+                            {
+                                byte gilBossMax = (byte)sceneID;
+                                byte gilBossMin = (byte)(sceneID / 2);
+
+                                data[o] = 255; o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(2, gilBossMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(gilBossMin, gilBossMax); o++;
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                             else
                             {
-                                data[o] = (byte)rnd.Next(0, 256); o++;
-                                data[o] = (byte)rnd.Next(0, 2); o++;
+                                byte gilFieldMax = (byte)(sceneID / 3);
+                                byte gilFieldMin = (byte)(sceneID / 5);
+
+                                data[o] = (byte)rnd.Next(10, 255); o++;
+                                if (sceneID < 100)
+                                {
+                                    data[o] = (byte)rnd.Next(1, gilFieldMin); o++;
+                                }
+                                else
+                                {
+                                    data[o] = (byte)rnd.Next(gilFieldMin, gilFieldMax); o++;
+                                }
                                 data[o] = 0; o++;
                                 data[o] = 0; o++;
                             }
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave Gil alone
+                            o += 4;
                         }
 
+                        // Status Immunities
                         int picker = rnd.Next(4);
                         int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
 
-                        // Status Immunities
                         if (options[39] != false)
                         {
                             if (bossAnimGroup == true)
@@ -1495,7 +1608,7 @@ namespace Godo
                                 {
                                     picker = rnd.Next(8);
                                     data[o] = 0; o++;
-                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = (byte)status[picker]; o++;
                                     data[o] = 0; o++;
                                     data[o] = 0; o++;
                                 }
@@ -1504,7 +1617,7 @@ namespace Godo
                                     picker = rnd.Next(0, 6); // Prevents Berserk/Manip
                                     data[o] = 0; o++;
                                     data[o] = 0; o++;
-                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = (byte)status[picker]; o++;
                                     data[o] = 0; o++;
                                 }
                                 else
@@ -1515,7 +1628,6 @@ namespace Godo
                                     data[o] = 0; o++;
                                     data[o] = (byte)status[picker]; o++;
                                 }
-
                             }
                             else
                             {
@@ -1532,7 +1644,7 @@ namespace Godo
                                 {
                                     picker = rnd.Next(8);
                                     data[o] = 0; o++;
-                                    data[o] = (byte)(status[picker]); o++;
+                                    data[o] = (byte)status[picker]; o++;
                                     data[o] = 0; o++;
                                     data[o] = 0; o++;
                                 }
@@ -1556,10 +1668,8 @@ namespace Godo
                         }
                         else
                         {
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
-                            data[o] = data[o]; o++;
+                            // Leave status immunity info alone
+                            o += 4;
                         }
 
                         // Padding FF
