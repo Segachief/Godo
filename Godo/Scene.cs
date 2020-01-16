@@ -686,11 +686,11 @@ namespace Godo
                         // Enemy Stats
                         if (options[31] != false)
                         {
-                            if (sceneID < 74)
+                            if (sceneID < 75)
                             {
                                 // World Map Encounters
                                 byte statWorldMax = (byte)(sceneID + rnd.Next(15, 25));
-                                byte statWorldMin = (byte)(sceneID / rnd.Next(4));
+                                byte statWorldMin = (byte)((sceneID + 1) / rnd.Next(1, 4));
 
                                 // Enemy Level
                                 data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
@@ -755,8 +755,8 @@ namespace Godo
                             else
                             {
                                 // Field enemy parameters
-                                byte levelFieldMax = (byte)(sceneID - 70);
-                                byte levelFieldMin = (byte)(sceneID - 75);
+                                byte levelFieldMax = (byte)(sceneID - 65);
+                                byte levelFieldMin = (byte)(sceneID - 70);
                                 byte atkFieldMax = (byte)(sceneID - 60);
                                 byte atkFieldMin = (byte)(sceneID - 70);
                                 byte magFieldMax = (byte)(sceneID - 60 + (sceneID / 12));
@@ -1072,8 +1072,8 @@ namespace Godo
                         {
                             data[o] = (byte)rnd.Next(22, 100); o++; // Item 1 - Drop
                             data[o] = (byte)rnd.Next(140, 180); o++; // Item 2 - Steal
-                            // Item Rates 3 + 4 are skipped/retained
-                            o += 2;
+                            data[o] = data[o]; o++; // Item 3
+                            data[o] = data[o]; o++; // Item 4
 
                             // Set Item IDs for the above Drop/Steal Rates
                             while (c < 2)
@@ -1094,6 +1094,7 @@ namespace Godo
                                 data[o] = second; o++;
                                 c++;
                             }
+                            c = 0;
                             // Item IDs 3 + 4 are skipped/retained
                             o += 4;
                         }
@@ -1110,7 +1111,7 @@ namespace Godo
                                 // If item is a Steal
                                 else if (data[o] != 255 && data[o] > 63)
                                 {
-                                    data[o] = 254;
+                                    data[o] = 254; o++;
                                 }
                                 else
                                 {
@@ -1119,6 +1120,7 @@ namespace Godo
                                 }
                                 c++;
                             }
+                            c = 0;
                         }
                         // Poverty Mode, wipe all the items
                         else if (options[46] != false)
@@ -1232,12 +1234,12 @@ namespace Godo
                             {
                                 // Bosses: Max value of 1024 AP
                                 data[o] = 0; o++;
-                                data[o] = 4; o++;
+                                data[o] = (byte)rnd.Next(1, 4); o++;
                             }
                             else
                             {
                                 // Enemies: Max value of 255 AP
-                                data[o] = 255; o++;
+                                data[o] = (byte)rnd.Next(255); o++;
                                 data[o] = 0; o++;
                             }
                         }
@@ -1294,7 +1296,7 @@ namespace Godo
                         // Enemy HP
                         if (options[36] != false)
                         {
-                            if (sceneID < 74)
+                            if (sceneID < 75)
                             {
                                 // World Map Encounters
                                 byte hpWorldMax = (byte)(sceneID / 4);
@@ -1366,7 +1368,7 @@ namespace Godo
                         // Randomise EXP
                         else if (options[37] != false)
                         {
-                            if (sceneID < 74)
+                            if (sceneID < 75)
                             {
                                 // World Map Encounters
                                 byte expWorldMax = (byte)(sceneID / 2);
@@ -1438,7 +1440,7 @@ namespace Godo
                         // Randomise Gil
                         else if (options[38] != false)
                         {
-                            if (sceneID < 74)
+                            if (sceneID < 75)
                             {
                                 // World Map Encounters
                                 byte gilWorldMax = (byte)(sceneID / 2);

@@ -78,6 +78,7 @@ namespace Godo
                     //string fileName = lblFileName.Text;
                     byte[] kernelLookup = GZipper.PrepareScene(directory, options, rnd, seed);
                     GZipper.PrepareKernel(directory, kernelLookup, options, rnd, seed);
+                    Array.Clear(options, 0, options.Length);
                     MessageBox.Show("Rando Complete: seed = " + seed);
 
                     string seedFile = directory + "\\FF7RandomSeeds.txt";
@@ -102,11 +103,13 @@ namespace Godo
                 }
                 catch
                 {
+                    Array.Clear(options, 0, options.Length);
                     MessageBox.Show("Error: Randomisation Failed - Check that valid files are in correct locations; if so, report the bug along with selected parameters and files used.");
                 }
             }
             else
             {
+                Array.Clear(options, 0, options.Length);
                 MessageBox.Show("Error: Valid directory required");
             }
         }

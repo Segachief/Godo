@@ -123,7 +123,7 @@ namespace Godo
         public static bool CheckExcludedScene(int sceneID)
         {
             // List of excluded scenes from random allocation
-            int[] excluded = { 12, 21, 31, 32, 33, 34, 35, 36, 48, 81, 91, 96, 97, 101, 102, 103, 104, 105, 106, 107, 108,
+            int[] excluded = { 12, 21, 31, 32, 33, 34, 35, 36, 48, 74, 81, 91, 96, 97, 101, 102, 103, 104, 105, 106, 107, 108,
                 114, 115, 116, 117, 120, 131, 133, 138, 139, 143, 144, 150, 174, 185, 186, 189, 194, 195, 205, 209, 210,
                 211, 214, 215, 217, 221, 223, 224, 226, 227, 228, 229, 230, 231, 232, 233, 234, 235, 237, 243, 245, 246 };
             if (excluded.Contains(sceneID))
@@ -252,6 +252,58 @@ namespace Godo
                 }
             }
             return picker;
+        }
+
+        public static byte PickDamageFormula(Random seed)
+        {
+            // List of valid damage formulae
+            byte[] animSet = { 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17,
+                                0x21, 0x22, 0x23, 0x24, 0x25, 0x26, 0x27,
+                                0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37,
+                                0x41, 0x42, 0x43, 0x44, 0x45, 0x46, 0x47,
+                                0x51, 0x52, 0x53, 0x54, 0x55, 0x56, 0x57,
+                                0x60, 0x61, 0x66, 0x68, 0x69, 0x6B,
+                                0x70, 0x71, 0x76, 0x78, 0x79, 0x7B,
+                                0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+                                0xB1, 0xB2, 0xB3, 0xB4, 0xB5, 0xB6, 0xB7};
+
+            // Some formulas removed from player pool for being too strong, like Target HP - 1, or unsuitable (Target's Materis * 1111)
+            // Kept here for future ref
+            byte[] excluded = { 0x6A, 0x6C, 0x6D, 0x7A, 0x7C, 0x7D };
+
+            // Grab a random entry from the array we made
+            byte pickAnim = animSet[seed.Next(animSet.Length)];
+
+            return pickAnim;
+        }
+
+        public static byte PickWeaponFormula(Random seed)
+        {
+            // List of valid damage formulae
+            byte[] animSet = { 0x11, 0x12, 0x15, 0x16, 0x17,
+                                0x21, 0x22, 0x25, 0x26, 0x27,
+                                0x31, 0x32, 0x35, 0x36, 0x37,
+                                0x41, 0x42, 0x45, 0x46, 0x47,
+                                0x51, 0x52, 0x55, 0x56, 0x57,
+                                0xA0, 0xA1, 0xA2, 0xA3, 0xA4, 0xA5, 0xA6, 0xA7, 0xA8,
+                                0xB1, 0xB2, 0xB5, 0xB6, 0xB7};
+
+            // Grab a random entry from the array we made
+            byte pickAnim = animSet[seed.Next(animSet.Length)];
+
+            return pickAnim;
+        }
+
+        public static byte PickEquipmentStatus(Random seed)
+        {
+            // List of valid damage formulae
+            byte[] animSet = { 0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09, 0x0A, 0x0B,
+                                0x0C, 0x0D, 0x0E, 0x12, 0x15, 0x16, 0x17, 0x19, 0x1A, 0xFF};
+
+            // Grab a random entry from the array we made
+            byte pickAnim = animSet[seed.Next(animSet.Length)];
+
+            return pickAnim;
         }
 
         // This method generates a random name using two 4-letter words

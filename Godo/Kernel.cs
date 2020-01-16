@@ -112,79 +112,141 @@ namespace Godo
             {
                 while (r < 128)
                 {
-                    // Attack %
-                    data[o] = (byte)rnd.Next(50, 150); o++;
-
-                    // Impact Effect
-                    data[o] = data[o]; o++;
-
-                    // Target Hurt Anim
-                    data[o] = data[o]; o++;
-
-                    // Unknown
-                    data[o] = data[o]; o++;
-
-                    // MP Cost
-                    if (options[50] != false)
+                    if (options[8] != false)
                     {
-                        data[o] = 0; o++;
-                        data[o] = 0; o++;
+                        // Attack %
+                        data[o] = (byte)rnd.Next(50, 150); o++;
+
+                        // Impact Effect
+                        data[o] = data[o]; o++;
+
+                        // Target Hurt Anim
+                        data[o] = data[o]; o++;
+
+                        // Unknown
+                        data[o] = data[o]; o++;
+
+                        // MP Cost
+                        if (options[50] != false)
+                        {
+                            data[o] = 0; o++;
+                            data[o] = 0; o++;
+                        }
+                        else
+                        {
+                            data[o] = (byte)rnd.Next(3, 100); o++;
+                            data[o] = 0; o++;
+                        }
+
+                        // Impact Sound
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Camera Single
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Camera Multiple
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Target Flag
+                        data[o] = data[o]; o++;
+
+                        // Anim ID
+                        if (r < 54)
+                        {
+                            // Spells
+                            data[o] = (byte)rnd.Next(54); o++;
+                        }
+                        else if (r < 72 && r > 55)
+                        {
+                            // Summons
+                            data[o] = (byte)rnd.Next(15); o++;
+                        }
+                        else if (r < 96 && r > 71)
+                        {
+                            // E. Skills
+                            data[o] = (byte)rnd.Next(23); o++;
+                        }
+                        else
+                        {
+                            // Leave it be
+                            o++;
+                        }
+
+                        // Damage Calc
+                        data[o] = AllMethods.PickDamageFormula(rnd); o++;
+
+                        // Base Power
+                        // First, check if the previous Damage Calc assigned with %-based damage
+                        if (data[o - 1] == 0x13
+                            || data[o - 1] == 0x14
+                            || data[o - 1] == 0x23
+                            || data[o - 1] == 0x24
+                            || data[o - 1] == 0x33
+                            || data[o - 1] == 0x34
+                            || data[o - 1] == 0x44
+                            || data[o - 1] == 0x44
+                            || data[o - 1] == 0x53
+                            || data[o - 1] == 0x54
+                            || data[o - 1] == 0xB3
+                            || data[o - 1] == 0xB4)
+                        {
+                            // Max is 16/32
+                            data[o] = (byte)rnd.Next(16); o++;
+                        }
+                        else
+                        {
+                            // Assign a base power increase or reduction
+                            if (rnd.Next(3) == 0)
+                            {
+                                data[o] = (byte)(data[o] / 2); o++;
+                            }
+                            else if (rnd.Next(3) == 1)
+                            {
+                                data[o] = (byte)(data[o] * 1.5); o++;
+                            }
+                            else if (rnd.Next(3) == 2)
+                            {
+                                data[o] = (byte)(data[o] + 25); o++;
+                            }
+                            else
+                            {
+                                o++;
+                            }
+                        }
+
+                        // Restore Type
+                        data[o] = data[o]; o++;
+
+                        // Status Toggle Type
+                        data[o] = data[o]; o++;
+
+                        // Additional Effects
+                        data[o] = data[o]; o++;
+
+                        // Modifier for Additional Effects
+                        data[o] = data[o]; o++;
+
+                        // Status Effect Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Elements Mask
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
+
+                        // Special Attack Flags
+                        data[o] = data[o]; o++;
+                        data[o] = data[o]; o++;
                     }
                     else
                     {
-                        data[o] = data[o]; o++;
-                        data[o] = data[o]; o++;
+                        o += 28;
                     }
-
-                    // Impact Sound
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-
-                    // Camera Single
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-
-                    // Camera Multiple
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-
-                    // Target Flag
-                    data[o] = data[o]; o++;
-
-                    // Anim ID
-                    data[o] = data[o]; o++;
-
-                    // Damage Calc
-                    data[o] = data[o]; o++;
-
-                    // Base Power
-                    data[o] = data[o]; o++;
-
-                    // Restore Type
-                    data[o] = data[o]; o++;
-
-                    // Status Toggle Type
-                    data[o] = data[o]; o++;
-
-                    // Additional Effects
-                    data[o] = data[o]; o++;
-
-                    // Modifier for Additional Effects
-                    data[o] = data[o]; o++;
-
-                    // Status Effect Mask
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-
-                    // Elements Mask
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
-
-                    // Special Attack Flags
-                    data[o] = data[o]; o++;
-                    data[o] = data[o]; o++;
                     r++;
                 }
             }
@@ -337,7 +399,7 @@ namespace Godo
                         o += 16;
                     }
 
-                    if(options[52] != false)
+                    if (options[52] != false)
                     {
                         // Limits will never fill
                         data[o] = 255; o++;
@@ -524,7 +586,7 @@ namespace Godo
                     {
                         data[o] = data[o]; o++;
                         r++;
-                    }             
+                    }
                 }
             }
             catch
@@ -575,30 +637,30 @@ namespace Godo
                     if (options[15] != false)
                     {
                         // Level
-                        data[o] = (byte)rnd.Next(1, 21); o++;
+                        data[o] = (byte)rnd.Next(1, 15); o++;
 
                         // Strength
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(40); o++;
 
                         // Vitality
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(40); o++;
 
                         // Magic
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(40); o++;
 
                         // Spirit
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(40); o++;
 
                         // Dexterity
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(20); o++;
 
                         // Luck
-                        data[o] = (byte)rnd.Next(51); o++;
+                        data[o] = (byte)rnd.Next(40); o++;
 
                         // Sources used - There are 6 values (1byte) for each Source type, redundant to change so skipped.
                         // A case could be made that Source-boosted Dex behaves differently to natural Dex, so added that.
                         o += 4; // Power to Spirit Sources, skipped and at 0
-                        data[o] = (byte)rnd.Next(51); o++; // Dex sources
+                        data[o] = (byte)rnd.Next(20); o++; // Dex sources
                         o++; // Luck Sources
                     }
                     else
@@ -617,6 +679,7 @@ namespace Godo
                     data[o] = (byte)rnd.Next(255); o++;
 
                     // Character Name: Gets two random 4-letter words from the method NameGenerate for the character name
+                    // This is pointless as name is internal, and overridden when Character Naming screen is called
                     if (options[16] != false)
                     {
                         nameBytes = AllMethods.NameGenerate(rnd);
@@ -745,11 +808,11 @@ namespace Godo
                     data[o] = data[o]; o++;
                     data[o] = data[o]; o++; // 2nd byte
 
-                    // Current HP - Setting limit of 2000 for balance - 100 is game's functional minimum
+                    // Current HP - 100 is game's functional minimum
                     if (options[20] != false)
                     {
-                        data[o] = (byte)rnd.Next(99, 209); o++; // Returns 100HP minimum, 209 is D0 in hex
-                        data[o] = (byte)rnd.Next(8); o++; // Random between 0 and 7, = 07D0 which is a range of 2000HP
+                        data[o] = (byte)rnd.Next(100, 209); o++;
+                        data[o] = (byte)rnd.Next(4); o++;
                     }
                     else
                     {
@@ -973,6 +1036,7 @@ namespace Godo
                 #region Misc Bytes (4bytes)
                 // Miscellaneous 4-bytes between character records and the item/materia arrays is handled here
                 // Char ID Party Member Slot 1 - Party Leader should be Cloud, Tifa, or Cid
+                // Pointless, as the game overrides it on start with an opcode but kept for future flevel modification
                 if (options[22] != false)
                 {
                     int slotA = rnd.Next(3);
@@ -1119,13 +1183,48 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Attack Effect ID
-                        data[o] = data[o]; o++;
+                        data[o] = (byte)rnd.Next(69); o++;
 
                         // Damage Calc
-                        data[o] = data[o]; o++;
+                        data[o] = AllMethods.PickDamageFormula(rnd); o++;
 
                         // Base Power
-                        data[o] = data[o]; o++;
+                        if (data[o - 1] == 0x13
+                            || data[o - 1] == 0x14
+                            || data[o - 1] == 0x23
+                            || data[o - 1] == 0x24
+                            || data[o - 1] == 0x33
+                            || data[o - 1] == 0x34
+                            || data[o - 1] == 0x44
+                            || data[o - 1] == 0x44
+                            || data[o - 1] == 0x53
+                            || data[o - 1] == 0x54
+                            || data[o - 1] == 0xB3
+                            || data[o - 1] == 0xB4)
+                        {
+                            // Max is 16/32
+                            data[o] = (byte)rnd.Next(16); o++;
+                        }
+                        else
+                        {
+                            // Assign a base power increase or reduction
+                            if (rnd.Next(3) == 0)
+                            {
+                                data[o] = (byte)(data[o] / 2); o++;
+                            }
+                            else if (rnd.Next(3) == 1)
+                            {
+                                data[o] = (byte)(data[o] * 1.5); o++;
+                            }
+                            else if (rnd.Next(3) == 2)
+                            {
+                                data[o] = (byte)(data[o] + 25); o++;
+                            }
+                            else
+                            {
+                                o++;
+                            }
+                        }
 
                         // Conditions
                         data[o] = data[o]; o++;
@@ -1228,16 +1327,32 @@ namespace Godo
                         data[o] = data[o]; o++;
 
                         // Damage Calc
-                        data[o] = data[o]; o++;
+                        data[o] = AllMethods.PickWeaponFormula(rnd); o++;
 
                         // Always FF
                         data[o] = data[o]; o++;
 
                         // Base Power
-                        data[o] = (byte)rnd.Next(10, 100); o++;
+                        // Assign a base power increase or reduction
+                        if (rnd.Next(3) == 0)
+                        {
+                            data[o] = (byte)(data[o] / 2); o++;
+                        }
+                        else if (rnd.Next(3) == 1)
+                        {
+                            data[o] = (byte)(data[o] * 1.5); o++;
+                        }
+                        else if (rnd.Next(3) == 2)
+                        {
+                            data[o] = (byte)(data[o] + 25); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // Status Attack
-                        data[o] = (byte)rnd.Next(32); o++;
+                        data[o] = AllMethods.PickEquipmentStatus(rnd); o++;
 
                         // Growth Rate
                         data[o] = (byte)rnd.Next(4); o++;
@@ -1543,19 +1658,79 @@ namespace Godo
                         }
 
                         // Defence
-                        data[o] = (byte)rnd.Next(75); o++;
+                        if (rnd.Next(3) == 0)
+                        {
+                            data[o] = (byte)(data[o] / 2); o++;
+                        }
+                        else if (rnd.Next(3) == 1)
+                        {
+                            data[o] = (byte)(data[o] * 1.5); o++;
+                        }
+                        else if (rnd.Next(3) == 2)
+                        {
+                            data[o] = (byte)(data[o] + 25); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // MDefence
-                        data[o] = (byte)rnd.Next(75); o++;
+                        if (rnd.Next(3) == 0)
+                        {
+                            data[o] = (byte)(data[o] / 2); o++;
+                        }
+                        else if (rnd.Next(3) == 1)
+                        {
+                            data[o] = (byte)(data[o] * 1.5); o++;
+                        }
+                        else if (rnd.Next(3) == 2)
+                        {
+                            data[o] = (byte)(data[o] + 25); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // Defence%
-                        data[o] = (byte)rnd.Next(20); o++;
+                        if (rnd.Next(3) == 0)
+                        {
+                            data[o] = (byte)(data[o] / 2); o++;
+                        }
+                        else if (rnd.Next(3) == 1)
+                        {
+                            data[o] = (byte)(data[o] * 1.5); o++;
+                        }
+                        else if (rnd.Next(3) == 2)
+                        {
+                            data[o] = (byte)(data[o] + 10); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // MDef%
-                        data[o] = (byte)rnd.Next(20); o++;
+                        if (rnd.Next(3) == 0)
+                        {
+                            data[o] = (byte)(data[o] / 2); o++;
+                        }
+                        else if (rnd.Next(3) == 1)
+                        {
+                            data[o] = (byte)(data[o] * 1.5); o++;
+                        }
+                        else if (rnd.Next(3) == 2)
+                        {
+                            data[o] = (byte)(data[o] + 10); o++;
+                        }
+                        else
+                        {
+                            o++;
+                        }
 
                         // Status Defence
-                        data[o] = (byte)rnd.Next(32); o++;
+                        data[o] = AllMethods.PickEquipmentStatus(rnd); o++;
 
                         // Unknown
                         data[o] = data[o]; o++;
@@ -1927,9 +2102,9 @@ namespace Godo
                 // Nulls all Materia for No Materia option
                 if (options[56] != false)
                 {
-                    while(r < 95)
+                    while (r < 95)
                     {
-                        while(c < 20)
+                        while (c < 20)
                         {
                             data[o] = 255; o++;
                             c++;
@@ -2031,9 +2206,9 @@ namespace Godo
                     }
                 }
                 o = 0;
-                if(options[54] != false)
+                if (options[54] != false)
                 { // Nulls Summon Materia
-                    while(r < 74)
+                    while (r < 74)
                     {
                         o += 20;
                         r++;

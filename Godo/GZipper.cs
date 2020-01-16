@@ -13,12 +13,6 @@ namespace Godo
         {
             string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
-            string backupScene = targetScene + "Backup";
-
-            if (!Directory.Exists(backupScene)) // Ensures backup isn't overwritten
-            {
-                File.Copy(targetScene, backupScene, true);   // Creates a backup of the scene.bin
-            }
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
