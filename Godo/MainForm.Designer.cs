@@ -151,7 +151,6 @@
             // flowLayoutPanel1
             // 
             this.flowLayoutPanel1.Controls.Add(this.chkStatCurves);
-            this.flowLayoutPanel1.Controls.Add(this.chkLevelUpBonus);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitIDs);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitKillUse);
             this.flowLayoutPanel1.Controls.Add(this.chkLimitGauge);
@@ -174,17 +173,18 @@
             // chkLevelUpBonus
             // 
             this.chkLevelUpBonus.AutoSize = true;
-            this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 26);
+            this.chkLevelUpBonus.Location = new System.Drawing.Point(3, 3);
             this.chkLevelUpBonus.Name = "chkLevelUpBonus";
             this.chkLevelUpBonus.Size = new System.Drawing.Size(113, 17);
             this.chkLevelUpBonus.TabIndex = 4;
             this.chkLevelUpBonus.Text = "Level Up Bonuses";
             this.chkLevelUpBonus.UseVisualStyleBackColor = true;
+            this.chkLevelUpBonus.Visible = false;
             // 
             // chkLimitIDs
             // 
             this.chkLimitIDs.AutoSize = true;
-            this.chkLimitIDs.Location = new System.Drawing.Point(3, 49);
+            this.chkLimitIDs.Location = new System.Drawing.Point(3, 26);
             this.chkLimitIDs.Name = "chkLimitIDs";
             this.chkLimitIDs.Size = new System.Drawing.Size(66, 17);
             this.chkLimitIDs.TabIndex = 1;
@@ -194,7 +194,7 @@
             // chkLimitKillUse
             // 
             this.chkLimitKillUse.AutoSize = true;
-            this.chkLimitKillUse.Location = new System.Drawing.Point(3, 72);
+            this.chkLimitKillUse.Location = new System.Drawing.Point(3, 49);
             this.chkLimitKillUse.Name = "chkLimitKillUse";
             this.chkLimitKillUse.Size = new System.Drawing.Size(97, 17);
             this.chkLimitKillUse.TabIndex = 2;
@@ -204,7 +204,7 @@
             // chkLimitGauge
             // 
             this.chkLimitGauge.AutoSize = true;
-            this.chkLimitGauge.Location = new System.Drawing.Point(3, 95);
+            this.chkLimitGauge.Location = new System.Drawing.Point(3, 72);
             this.chkLimitGauge.Name = "chkLimitGauge";
             this.chkLimitGauge.Size = new System.Drawing.Size(117, 17);
             this.chkLimitGauge.TabIndex = 3;
@@ -225,7 +225,7 @@
             // chkCharacterAI
             // 
             this.chkCharacterAI.AutoSize = true;
-            this.chkCharacterAI.Location = new System.Drawing.Point(3, 3);
+            this.chkCharacterAI.Location = new System.Drawing.Point(3, 26);
             this.chkCharacterAI.Name = "chkCharacterAI";
             this.chkCharacterAI.Size = new System.Drawing.Size(85, 17);
             this.chkCharacterAI.TabIndex = 6;
@@ -236,13 +236,12 @@
             // chkRandomLookup
             // 
             this.chkRandomLookup.AutoSize = true;
-            this.chkRandomLookup.Location = new System.Drawing.Point(3, 49);
+            this.chkRandomLookup.Location = new System.Drawing.Point(3, 187);
             this.chkRandomLookup.Name = "chkRandomLookup";
-            this.chkRandomLookup.Size = new System.Drawing.Size(135, 17);
+            this.chkRandomLookup.Size = new System.Drawing.Size(80, 17);
             this.chkRandomLookup.TabIndex = 7;
-            this.chkRandomLookup.Text = "Random Lookup Table";
+            this.chkRandomLookup.Text = "RNG Table";
             this.chkRandomLookup.UseVisualStyleBackColor = true;
-            this.chkRandomLookup.Visible = false;
             // 
             // flowLayoutPanel2
             // 
@@ -328,10 +327,11 @@
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedArmour);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedAccessory);
             this.flowLayoutPanel3.Controls.Add(this.chkEquippedMateria);
+            this.flowLayoutPanel3.Controls.Add(this.chkRandomLookup);
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(276, 76);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(128, 191);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(128, 220);
             this.flowLayoutPanel3.TabIndex = 11;
             // 
             // chkCharacterID
@@ -653,7 +653,7 @@
             // chkEnemyPlacement
             // 
             this.chkEnemyPlacement.AutoSize = true;
-            this.chkEnemyPlacement.Location = new System.Drawing.Point(3, 26);
+            this.chkEnemyPlacement.Location = new System.Drawing.Point(3, 49);
             this.chkEnemyPlacement.Name = "chkEnemyPlacement";
             this.chkEnemyPlacement.Size = new System.Drawing.Size(118, 17);
             this.chkEnemyPlacement.TabIndex = 4;
@@ -821,16 +821,16 @@
             // 
             // flowLayoutPanel7
             // 
+            this.flowLayoutPanel7.Controls.Add(this.chkLevelUpBonus);
             this.flowLayoutPanel7.Controls.Add(this.chkCharacterAI);
             this.flowLayoutPanel7.Controls.Add(this.chkEnemyPlacement);
-            this.flowLayoutPanel7.Controls.Add(this.chkRandomLookup);
             this.flowLayoutPanel7.Controls.Add(this.chkStatCurveData);
             this.flowLayoutPanel7.Controls.Add(this.chkStartParty);
             this.flowLayoutPanel7.Controls.Add(this.chkCharacterName);
             this.flowLayoutPanel7.Controls.Add(this.chkEnemyAI);
-            this.flowLayoutPanel7.Location = new System.Drawing.Point(12, 12);
+            this.flowLayoutPanel7.Location = new System.Drawing.Point(695, 12);
             this.flowLayoutPanel7.Name = "flowLayoutPanel7";
-            this.flowLayoutPanel7.Size = new System.Drawing.Size(10, 10);
+            this.flowLayoutPanel7.Size = new System.Drawing.Size(176, 40);
             this.flowLayoutPanel7.TabIndex = 22;
             this.flowLayoutPanel7.Visible = false;
             // 
@@ -1020,7 +1020,6 @@
             this.Controls.Add(this.btnRandoScene);
             this.Name = "MainForm";
             this.Text = "Godo: FF7 Randomiser/Tuner";
-            //this.Load += new System.EventHandler(this.MainForm_Load);
             this.flowLayoutPanel1.ResumeLayout(false);
             this.flowLayoutPanel1.PerformLayout();
             this.flowLayoutPanel2.ResumeLayout(false);

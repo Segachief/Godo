@@ -355,12 +355,12 @@ namespace Godo
                         data[o] = (byte)rnd.Next(100); o++;     // Kills for Limit Level 3
                         data[o] = data[o]; o++;
 
-                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 1-2
+                        data[o] = (byte)rnd.Next(2, 8); o++;      // Required used for 1-2
                         data[o] = data[o]; o++;
 
                         if (options[1] != false)
                         {
-                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 1-3
+                            data[o] = (byte)rnd.Next(9, 16); o++;  // Required used for 1-3
                             data[o] = data[o]; o++;
                         }
                         else
@@ -368,12 +368,12 @@ namespace Godo
                             o += 2;
                         }
 
-                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 2-2
+                        data[o] = (byte)rnd.Next(2, 8); o++;      // Required used for 2-2
                         data[o] = data[o]; o++;
 
                         if (options[1] != false)
                         {
-                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 2-3
+                            data[o] = (byte)rnd.Next(9, 16); o++;  // Required used for 2-3
                             data[o] = data[o]; o++;
                         }
                         else
@@ -381,12 +381,12 @@ namespace Godo
                             o += 2;
                         }
 
-                        data[o] = (byte)rnd.Next(16); o++;      // Required used for 3-2
+                        data[o] = (byte)rnd.Next(2, 8); o++;      // Required used for 3-2
                         data[o] = data[o]; o++;
 
                         if (options[1] != false)
                         {
-                            data[o] = (byte)rnd.Next(16); o++;  // Required used for 3-3
+                            data[o] = (byte)rnd.Next(9, 16); o++;  // Required used for 3-3
                             data[o] = data[o]; o++;
                         }
                         else
