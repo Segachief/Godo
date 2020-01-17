@@ -224,10 +224,10 @@ namespace Godo
             int picker = 0;
             while (valid == false)
             {
-                picker = rnd.Next(127, 197);
+                picker = rnd.Next(127, 187);
                 switch (picker)
                 {
-                    // Invalid Materia; no data
+                    // Do not use this Limit ID
                     case 149:
                         break;
 
@@ -265,12 +265,6 @@ namespace Godo
                         break;
 
                     case 176:
-                        break;
-
-                    case 188:
-                        break;
-
-                    case 189:
                         break;
 
                     default:
