@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godo.Helper;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -47,12 +48,11 @@ namespace Godo
 
                 byte battleBG = 0;
 
-                bool validModel = false;
-                bool excludedModel = false;
-                bool enemyAnimGroup = false;
-                bool bossGroup = false;
-                bool bossAnimGroup = false;
                 bool excludedScene = false;
+                bool excludedModel = false;
+                bool swapInModel = false;
+                bool bossGroup = false;
+                bool validModel = false;
 
                 // Used to ascertain which models were swapped for which when writing to formation
                 ulong enemyA = 0;
@@ -70,7 +70,7 @@ namespace Godo
                     0x00, 0x00, 0x00, 0x00, 0x50, 0xFB, 0x01, 0x00, 0x00, 0x00,
                     0x14, 0x05, 0x00, 0x00, 0x88, 0xFA, 0x01, 0x00, 0x00, 0x00,
                     0xEC, 0xFA, 0x00, 0x00, 0x10, 0xF5, 0x02, 0x00, 0x00, 0x00,
-                    0x00, 0x00, 0x00, 0x00, 0x50, 0xFB, 0x02, 0x00, 0x00, 0x00,
+                    0x00, 0x00, 0x00, 0x00, 0x10, 0xF5, 0x02, 0x00, 0x00, 0x00,
                     0x14, 0x05, 0x00, 0x00, 0x10, 0xF5, 0x02, 0x00, 0x00, 0x00
                 };
 
@@ -96,13 +96,14 @@ namespace Godo
                 if (data[o] != 255 && data[o + 1] != 255)
                 {
                     #region Enemy IDs
+                    error = "Enemy IDs";
                     // Enemy IDs - Model Swap
                     while (r < 3)
                     {
                         byte[] currentModelID = new byte[2];
                         currentModelID[0] = data[o];
                         currentModelID[1] = data[o + 1];
-                        ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+                        ulong currentModelIDInt = (ulong)EndianConvert.GetLittleEndianIntTwofer(currentModelID, 0);
 
                         // Stores the original Model ID for potential use later in Battle Formation section
                         if (r == 0)
@@ -121,78 +122,73 @@ namespace Godo
                         // Check what the original model's requirements are; if its ID matches any in these lists,
                         // it has certain rules applied to its potential replacement (if allowed).
 
-                        // Models that are a dependency/have dependencies or otherwise shouldn't be changed
-                        excludedModel = AllMethods.CheckExcludedModel(currentModelIDInt);
-
                         // If the enemy appears in an excluded scene, it isn't changed
-                        excludedScene = AllMethods.CheckExcludedScene(sceneID);
+                        excludedScene = ModelFilters.CheckExcludedScene(sceneID);
 
-                        // Boss group; have different handling for stats
-                        bossGroup = AllMethods.CheckBossSet(currentModelIDInt);
+                        // Models excluded from swapping in or out
+                        excludedModel = ModelFilters.CheckExcludedModel(currentModelIDInt);
 
-                        // Boss group that have multiple idles/damaged animations and which have the same anim IDs for these
-                        bossAnimGroup = AllMethods.CheckAnimBossSet(currentModelIDInt);
+                        // Enemies that require multiple idle/damaged animations or other requirements
+                        swapInModel = ModelFilters.CheckSwapIn(currentModelIDInt);
 
-                        // Enemies that support multiple idle/damaged animations and which have the same anim IDs for these
-                        enemyAnimGroup = AllMethods.CheckAnimSet(currentModelIDInt);
+                        // Check if the current Model ID matches a Boss Model ID
+                        bossGroup = ModelFilters.CheckBossSet(currentModelIDInt);
 
                         do // Checks that model ID assigned exists/is valid - Terminates when validModel is True
                         {
                             // Model Swap option
                             if (options[24] != false)
                             {
-                                if (excludedModel == true)
-                                {
-                                    // Does not change - Current Model is a dependency of some kind
-                                    o += 2;
-                                    validModel = true;
-                                }
-                                else if (excludedScene == true)
+                                if (excludedScene == true)
                                 {
                                     // This scene is excluded from ModelID changes
                                     o += 2;
                                     validModel = true;
                                 }
-                                else if (bossAnimGroup == true)
+                                else if (excludedModel == true)
                                 {
-                                    // Select a random index from Boss Anim Group
-                                    ulong[] bossSet = { 10, 13, 22, 33, 37, 66, 67, 71, 81, 111, 127,
-                                    182, 195, 228, 229, 258, 259, 260, 274, 275, 306, 331 };
-                                    ulong modelIDPick = (ulong)rnd.Next(7);
-                                    modelIDPick = bossSet[modelIDPick];
-                                    byte[] model = AllMethods.GetLittleEndianConvert(modelIDPick);
-                                    data[o] = model[0]; o++;
-                                    data[o] = model[1]; o++;
+                                    // Model is excluded from Swaps
+                                    o += 2;
                                     validModel = true;
                                 }
-                                else if (enemyAnimGroup == true)
+                                else if (swapInModel == true)
                                 {
-                                    // Select a random index from Enemy Anim Group
-                                    ulong[] animSet = { 86, 131, 147, 170, 202, 278, 302, 339, 340, 341,
-                                    342, 343, 344, 347, 349, 350 };
-                                    ulong modelIDCheck = (ulong)rnd.Next(15);
-                                    modelIDCheck = animSet[modelIDCheck];
-                                    byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
-                                    data[o] = model[0]; o++;
-                                    data[o] = model[1]; o++;
+                                    if (options[61] != false)
+                                    {
+                                        // This set shouldn't be swapped out unless Risky Swaps enabled
+                                        // Populate the potential models array with models that have a lot of anims
+                                        ulong[] animSet = { 10, 13, 22, 33, 37, 38, 66, 67, 71, 81, 111, 130, 133, 143,
+                                        147, 170, 178, 182, 195, 202, 228, 229, 240, 241, 242, 258, 259, 260, 276,
+                                        278, 293, 294, 295, 302, 310, 311, 316, 331, 339, 340, 341, 342, 343, 344,
+                                        347, 349, 350 };
+                                        ulong modelIDCheck = (ulong)rnd.Next(animSet.Length);
+                                        modelIDCheck = animSet[modelIDCheck];
+                                        byte[] model = EndianConvert.GetLittleEndianConvert(modelIDCheck);
+                                        data[o] = model[0]; o++;
+                                        data[o] = model[1]; o++;
+                                    }
+                                    else
+                                    {
+                                        // No swap, risky swaps is off
+                                        o += 2;
+                                    }
                                     validModel = true;
                                 }
                                 else
                                 {
-                                    // If the filters all returned false, then a standard randomisation is performed
-                                    ulong modelIDCheck = (ulong)rnd.Next(676);
-
-                                    // Checks that the new ModelID doesn't match any of the filters or isn't present in the jagged array.
-                                    // If any of the filters here return true, or the modelID doesn't exist in the jagged array, we loop through again.
-                                    excludedModel = AllMethods.CheckExcludedModel(modelIDCheck);
-                                    enemyAnimGroup = AllMethods.CheckAnimSet(modelIDCheck);
-                                    bossAnimGroup = AllMethods.CheckBossSet(modelIDCheck);
-                                    if (jaggedModelAttackTypes[modelIDCheck] != null && excludedModel != true)
+                                    // If the filters all returned false, then a standard randomisation is performed.
+                                    // This is conducted until a valid ModelID is found.
+                                    while (validModel != true)
                                     {
-                                        byte[] model = AllMethods.GetLittleEndianConvert(modelIDCheck);
-                                        data[o] = model[0]; o++;
-                                        data[o] = model[1]; o++;
-                                        validModel = true;
+                                        ulong modelIDCheck = (ulong)rnd.Next(676);
+                                        excludedModel = ModelFilters.CheckExcludedModel(modelIDCheck);
+                                        if (jaggedModelAttackTypes[modelIDCheck] != null && excludedModel != true)
+                                        {
+                                            byte[] model = EndianConvert.GetLittleEndianConvert(modelIDCheck);
+                                            data[o] = model[0]; o++;
+                                            data[o] = model[1]; o++;
+                                            validModel = true;
+                                        }
                                     }
                                 }
                             }
@@ -446,7 +442,7 @@ namespace Godo
                                     byte[] currentModelID = new byte[2];
                                     currentModelID[0] = data[o];
                                     currentModelID[1] = data[o + 1];
-                                    ulong currentModelIDInt = (ulong)AllMethods.GetLittleEndianIntTwofer(currentModelID, 0);
+                                    ulong currentModelIDInt = (ulong)EndianConvert.GetLittleEndianIntTwofer(currentModelID, 0);
 
                                     // It gets compared to the original Model IDs that we collected at the start before
                                     // randomisation to determine if it is Enemy A, B, or C.
@@ -541,7 +537,7 @@ namespace Godo
                                 }
                                 // If Enemy Swarm is enabled, we attempt to add a new enemy here as the current entry is null
                                 // We don't want to do this, however, if the Boss flag was enabled at any point
-                                else if (options[29] != false && bossAnimGroup == false)
+                                else if (options[29] != false && bossGroup == false)
                                 {
                                     // For now, just going to add Enemy A as the duped enemy.
                                     // Later, will revive the RND for Enemy A, B, C
@@ -614,7 +610,7 @@ namespace Godo
                             {
                                 // Attack IDs are stored separately from the attack data, appearing after it; hence difference in offset
                                 attackID = data.Skip(2112 + k).Take(2).ToArray();
-                                int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+                                int attackIDInt = EndianConvert.GetLittleEndianIntTwofer(attackID, 0);
 
                                 // Checks impact effect ID to determine if physical
                                 if (data[1217 + y] != 255)
@@ -655,7 +651,7 @@ namespace Godo
                             if (options[30] != false)
                             {
                                 // Enemy Name, 32 bytes ascii
-                                nameBytes = AllMethods.NameGenerate(rnd);
+                                nameBytes = Misc.NameGenerate(rnd);
                                 data[o] = nameBytes[0]; o++;
                                 data[o] = nameBytes[1]; o++;
                                 data[o] = nameBytes[2]; o++;
@@ -698,122 +694,205 @@ namespace Godo
                             // Enemy Stats
                             if (options[31] != false)
                             {
-                                if (sceneID < 75)
+                                // Enemy Level
+                                int seeder = rnd.Next(4);
+                                if (seeder == 0)
                                 {
-                                    // World Map Encounters
-                                    byte statWorldMax = (byte)(sceneID + rnd.Next(15, 25));
-                                    byte statWorldMin = (byte)((sceneID + 1) / rnd.Next(1, 4));
-
-                                    // Enemy Level
-                                    data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
-
-                                    // Enemy Speed
-                                    if (options[29] != false)
-                                    {
-                                        data[o] = (byte)rnd.Next(10, 24); o++;
-                                    }
-                                    else
-                                    {
-                                        data[o] = (byte)rnd.Next(statWorldMin, 128); o++;
-                                    }
-
-                                    // Enemy Luck
-                                    data[o] = (byte)rnd.Next(0, statWorldMin); o++;
-
-                                    // Enemy Evade
-                                    if (options[29] != false)
-                                    {
-                                        data[o] = (byte)rnd.Next(0, 5); o++;
-                                    }
-                                    else
-                                    {
-                                        data[o] = (byte)rnd.Next(0, statWorldMin); o++;
-                                    }
-
-                                    // Enemy StrengthstatAdjustMax
-                                    data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
-
-                                    // Enemy Defence
-                                    data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
-
-                                    // Enemy Magic
-                                    data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
-
-                                    // Enemy Magic Defence
-                                    data[o] = (byte)rnd.Next(statWorldMin, statWorldMax); o++;
+                                    data[o] = (byte)(data[o] * 0.75); o++;
                                 }
-                                else if (bossAnimGroup == true)
+                                else if (seeder == 1)
                                 {
-                                    // Boss parameters
-                                    byte levelBossMax = (byte)(sceneID - 60);
-                                    byte levelBossMin = (byte)(sceneID - 75);
-                                    byte atkBossMax = (byte)(sceneID - 30);
-                                    byte atkBossMin = (byte)(sceneID - 45);
-                                    byte magBossMax = (byte)(sceneID - 60 + (sceneID / 8));
-                                    byte magBossMin = (byte)(sceneID - 70 + (sceneID / 12));
-                                    byte defBossMax = (byte)(sceneID - 60);
-                                    byte defBossMin = (byte)(sceneID - 70);
-
-                                    // Enemy Level
-                                    data[o] = (byte)rnd.Next(levelBossMin, levelBossMax); o++;
-
-                                    // Enemy Speed
-                                    data[o] = (byte)rnd.Next(48, 127); o++;
-
-                                    // Enemy Luck
-                                    data[o] = (byte)rnd.Next(0, 32); o++;
-
-                                    // Enemy Evade
-                                    data[o] = (byte)rnd.Next(0, 16); o++;
-
-                                    // Enemy Strength
-                                    data[o] = (byte)rnd.Next(atkBossMin, atkBossMax); o++;
-
-                                    // Enemy Defence
-                                    data[o] = (byte)rnd.Next(defBossMin, defBossMax); o++;
-
-                                    // Enemy Magic
-                                    data[o] = (byte)rnd.Next(magBossMin, magBossMax); o++;
-
-                                    // Enemy Magic Defence
-                                    data[o] = (byte)rnd.Next(defBossMin, defBossMax); o++;
+                                    data[o] = (byte)(data[o] * 1.25); o++;
+                                }
+                                else if (seeder == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 15); o++;
+                                }
+                                else if (seeder == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
                                 }
                                 else
                                 {
-                                    // Field enemy parameters
-                                    byte levelFieldMax = (byte)(sceneID - 65);
-                                    byte levelFieldMin = (byte)(sceneID - 70);
-                                    byte atkFieldMax = (byte)(sceneID - 60);
-                                    byte atkFieldMin = (byte)(sceneID - 70);
-                                    byte magFieldMax = (byte)(sceneID - 60 + (sceneID / 12));
-                                    byte magFieldMin = (byte)(sceneID - 70 + (sceneID / 16));
-                                    byte defenceFieldMax = (byte)(sceneID - 65);
-                                    byte defenceFieldMin = (byte)(sceneID - 70);
-
-                                    // Enemy Level
-                                    data[o] = (byte)rnd.Next(levelFieldMin, levelFieldMax); o++;
-
-                                    // Enemy Speed
-                                    data[o] = (byte)rnd.Next(24, 127); o++;
-
-                                    // Enemy Luck
-                                    data[o] = (byte)rnd.Next(0, 32); o++;
-
-                                    // Enemy Evade
-                                    data[o] = (byte)rnd.Next(0, 16); o++;
-
-                                    // Enemy StrengthstatAdjustMax
-                                    data[o] = (byte)rnd.Next(atkFieldMin, atkFieldMax); o++;
-
-                                    // Enemy Defence
-                                    data[o] = (byte)rnd.Next(defenceFieldMin, defenceFieldMax); o++;
-
-                                    // Enemy Magic
-                                    data[o] = (byte)rnd.Next(atkFieldMin, atkFieldMax); o++;
-
-                                    // Enemy Magic Defence
-                                    data[o] = (byte)rnd.Next(defenceFieldMin, defenceFieldMax); o++;
+                                    o++;
                                 }
+
+                                // Enemy Speed
+                                seeder = rnd.Next(4);
+                                if (options[29] != false)
+                                {
+                                    data[o] = (byte)rnd.Next(5, 10); o++;
+                                }
+                                else
+                                {
+                                    if (seeder == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (seeder == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                    }
+                                    else if (seeder == 2)
+                                    {
+                                        data[o] = (byte)(data[o] + 15); o++;
+                                    }
+                                    else if (seeder == 3 && data[o] > 15)
+                                    {
+                                        data[o] = (byte)(data[o] - 15); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                    }
+                                }
+
+                                // Enemy Luck
+                                seeder = rnd.Next(4);
+                                if (rnd.Next(4) == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (rnd.Next(4) == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.25); o++;
+                                }
+                                else if (rnd.Next(4) == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 15); o++;
+                                }
+                                else if (rnd.Next(4) == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
+
+                                // Enemy Evade
+                                seeder = rnd.Next(4);
+                                if (options[29] != false)
+                                {
+                                    data[o] = (byte)rnd.Next(0, 5); o++;
+                                }
+                                else
+                                {
+                                    if (seeder == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (seeder == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                    }
+                                    else if (seeder == 2)
+                                    {
+                                        data[o] = (byte)(data[o] + 15); o++;
+                                    }
+                                    else if (seeder == 3 && data[o] > 15)
+                                    {
+                                        data[o] = (byte)(data[o] - 15); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                    }
+                                }
+
+                                // Enemy Strength
+                                seeder = rnd.Next(4);
+                                if (seeder == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (seeder == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.5); o++;
+                                }
+                                else if (seeder == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 25); o++;
+                                }
+                                else if (seeder == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
+
+                                // Enemy Defence
+                                seeder = rnd.Next(4);
+                                if (seeder == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (seeder == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.5); o++;
+                                }
+                                else if (seeder == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 25); o++;
+                                }
+                                else if (seeder == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
+
+                                // Enemy Magic
+                                seeder = rnd.Next(4);
+                                if (seeder == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (seeder == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.5); o++;
+                                }
+                                else if (seeder == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 15); o++;
+                                }
+                                else if (seeder == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
+
+                                // Enemy Magic Defence
+                                seeder = rnd.Next(4);
+                                if (seeder == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (seeder == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.5); o++;
+                                }
+                                else if (seeder == 2)
+                                {
+                                    data[o] = (byte)(data[o] + 25); o++;
+                                }
+                                else if (seeder == 3 && data[o] > 15)
+                                {
+                                    data[o] = (byte)(data[o] - 15); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
+
+
                             }
                             else
                             {
@@ -945,7 +1024,7 @@ namespace Godo
                             }
 
                             // Animation Index List - Process if Model Swap is on
-                            if (options[24] != false)
+                            if (options[24] != false && excludedScene != true)
                             {
                                 // We retrieve the model ID so we can locate the correct data in our jagged array of available animations per Model
                                 byte[] modelID = new byte[2];
@@ -966,7 +1045,7 @@ namespace Godo
                                 }
 
                                 // Convert it into an int so we can use it as an array index
-                                int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+                                int modelIDInt = EndianConvert.GetLittleEndianIntTwofer(modelID, 0);
 
                                 // This is where the list of 16 Animation Indexes get updated to match the enemy's 16 registered AttackIDs
                                 // Iterate through the 16 attacks of the model and update the data
@@ -975,7 +1054,7 @@ namespace Godo
                                     // Identifies the Attack ID set for the enemy, converts it into an int, so we can locate it in our Attack Type array
                                     byte[] attackID = new byte[2];
                                     attackID = data.Skip(enemyAttackListOffset + y).Take(2).ToArray();
-                                    int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+                                    int attackIDInt = EndianConvert.GetLittleEndianIntTwofer(attackID, 0);
 
 
                                     int anim = 0; // Anim ID
@@ -1121,7 +1200,7 @@ namespace Godo
                                         itemIDInt = (ulong)rnd.Next(320);
                                     }
                                     // Converts into little endian
-                                    byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                                    byte[] converted = EndianConvert.GetLittleEndianConvert(itemIDInt);
                                     byte first = converted[0];
                                     byte second = converted[1];
 
@@ -1230,7 +1309,7 @@ namespace Godo
                             // Enemy MP
                             if (options[34] != false)
                             {
-                                if (bossAnimGroup == true)
+                                if (bossGroup == true)
                                 {
                                     // For bosses
                                     data[o] = (byte)rnd.Next(50, 100); o++;
@@ -1265,17 +1344,42 @@ namespace Godo
                             // Randomise AP
                             else if (options[35] != false)
                             {
-                                if (bossAnimGroup == true)
+                                if (bossGroup == true)
                                 {
-                                    // Bosses: Max value of 1024 AP
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)rnd.Next(1, 4); o++;
+                                    if (rnd.Next(2) == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                        o++;
+                                    }
                                 }
                                 else
                                 {
                                     // Enemies: Max value of 255 AP
-                                    data[o] = (byte)rnd.Next(255); o++;
-                                    data[o] = 0; o++;
+                                    if (rnd.Next(2) == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                        o++;
+                                    }
                                 }
                             }
                             else
@@ -1303,7 +1407,7 @@ namespace Godo
                                     itemIDInt = (ulong)rnd.Next(320);
                                 }
                                 // Converts into little endian
-                                byte[] converted = AllMethods.GetLittleEndianConvert(itemIDInt);
+                                byte[] converted = EndianConvert.GetLittleEndianConvert(itemIDInt);
                                 byte first = converted[0];
                                 byte second = converted[1];
 
@@ -1344,44 +1448,86 @@ namespace Godo
                                     byte hpWorldMax = (byte)(sceneID / 4);
                                     byte hpWorldMin = (byte)(sceneID / 8);
 
-                                    data[o] = (byte)rnd.Next(100, 255); o++;
-                                    data[o] = (byte)rnd.Next(hpWorldMin, hpWorldMax); o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
+                                    //data[o] = (byte)rnd.Next(100, 255); o++;
+                                    //data[o] = (byte)rnd.Next(hpWorldMin, hpWorldMax); o++;
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                    }
                                 }
-                                else if (bossAnimGroup == true)
+                                else if (bossGroup == true)
                                 {
                                     byte hpBossMax = (byte)(sceneID / 4);
                                     byte hpBossMin = (byte)(sceneID / 8);
 
-                                    data[o] = 255; o++;
-                                    if (sceneID < 100)
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(2, hpBossMin); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(hpBossMin, hpBossMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                                 else
                                 {
                                     byte hpFieldMax = (byte)(sceneID / 8);
                                     byte hpFieldMin = (byte)(sceneID / 16);
 
-                                    data[o] = (byte)rnd.Next(10, 255); o++;
-                                    if (sceneID < 100)
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(1, hpFieldMin); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(hpFieldMin, hpFieldMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                             }
                             else
@@ -1425,44 +1571,111 @@ namespace Godo
                                     byte expWorldMax = (byte)(sceneID / 2);
                                     byte expWorldMin = (byte)(sceneID / 4);
 
-                                    data[o] = (byte)rnd.Next(100, 255); o++;
-                                    data[o] = (byte)rnd.Next(expWorldMin, expWorldMax); o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
+                                    //data[o] = (byte)rnd.Next(100, 255); o++;
+                                    //data[o] = (byte)rnd.Next(expWorldMin, expWorldMax); o++;
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                    }
+
                                 }
-                                else if (bossAnimGroup == true)
+                                else if (bossGroup == true)
                                 {
                                     byte expBossMax = (byte)sceneID;
                                     byte expBossMin = (byte)(sceneID / 2);
 
-                                    data[o] = 255; o++;
-                                    if (sceneID < 100)
+                                    //data[o] = 255; o++;
+                                    //if (sceneID < 100)
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(2, expBossMin); o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(expBossMin, expBossMax); o++;
+                                    //}
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(2, expBossMin); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(expBossMin, expBossMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                                 else
                                 {
                                     byte expFieldMax = (byte)(sceneID / 3);
                                     byte expFieldMin = (byte)(sceneID / 5);
 
-                                    data[o] = (byte)rnd.Next(10, 255); o++;
-                                    if (sceneID < 100)
+                                    //data[o] = (byte)rnd.Next(10, 255); o++;
+                                    //if (sceneID < 100)
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(1, expFieldMin); o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(expFieldMin, expFieldMax); o++;
+                                    //}
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(1, expFieldMin); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                        data[o] = (byte)(data[o] * 0.75); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
+                                        data[o] = (byte)(data[o] * 1.25); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(expFieldMin, expFieldMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                             }
                             else
@@ -1506,44 +1719,110 @@ namespace Godo
                                     byte gilWorldMax = (byte)(sceneID / 2);
                                     byte gilWorldMin = (byte)(sceneID / 4);
 
-                                    data[o] = (byte)rnd.Next(100, 255); o++;
-                                    data[o] = (byte)rnd.Next(gilWorldMin, gilWorldMax); o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
+                                    //data[o] = (byte)rnd.Next(100, 255); o++;
+                                    //data[o] = (byte)rnd.Next(gilWorldMin, gilWorldMax); o++;
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
+                                    {
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                    }
+                                    else
+                                    {
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                    }
                                 }
-                                else if (bossAnimGroup == true)
+                                else if (bossGroup == true)
                                 {
                                     byte gilBossMax = (byte)sceneID;
                                     byte gilBossMin = (byte)(sceneID / 2);
 
-                                    data[o] = 255; o++;
-                                    if (sceneID < 100)
+                                    //data[o] = 255; o++;
+                                    //if (sceneID < 100)
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(2, gilBossMin); o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(gilBossMin, gilBossMax); o++;
+                                    //}
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(2, gilBossMin); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(gilBossMin, gilBossMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                                 else
                                 {
                                     byte gilFieldMax = (byte)(sceneID / 3);
                                     byte gilFieldMin = (byte)(sceneID / 5);
 
-                                    data[o] = (byte)rnd.Next(10, 255); o++;
-                                    if (sceneID < 100)
+                                    //data[o] = (byte)rnd.Next(10, 255); o++;
+                                    //if (sceneID < 100)
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(1, gilFieldMin); o++;
+                                    //}
+                                    //else
+                                    //{
+                                    //    data[o] = (byte)rnd.Next(gilFieldMin, gilFieldMax); o++;
+                                    //}
+                                    //data[o] = 0; o++;
+                                    //data[o] = 0; o++;
+
+                                    if (rnd.Next(2) == 0)
                                     {
-                                        data[o] = (byte)rnd.Next(1, gilFieldMin); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                        data[o] = (byte)(data[o] * 0.5); o++;
+                                    }
+                                    else if (rnd.Next(2) == 1)
+                                    {
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
+                                        data[o] = (byte)(data[o] * 1.5); o++;
                                     }
                                     else
                                     {
-                                        data[o] = (byte)rnd.Next(gilFieldMin, gilFieldMax); o++;
+                                        o++;
+                                        o++;
+                                        o++;
+                                        o++;
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
                                 }
                             }
                             else
@@ -1567,7 +1846,7 @@ namespace Godo
 
                             if (options[39] != false)
                             {
-                                if (bossAnimGroup == true)
+                                if (bossGroup == true)
                                 {
                                     if (picker == 0)
                                     {
@@ -1724,7 +2003,19 @@ namespace Godo
                                 data[o] = data[o]; o++;
 
                                 // Base Power
-                                data[o] = (byte)rnd.Next(0, 40); o++;
+                                //data[o] = (byte)rnd.Next(0, 40); o++;
+                                if (rnd.Next(2) == 0)
+                                {
+                                    data[o] = (byte)(data[o] * 0.75); o++;
+                                }
+                                else if (rnd.Next(2) == 1)
+                                {
+                                    data[o] = (byte)(data[o] * 1.25); o++;
+                                }
+                                else
+                                {
+                                    o++;
+                                }
 
                                 // Condition Sub-Menu Flags
                                 // 00 = Party HP
@@ -1757,133 +2048,143 @@ namespace Godo
                             // Produce an enum class that holds the specific values for each status, then pick one of those or more and 
                             // pipe it into the statuses/elements; true random here would be too much + death/imprisoned/petrify can creep in
 
-                            // Statuses - TODO: Identify values that are OHKOs.
-                            if (options[41] != false) // Safe - OHKOs/Disables not enabled
+                            if (sceneID < 75 && sceneID > 82)
                             {
-                                /* Statuses (by flag)
-                                 * 1 = Death
-                                 * 2 = Near-Death
-                                 * 4 = Sleep
-                                 * 8 = Poison
-                                 * 16 = Sadness
-                                 * 32 = Fury
-                                 * 64 = Confusion
-                                 * 128 = Silence
-
-                                 * 1 = Haste
-                                 * 2 = Slow
-                                 * 4 = Stop
-                                 * 8 = Frog
-                                 * 16 = Mini
-                                 * 32 = Slow-Numb
-                                 * 64 = Petrify
-                                 * 128 = Regen
-
-                                 * 1 = Barrier
-                                 * 2 = MBarrier
-                                 * 4 = Reflect
-                                 * 8 = Dual
-                                 * 16 = Shield
-                                 * 32 = D. Sentence
-                                 * 64 = Manip
-                                 * 128 = Berserk
-
-                                 * 1 = Peerless
-                                 * 2 = Paralysis
-                                 * 4 = Darkness
-                                 * 8 = Dual-Drain
-                                 * 16 = Death Force
-                                 * 32 = Resist
-                                 * 64 = Lucky Girl
-                                 * 128 = Imprisoned
-                                 */
-
-                                //Random rndStatusSafe = new Random(seed);
-                                int picker = rnd.Next(4);
-                                int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
-
-                                // Sets status chance
-                                data[o - 3] = (byte)rnd.Next(0, 64);
-
-                                if (picker == 0)
+                                // Statuses - TODO: Identify values that are OHKOs.
+                                if (options[41] != false) // Safe - OHKOs/Disables not enabled
                                 {
-                                    picker = rnd.Next(2, 8); // Prevents Death and Near-Death being set
-                                    data[o] = (byte)status[picker]; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
+                                    /* Statuses (by flag)
+                                     * 1 = Death
+                                     * 2 = Near-Death
+                                     * 4 = Sleep
+                                     * 8 = Poison
+                                     * 16 = Sadness
+                                     * 32 = Fury
+                                     * 64 = Confusion
+                                     * 128 = Silence
 
-                                }
-                                else if (picker == 1)
-                                {
-                                    picker = rnd.Next(2, 7); // Prevents Petrify and Regen being set
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)status[picker]; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                }
-                                else if (picker == 2)
-                                {
-                                    data[o - 3] = 255;
-                                    o += 4;
-                                }
-                                else
-                                {
-                                    picker = 4; // Only Darkness set
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)status[picker]; o++;
-                                }
-                            }
-                            else if (options[42] != false) // Unsafe - OHKOs/Disables enabled
-                            {
-                                //Random rndStatusUnsafe = new Random(seed);
-                                int picker = rnd.Next(4);
-                                int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+                                     * 1 = Haste
+                                     * 2 = Slow
+                                     * 4 = Stop
+                                     * 8 = Frog
+                                     * 16 = Mini
+                                     * 32 = Slow-Numb
+                                     * 64 = Petrify
+                                     * 128 = Regen
 
-                                // Sets status chance
-                                data[o - 3] = (byte)rnd.Next(0, 64);
+                                     * 1 = Barrier
+                                     * 2 = MBarrier
+                                     * 4 = Reflect
+                                     * 8 = Dual
+                                     * 16 = Shield
+                                     * 32 = D. Sentence
+                                     * 64 = Manip
+                                     * 128 = Berserk
 
-                                if (picker == 0)
-                                {
-                                    picker = rnd.Next(0, 7);
-                                    data[o] = (byte)status[picker]; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                }
-                                else if (picker == 1)
-                                {
-                                    picker = rnd.Next(0, 6); // Prevents Regen being set
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)status[picker]; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                }
-                                else if (picker == 2)
-                                {
-                                    picker = rnd.Next(1, 7); // Prevents Barrier being set
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)status[picker]; o++;
-                                    data[o] = 0; o++;
-                                }
-                                else
-                                {
-                                    picker = rnd.Next(1, 7); // Prevents Peerless being set
-                                    if (picker == 8 && data[o - 1] != 8) // Checks for Dual-Drain, sets Dual on previous byte
+                                     * 1 = Peerless
+                                     * 2 = Paralysis
+                                     * 4 = Darkness
+                                     * 8 = Dual-Drain
+                                     * 16 = Death Force
+                                     * 32 = Resist
+                                     * 64 = Lucky Girl
+                                     * 128 = Imprisoned
+                                     */
+
+
+                                    //Random rndStatusSafe = new Random(seed);
+                                    int picker = rnd.Next(4);
+                                    int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                                    // Sets status chance
+                                    data[o - 3] = (byte)rnd.Next(0, 64);
+
+                                    if (picker == 0)
                                     {
-                                        data[o - 1] = 8;
+                                        picker = rnd.Next(2, 8); // Prevents Death and Near-Death being set
+                                        data[o] = (byte)status[picker]; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+
                                     }
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = 0; o++;
-                                    data[o] = (byte)status[picker]; o++;
+                                    else if (picker == 1)
+                                    {
+                                        picker = rnd.Next(2, 7); // Prevents Petrify, and Regen being set
+                                        data[o] = 0; o++;
+                                        data[o] = (byte)status[picker]; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                    }
+                                    else if (picker == 2)
+                                    {
+                                        data[o - 3] = 255;
+                                        o += 4;
+                                    }
+                                    else
+                                    {
+                                        picker = 4; // Only Darkness set
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = (byte)status[picker]; o++;
+                                    }
+
+                                }
+                                else if (options[42] != false) // Unsafe - OHKOs/Disables enabled
+                                {
+                                    //Random rndStatusUnsafe = new Random(seed);
+                                    int picker = rnd.Next(4);
+                                    int[] status = new int[] { 1, 2, 4, 8, 16, 32, 64, 128 };
+
+                                    // Sets status chance
+                                    data[o - 3] = (byte)rnd.Next(0, 64);
+
+                                    if (picker == 0)
+                                    {
+                                        picker = rnd.Next(0, 7);
+                                        data[o] = (byte)status[picker]; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                    }
+                                    else if (picker == 1)
+                                    {
+                                        picker = rnd.Next(0, 6); // Prevents Regen being set
+                                        data[o] = 0; o++;
+                                        data[o] = (byte)status[picker]; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                    }
+                                    else if (picker == 2)
+                                    {
+                                        picker = rnd.Next(1, 7); // Prevents Barrier being set
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = (byte)status[picker]; o++;
+                                        data[o] = 0; o++;
+                                    }
+                                    else
+                                    {
+                                        picker = rnd.Next(1, 7); // Prevents Peerless being set
+                                        if (picker == 8 && data[o - 1] != 8) // Checks for Dual-Drain, sets Dual on previous byte
+                                        {
+                                            data[o - 1] = 8;
+                                        }
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = 0; o++;
+                                        data[o] = (byte)status[picker]; o++;
+                                    }
+                                }
+                                else
+                                {
+                                    o += 4;
                                 }
                             }
                             else
                             {
+                                // If Reactor 1 scenes, skip status assignment
                                 o += 4;
                             }
 
@@ -1965,7 +2266,7 @@ namespace Godo
                         // Attack Name, 32 bytes ascii
                         if (data[o] != 255 && options[44] != false)
                         {
-                            nameBytes = AllMethods.NameGenerate(rnd);
+                            nameBytes = Misc.NameGenerate(rnd);
                             data[o] = nameBytes[0]; o++;
                             data[o] = nameBytes[1]; o++;
                             data[o] = nameBytes[2]; o++;

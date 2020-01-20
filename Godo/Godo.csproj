@@ -65,6 +65,13 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AllMethods.cs" />
+    <Compile Include="Helper\EndianConvert.cs" />
+    <Compile Include="Helper\FormulaChange.cs" />
+    <Compile Include="Helper\LimitIndex.cs" />
+    <Compile Include="Helper\MateriaIndex.cs" />
+    <Compile Include="Helper\Misc.cs" />
+    <Compile Include="Helper\ModelFilters.cs" />
+    <Compile Include="Helper\SpellIndex.cs" />
     <Compile Include="Indexer.cs" />
     <Compile Include="GZipper.cs" />
     <Compile Include="MainForm.cs">

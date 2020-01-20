@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godo.Helper;
+using System;
 using System.Collections;
 using System.IO;
 using System.IO.Compression;
@@ -11,8 +12,9 @@ namespace Godo
     {
         public static byte[] PrepareScene(string directory, bool[] options, Random rnd, int seed)
         {
-            string sceneDirectory = directory + "\\battle\\";   // The battle folder where scene.bin resides
+            string sceneDirectory = directory + "\\Target Files\\";   // The folder where scene.bin will be placed
             string targetScene = sceneDirectory + "scene.bin";   // The target file itself
+            //string backupScene = sceneDirectory + "scene - default.bin";   // Makes a backup of the scene.bin
 
             byte[] header = new byte[64];                       /* Stores the block header
                                                                  * [0-4] = Offset for first GZipped data file (3 enemies per file)
@@ -94,8 +96,8 @@ namespace Godo
                         }
 
                         // Converts the current offset and the next offset into integer
-                        offset = AllMethods.GetLittleEndianInt(currentHeader, 0);
-                        nextOffset = AllMethods.GetLittleEndianInt(nextHeader, 0);
+                        offset = EndianConvert.GetLittleEndianInt(currentHeader, 0);
+                        nextOffset = EndianConvert.GetLittleEndianInt(nextHeader, 0);
 
                         // Checks that next header is not empty or if we are at the last header
                         if (currentHeader[1] == 0xFF || nextHeader[1] == 0xFF || r == 15)
@@ -300,7 +302,7 @@ namespace Godo
                     if (s != 0)
                     {
                         // Calculates this scene's offset using the previous offset + that offset's file size.
-                        headerInt = AllMethods.GetPreviousLittleEndianInt(finalHeader, k);
+                        headerInt = EndianConvert.GetPreviousLittleEndianInt(finalHeader, k);
                         headerInt *= 4;
                         headerInt += jaggedSceneInfo[o - 1][1];
                         headerInt /= 4;
@@ -342,9 +344,9 @@ namespace Godo
 
         public static void PrepareKernel(string directory, byte[] kernelLookup, bool[] options, Random rnd, int seed)
         {
-            string kernelDirectory = directory + "\\kernel\\";   // The battle folder where scene.bin resides
+            string kernelDirectory = directory + "\\Target Files\\";   // The battle folder where scene.bin resides
             string targetKernel = kernelDirectory + "KERNEL.bin";    // The kernel.bin for updating the lookup table
-            string backupKernel = targetKernel + "Backup";
+            //string backupKernel = kernelDirectory + "KERNEL - Backup.bin";
 
             int[][] jaggedKernelInfo = new int[27][];           // An array of arrays, containing compressed size, uncompressed size, section ID
             ArrayList listedKernelData = new ArrayList();       // Contains all the compressed kernel section data
@@ -369,13 +371,13 @@ namespace Godo
                 stepOne.Seek(headerOffset, SeekOrigin.Begin);
 
                 stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                compressedSize = AllMethods.GetLittleEndianInt(header, 0);
+                compressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
                 stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                uncompressedSize = AllMethods.GetLittleEndianInt(header, 0);
+                uncompressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
                 stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                sectionID = AllMethods.GetLittleEndianInt(header, 0);
+                sectionID = EndianConvert.GetLittleEndianInt(header, 0);
 
                 // Stored kernel header information in a jaggy array
                 jaggedKernelInfo[o] = new int[] { compressedSize, uncompressedSize, sectionID };
@@ -504,15 +506,15 @@ namespace Godo
                     ulong uncomSize = (ulong)jaggedKernelInfo[o][1];
                     ulong sectID = (ulong)jaggedKernelInfo[o][2];
 
-                    bytes = AllMethods.GetLittleEndianConvert(comSize);
+                    bytes = EndianConvert.GetLittleEndianConvert(comSize);
                     kernelHead[0] = bytes[0];
                     kernelHead[1] = bytes[1];
 
-                    bytes = AllMethods.GetLittleEndianConvert(uncomSize);
+                    bytes = EndianConvert.GetLittleEndianConvert(uncomSize);
                     kernelHead[2] = bytes[0];
                     kernelHead[3] = bytes[1];
 
-                    bytes = AllMethods.GetLittleEndianConvert(sectID);
+                    bytes = EndianConvert.GetLittleEndianConvert(sectID);
                     kernelHead[4] = bytes[0];
                     kernelHead[5] = bytes[1];
 

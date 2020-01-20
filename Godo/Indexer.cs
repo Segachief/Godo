@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godo.Helper;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -171,7 +172,7 @@ namespace Godo
                                         if (uncompressedScene[2113 + k] != 255)
                                         {
                                             attackID = uncompressedScene.Skip(2112 + k).Take(2).ToArray();
-                                            int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+                                            int attackIDInt = EndianConvert.GetLittleEndianIntTwofer(attackID, 0);
 
                                             // Checks anim and impact to determine attack type
                                             if (uncompressedScene[1217 + y] != 255)
@@ -218,7 +219,7 @@ namespace Godo
                                         if (uncompressedScene[c + 1] != 255)
                                         {
                                             modelID = uncompressedScene.Skip(c).Take(2).ToArray();
-                                            int modelIDInt = AllMethods.GetLittleEndianIntTwofer(modelID, 0);
+                                            int modelIDInt = EndianConvert.GetLittleEndianIntTwofer(modelID, 0);
                                             jaggedModelAttackTypes[modelIDInt] = new int[3][]; // 3 entries for 3 attack types
                                             int[] physAnims = new int[16];
                                             int[] magAnims = new int[16];
@@ -233,7 +234,7 @@ namespace Godo
                                                 if (uncompressedScene[736 + k] != 255 && uncompressedScene[736 + k] != 255)
                                                 {
                                                     attackID = uncompressedScene.Skip(736 + k).Take(2).ToArray();
-                                                    int attackIDInt = AllMethods.GetLittleEndianIntTwofer(attackID, 0);
+                                                    int attackIDInt = EndianConvert.GetLittleEndianIntTwofer(attackID, 0);
 
                                                     // Checks if an Anim was set for this AttackID (99% of cases one will be)
                                                     if (uncompressedScene[720 + y] != 255)

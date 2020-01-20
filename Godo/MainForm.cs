@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Godo.Helper;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -19,7 +20,7 @@ namespace Godo
         }
 
         string directory = Directory.GetCurrentDirectory();
-        bool[] options = new bool[61];
+        bool[] options = new bool[100];
         Random rnd = new Random();
         int seed;
 
@@ -93,12 +94,12 @@ namespace Godo
 
                     using (StreamWriter w = File.AppendText(seedFile))
                     {
-                        AllMethods.Log(seed, w);
+                        Misc.Log(seed, w);
                     }
 
                     using (StreamReader r = File.OpenText(seedFile))
                     {
-                        AllMethods.DumpLog(r);
+                        Misc.DumpLog(r);
                     }
                 }
                 catch
@@ -231,6 +232,10 @@ namespace Godo
             {
                 options[24] = true;
             }
+            if (chkEnemyModelsRisky.Checked)
+            {
+                options[61] = true;
+            }
             if (chkBattleBG.Checked)
             {
                 options[25] = true;
@@ -317,7 +322,7 @@ namespace Godo
             }
 
             // Tuning & Hacks - Some used to be in Enemy Data and are higher up in the list
-            if(chkPovertyMode.Checked)
+            if (chkPovertyMode.Checked)
             {
                 options[46] = true;
             }
