@@ -116,8 +116,6 @@ E:\FF7 Hub\Tool Repos\Godo Rando\Rando Project Repos\Godo-master\Godo-master\God
 E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.exe.config
 E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.exe
 E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.pdb
-E:\Documents\GitHub\Godo\Godo\bin\Debug\DotNetZip.dll
-E:\Documents\GitHub\Godo\Godo\bin\Debug\DotNetZip.pdb
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.AssemblyReference.cache
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.exe.config
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.EnemySkills.resources
@@ -145,6 +143,5 @@ E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.Spells.resources
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.Summons.resources
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.GenerateResource.cache
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.CoreCompileInputs.cache
-E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.Up2Date
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.exe
 E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.pdb
