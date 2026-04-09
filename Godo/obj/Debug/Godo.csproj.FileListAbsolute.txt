@@ -113,3 +113,38 @@ E:\FF7 Hub\Tool Repos\Godo Rando\Rando Project Repos\Godo-master\Godo-master\God
 E:\FF7 Hub\Tool Repos\Godo Rando\Rando Project Repos\Godo-master\Godo-master\Godo\obj\Debug\Godo.exe
 E:\FF7 Hub\Tool Repos\Godo Rando\Rando Project Repos\Godo-master\Godo-master\Godo\obj\Debug\Godo.pdb
 E:\FF7 Hub\Tool Repos\Godo Rando\Rando Project Repos\Godo-master\Godo-master\Godo\obj\Debug\Godo.csproj.AssemblyReference.cache
+E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.exe.config
+E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.exe
+E:\Documents\GitHub\Godo\Godo\bin\Debug\Godo.pdb
+E:\Documents\GitHub\Godo\Godo\bin\Debug\DotNetZip.dll
+E:\Documents\GitHub\Godo\Godo\bin\Debug\DotNetZip.pdb
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.AssemblyReference.cache
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.exe.config
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.EnemySkills.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsBalancing.Balancing.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsChallenges.Challenges.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEnemyData.EnemyAttacks.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEnemyData.EnemyItems.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEnemyData.EnemyStats.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEnemyData.Formations.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEnemyData.ModelSwap.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEquipmentData.Accessories.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEquipmentData.Armour.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEquipmentData.Materia.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsEquipmentData.Weapons.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsInitialisationData.CharacterStats.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsInitialisationData.LimitBreaks.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsInitialisationData.StartingEquipment.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsItemData.AttackItems.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsItemData.HealItems.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsItemData.StatusItems.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.FormsSpecialHacks.SpecialHacks.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.MainForm.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.Properties.Resources.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.Spells.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.Summons.resources
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.GenerateResource.cache
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.CoreCompileInputs.cache
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.csproj.Up2Date
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.exe
+E:\Documents\GitHub\Godo\Godo\obj\Debug\Godo.pdb

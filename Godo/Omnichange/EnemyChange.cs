@@ -73,49 +73,37 @@ namespace Godo.Omnichange
         }
 
 
-        public static byte AdjustLevel(byte baseStat, int sceneID, int enemySlot, bool toughFlag, Random rnd)
+        // As enemies are mostly ordered by progression through the story, their Scene ID can be used as the basis to establish scaling.
+        // However, there are some stray formations and debug formations featuring actual enemies that need to be handled.
+        // Also, World Map enemies appear above Field Map enemies in the ordering so this also needs to be handled.
+        // The first encounter in the game is at ID 75 which is where scaling will start from.
+        public static int SceneIdAdjust(int sceneID, int enemySlot)
         {
-            // Current formula; level increases by 0.5 (always rounds down) for each scene.
-
-            // Examples of formula output
-            // First enemies encountered on the first field will be Lv.1
-            // Last boss of Midgar, Motorball, will be roughly Lv.22
-            // Enemies in Nibelheim World Map will be roughly Lv.28
-            // Enemies inside Shinra Mansion will be roughly Lv.30
-            // Final boss of the game, Safer Sephiroth, will be Lv.78
-
-            int divisor = 2;
-            if(sceneID == 5 || sceneID == 6)
+            if (sceneID == 5 || sceneID == 6)
             {
                 // Unused Mighty Grunt encounter; given first actual appearance sceneID to prevent misbalancing
                 // as the enemy consistency will prevent the later instances from being given intended values
                 sceneID = 104;
-                divisor = 5;
             }
             else if (sceneID == 6)
             {
                 // Unused Adamantaimai encounter
-                sceneID = 44;
-                sceneID += 107;
-                divisor = 5;
+                sceneID = 151;
             }
             else if (sceneID == 7 || sceneID == 62 || sceneID == 63 || sceneID == 64)
             {
                 // Unused Grunt encounters
                 sceneID = 77;
-                divisor = 5;
             }
             else if (sceneID == 67 || sceneID == 68 || sceneID == 69 || sceneID == 72)
             {
                 // World Map Mystery Ninja & CMD Grand Horn encounters
                 sceneID = 127;
-                divisor = 5;
             }
             else if (sceneID < 75)
             {
                 // World Map enemies
                 sceneID += 107;
-                divisor = 5;
             }
             else if (sceneID == 235)
             {
@@ -133,11 +121,31 @@ namespace Godo.Omnichange
                 // being affected by this clause as both occupy the same scene ID
                 sceneID += 137;
             }
-            else
-            {
-                // Field Map enemies
-                sceneID -= 74;
-            }
+
+            // This final adjustment is so that we're effectively treating SceneID 75 as 1 for scaling
+            sceneID -= 74;
+
+            return sceneID;
+        }
+
+
+        public static byte AdjustLevel(byte baseStat, int sceneID, int enemySlot, bool toughFlag, Random rnd)
+        {
+            // Current formula; level increases by 0.5 (always rounds down) for each scene.
+
+            // Examples of formula output
+            // First enemies encountered on the first field will be Lv.1
+            // Last boss of Midgar, Motorball, will be Lv.21
+            //      Scene ID 117, -74, /2, = 21.5 (21)
+            // Enemies in Nibelheim World Map will be roughly Lv.28
+            // Enemies inside Shinra Mansion will be roughly Lv.30
+            // Final boss of the game, Safer Sephiroth, will be Lv.78
+            //      Scene ID 231, -74, /2, = 78.5 (78)
+
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
+            // ToDo; hard option reduces this divisor for higher level enemies
+            int divisor = 2;
 
             var newStat = sceneID / divisor;
             if (newStat == 0)
@@ -150,6 +158,8 @@ namespace Godo.Omnichange
 
         public static byte AdjustSpeed(byte baseStat, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             // Disc 1 - Midgar
             int newStat = 50;
 
@@ -202,6 +212,8 @@ namespace Godo.Omnichange
             // Lucky Dodge: Luck/4 chance to evade any ability with a physical-set damage formula
             // Maxed at 255, Luck grants a 63% chance to land critical hits + dodge physical abilities.
 
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             int newStat;
             if (sceneID >= 75 && sceneID <= 82)
             {
@@ -225,6 +237,8 @@ namespace Godo.Omnichange
 
         public static byte AdjustEvade(byte baseStat, int statModifier, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             int newStat;
             if (sceneID >= 75 && sceneID <= 82)
             {
@@ -248,6 +262,8 @@ namespace Godo.Omnichange
 
         public static byte AdjustStrength(byte baseStat, int statModifier, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             // Disc 1 - Midgar
             int newStat = 30;
 
@@ -302,6 +318,8 @@ namespace Godo.Omnichange
 
         public static byte AdjustDefence(byte baseStat, int statModifier, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             // Disc 1 - Midgar
             int newStat = 20;
 
@@ -354,6 +372,9 @@ namespace Godo.Omnichange
         public static byte AdjustMagic(byte baseStat, int statModifier, int sceneID, int enemySlot, int level,
             bool toughFlag, Random rnd)
         {
+
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             // Disc 1 - Midgar
             int newStat = 20;
 
@@ -408,6 +429,8 @@ namespace Godo.Omnichange
 
         public static byte AdjustMagicDefence(byte baseStat, int statModifier, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
+            sceneID = SceneIdAdjust(sceneID, enemySlot);
+
             // Disc 1 - Midgar
             int newStat = 20;
 
@@ -557,7 +580,7 @@ namespace Godo.Omnichange
                 if (toughFlag)
                 {
                     int selectType;
-                    // Carry Armour
+                    // Carry Armour onwards
                     if (sceneID >= 195)
                     {
                         selectType = rnd.Next(0, 4);
@@ -580,7 +603,7 @@ namespace Godo.Omnichange
                                 break;
                         }
                     }
-                    // Cave of the Gi
+                    // Cave of the Gi onwards
                     else if (sceneID >= 135)
                     {
                         selectType = rnd.Next(0, 6);
@@ -608,6 +631,7 @@ namespace Godo.Omnichange
                     }
                     else
                     {
+                        // Before Cave of the Gi
                         selectType = rnd.Next(0, 3);
                         switch (selectType)
                         {
