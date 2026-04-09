@@ -466,6 +466,8 @@ namespace Godo.Infrastructure
             // Step 2: Get the compressed data, uncompress it, and then randomise it
             while (r < 27)
             {
+                if(r == 25)
+                { }
                 int bytesRead;
                 int size = jaggedKernelInfo[o][1];
                 int textSize = 0; // Used to keep track of size of text sections for later
@@ -681,6 +683,9 @@ namespace Godo.Infrastructure
                             textWrite.Read(uncompressedKernel, 4, (int)kernelTextFile.Length);
                         }
 
+                        // Issue here when the kernel2 gets too big, something is going awry and we're ending up going
+                        // past the array size, resulting in an error. It's likely the 'Too Big' logic knocking the
+                        // headers out or something when it dips in for regular sections
                         uncompressedKernel.CopyTo(textData, indexPosition);
                         indexPosition += uncompressedKernel.Length;
                         jaggedKernelInfo[o][1] = uncompressedKernel.Length - 4;
