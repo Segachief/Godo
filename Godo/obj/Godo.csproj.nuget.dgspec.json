@@ -1,29 +1,32 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Practice\\Godo\\Godo\\Godo.csproj": {}
+    "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj": {}
   },
   "projects": {
-    "D:\\Practice\\Godo\\Godo\\Godo.csproj": {
+    "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Practice\\Godo\\Godo\\Godo.csproj",
+        "projectUniqueName": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj",
         "projectName": "Godo",
-        "projectPath": "D:\\Practice\\Godo\\Godo\\Godo.csproj",
-        "packagesPath": "C:\\Users\\stewart.melville\\.nuget\\packages\\",
-        "outputPath": "D:\\Practice\\Godo\\Godo\\obj\\",
+        "projectPath": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj",
+        "packagesPath": "C:\\Users\\SegaChief\\.nuget\\packages\\",
+        "outputPath": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
+        "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
+        ],
         "configFilePaths": [
-          "C:\\Users\\stewart.melville\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\SegaChief\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
         "originalTargetFrameworks": [
           "net472"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "http://stardestroyer/nuget": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,6 +47,9 @@
       },
       "runtimes": {
         "win": {
+          "#import": []
+        },
+        "win-arm64": {
           "#import": []
         },
         "win-x64": {

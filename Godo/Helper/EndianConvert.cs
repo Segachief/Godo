@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Godo.Helper
 {
-    public class EndianConvert
+    static class EndianConvert // used to be public class, changed to static to add WriteInt methods. Change back if issues.
     {
 
         // This converts little endian values to int
@@ -33,8 +33,33 @@ namespace Godo.Helper
                  | data[startIndex - 4];
         }
 
+        public static void WriteInt(byte[] data, int offset, int value)
+        {
+            data[offset + 0] = (byte)(value & 0xff);
+            data[offset + 1] = (byte)((value >> 8) & 0xff);
+            data[offset + 2] = (byte)((value >> 16) & 0xff);
+            data[offset + 3] = (byte)((value >> 24) & 0xff);
+        }
+
+        public static void WriteInt(this System.IO.Stream s, int i)
+        {
+            var data = BitConverter.GetBytes(i);
+            s.Write(data, 0, 4);
+        }
+
         // This converts a ulong value (16-bit number) to a 2-byte little endian value (8-bit per byte)
         public static byte[] GetLittleEndianConvert(ulong value)
+        {
+            byte[] bytes = BitConverter.GetBytes(value);
+
+            // If it was big endian, reverse it
+            if (!BitConverter.IsLittleEndian)
+                Array.Reverse(bytes);
+            return bytes;
+        }
+
+        // This converts an int value (32-bit number) to a 4-byte little endian value (8-bit per byte)
+        public static byte[] GetLittleEndianIntConvert(int value)
         {
             byte[] bytes = BitConverter.GetBytes(value);
 

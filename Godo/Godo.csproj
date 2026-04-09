@@ -64,26 +64,244 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AllMethods.cs" />
+    <Compile Include="FormsAttackData\EnemySkills.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsAttackData\EnemySkills.Designer.cs">
+      <DependentUpon>EnemySkills.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsBalancing\Balancing.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsBalancing\Balancing.Designer.cs">
+      <DependentUpon>Balancing.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsChallenges\Challenges.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsChallenges\Challenges.Designer.cs">
+      <DependentUpon>Challenges.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyAttacks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyAttacks.Designer.cs">
+      <DependentUpon>EnemyAttacks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyItems.Designer.cs">
+      <DependentUpon>EnemyItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyStats.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEnemyData\EnemyStats.Designer.cs">
+      <DependentUpon>EnemyStats.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEnemyData\Formations.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEnemyData\Formations.Designer.cs">
+      <DependentUpon>Formations.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEnemyData\ModelSwap.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEnemyData\ModelSwap.Designer.cs">
+      <DependentUpon>ModelSwap.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Accessories.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Accessories.Designer.cs">
+      <DependentUpon>Accessories.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Armour.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Armour.Designer.cs">
+      <DependentUpon>Armour.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Materia.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Materia.Designer.cs">
+      <DependentUpon>Materia.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Weapons.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsEquipmentData\Weapons.Designer.cs">
+      <DependentUpon>Weapons.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsInitialisationData\CharacterStats.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsInitialisationData\CharacterStats.Designer.cs">
+      <DependentUpon>CharacterStats.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsInitialisationData\LimitBreaks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsInitialisationData\LimitBreaks.Designer.cs">
+      <DependentUpon>LimitBreaks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsInitialisationData\StartingEquipment.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsInitialisationData\StartingEquipment.Designer.cs">
+      <DependentUpon>StartingEquipment.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsItemData\AttackItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsItemData\AttackItems.Designer.cs">
+      <DependentUpon>AttackItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsItemData\HealItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsItemData\HealItems.Designer.cs">
+      <DependentUpon>HealItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsItemData\StatusItems.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsItemData\StatusItems.Designer.cs">
+      <DependentUpon>StatusItems.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsSpecialHacks\SpecialHacks.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsSpecialHacks\SpecialHacks.Designer.cs">
+      <DependentUpon>SpecialHacks.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Helper\EnemyHelper.cs" />
+    <Compile Include="Helper\ItemHelper.cs" />
+    <Compile Include="Helper\AccessoryStrings.cs" />
+    <Compile Include="Helper\ElementStrings.cs" />
+    <Compile Include="Helper\WeaponArmourStrings.cs" />
+    <Compile Include="Infrastructure\Kernel2TextCompressor.cs" />
+    <Compile Include="Helper\Lzs.cs" />
+    <Compile Include="Indexing\ItemIndex.cs" />
+    <Compile Include="Indexing\StatusAilmentIndex.cs" />
+    <Compile Include="Infrastructure\Kernel\ItemData.cs" />
+    <Compile Include="Infrastructure\KernelTextRewriter.cs" />
+    <Compile Include="Infrastructure\Scene\AttackNames.cs" />
+    <Compile Include="Infrastructure\Scene\AttackData.cs" />
+    <Compile Include="Infrastructure\Scene\EnemyData.cs" />
+    <Compile Include="Infrastructure\Scene\BattleFormation.cs" />
+    <Compile Include="Infrastructure\Scene\CameraPlacement.cs" />
+    <Compile Include="Infrastructure\Scene\Formation.cs" />
+    <Compile Include="Omnichange\ItemChange.cs" />
+    <Compile Include="Omnichange\CharacterChange.cs" />
+    <Compile Include="Omnichange\AccessoryChange.cs" />
+    <Compile Include="Omnichange\EnemyChange.cs" />
+    <Compile Include="Omnichange\APChange.cs" />
+    <Compile Include="Omnichange\ArmourChange.cs" />
+    <Compile Include="Omnichange\CriticalChange.cs" />
+    <Compile Include="Omnichange\MPChange.cs" />
+    <Compile Include="Helper\AnimAssignment.cs" />
+    <Compile Include="Omnichange\AccuracyChange.cs" />
     <Compile Include="Helper\EndianConvert.cs" />
-    <Compile Include="Helper\FormulaChange.cs" />
-    <Compile Include="Helper\LimitIndex.cs" />
-    <Compile Include="Helper\MateriaIndex.cs" />
+    <Compile Include="Omnichange\WeaponChange.cs" />
+    <Compile Include="Omnichange\FormulaChange.cs" />
+    <Compile Include="Indexing\MateriaIndex.cs" />
     <Compile Include="Helper\Misc.cs" />
-    <Compile Include="Helper\ModelFilters.cs" />
-    <Compile Include="Helper\SpellIndex.cs" />
-    <Compile Include="Indexer.cs" />
-    <Compile Include="GZipper.cs" />
+    <Compile Include="Indexing\SpellIndex.cs" />
+    <Compile Include="Indexing\AttackTypeIndex.cs" />
+    <Compile Include="Infrastructure\GZipper.cs" />
+    <Compile Include="Indexing\LimitIndex.cs" />
+    <Compile Include="Indexing\CameraIndex.cs" />
+    <Compile Include="Infrastructure\Kernel\EquipmentData\AccessoryData.cs" />
+    <Compile Include="Infrastructure\Kernel\EquipmentData\ArmourData.cs" />
+    <Compile Include="Infrastructure\Kernel\CommandData.cs" />
+    <Compile Include="Infrastructure\Kernel\InitialisationData\Initialisation.cs" />
+    <Compile Include="Infrastructure\Kernel\InitialisationData\GrowthAndLookUpTable.cs" />
+    <Compile Include="Infrastructure\Kernel\MateriaData.cs" />
+    <Compile Include="Infrastructure\Kernel\SpellData.cs" />
+    <Compile Include="Infrastructure\Kernel\EquipmentData\WeaponData.cs" />
     <Compile Include="MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
     <Compile Include="MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Kernel.cs" />
+    <Compile Include="Helper\ModelFilters.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Scene.cs" />
+    <Compile Include="Infrastructure\SceneProcessing.cs" />
+    <Compile Include="FormsAttackData\Spells.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsAttackData\Spells.Designer.cs">
+      <DependentUpon>Spells.cs</DependentUpon>
+    </Compile>
+    <Compile Include="FormsAttackData\Summons.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormsAttackData\Summons.Designer.cs">
+      <DependentUpon>Summons.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="FormsAttackData\EnemySkills.resx">
+      <DependentUpon>EnemySkills.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsBalancing\Balancing.resx">
+      <DependentUpon>Balancing.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsChallenges\Challenges.resx">
+      <DependentUpon>Challenges.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEnemyData\EnemyAttacks.resx">
+      <DependentUpon>EnemyAttacks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEnemyData\EnemyItems.resx">
+      <DependentUpon>EnemyItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEnemyData\EnemyStats.resx">
+      <DependentUpon>EnemyStats.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEnemyData\Formations.resx">
+      <DependentUpon>Formations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEnemyData\ModelSwap.resx">
+      <DependentUpon>ModelSwap.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEquipmentData\Accessories.resx">
+      <DependentUpon>Accessories.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEquipmentData\Armour.resx">
+      <DependentUpon>Armour.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEquipmentData\Materia.resx">
+      <DependentUpon>Materia.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsEquipmentData\Weapons.resx">
+      <DependentUpon>Weapons.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsInitialisationData\CharacterStats.resx">
+      <DependentUpon>CharacterStats.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsInitialisationData\LimitBreaks.resx">
+      <DependentUpon>LimitBreaks.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsInitialisationData\StartingEquipment.resx">
+      <DependentUpon>StartingEquipment.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsItemData\AttackItems.resx">
+      <DependentUpon>AttackItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsItemData\HealItems.resx">
+      <DependentUpon>HealItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsItemData\StatusItems.resx">
+      <DependentUpon>StatusItems.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsSpecialHacks\SpecialHacks.resx">
+      <DependentUpon>SpecialHacks.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
     </EmbeddedResource>
@@ -96,6 +314,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <EmbeddedResource Include="FormsAttackData\Spells.resx">
+      <DependentUpon>Spells.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormsAttackData\Summons.resx">
+      <DependentUpon>Summons.cs</DependentUpon>
+    </EmbeddedResource>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -129,5 +353,6 @@
   <ItemGroup>
     <Content Include="godoicon.ico" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

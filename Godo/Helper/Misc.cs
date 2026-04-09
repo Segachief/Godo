@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Eventing.Reader;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -9,18 +11,6 @@ namespace Godo.Helper
 {
     public class Misc
     {
-        public static byte PickEquipmentStatus(Random seed)
-        {
-            // List of valid damage formulae
-            byte[] animSet = { 0x00, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x09, 0x0A, 0x0B,
-                                0x0C, 0x0D, 0x0E, 0x12, 0x15, 0x16, 0x17, 0x19, 0x1A, 0xFF};
-
-            // Grab a random entry from the array we made
-            byte pickAnim = animSet[seed.Next(animSet.Length)];
-
-            return pickAnim;
-        }
-
         public static void Log(int logMessage, TextWriter w)
         {
             w.Write("\r\nSeed Entry : ");
@@ -56,6 +46,15 @@ namespace Godo.Helper
             nameBytes[0] -= 0x20; // Capitalises the first letter
 
             return nameBytes;
+        }
+
+        public static int CapIntForByte(int value)
+        {
+            if (value > 255)
+            {
+                value = 255;
+            }
+            return value;
         }
     }
 }
