@@ -1,24 +1,27 @@
 {
   "format": 1,
   "restore": {
-    "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj": {}
+    "E:\\Documents\\GitHub\\Godo\\Godo\\Godo.csproj": {}
   },
   "projects": {
-    "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj": {
+    "E:\\Documents\\GitHub\\Godo\\Godo\\Godo.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj",
+        "projectUniqueName": "E:\\Documents\\GitHub\\Godo\\Godo\\Godo.csproj",
         "projectName": "Godo",
-        "projectPath": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\Godo.csproj",
+        "projectPath": "E:\\Documents\\GitHub\\Godo\\Godo\\Godo.csproj",
         "packagesPath": "C:\\Users\\SegaChief\\.nuget\\packages\\",
-        "outputPath": "E:\\FF7 Hub\\Tool Repos\\Godo Rando\\Rando Project Repos\\Godo-master\\Godo-master\\Godo\\obj\\",
+        "outputPath": "E:\\Documents\\GitHub\\Godo\\Godo\\obj\\",
         "projectStyle": "PackageReference",
         "skipContentFileWrite": true,
+        "UsingMicrosoftNETSdk": false,
         "fallbackFolders": [
+          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages",
           "C:\\Program Files (x86)\\Microsoft\\Xamarin\\NuGet\\"
         ],
         "configFilePaths": [
           "C:\\Users\\SegaChief\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Xamarin.Offline.config"
         ],
@@ -33,17 +36,15 @@
           "net472": {
             "projectReferences": {}
           }
+        },
+        "restoreAuditProperties": {
+          "enableAudit": "true",
+          "auditLevel": "low",
+          "auditMode": "direct"
         }
       },
       "frameworks": {
-        "net472": {
-          "dependencies": {
-            "DotNetZip": {
-              "target": "Package",
-              "version": "[1.13.4, )"
-            }
-          }
-        }
+        "net472": {}
       },
       "runtimes": {
         "win": {
