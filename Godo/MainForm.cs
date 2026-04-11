@@ -93,7 +93,7 @@ namespace Godo
         public bool[] specialHackOptions { get; set; }
         public int[] specialHackParameters { get; set; }
 
-        readonly bool[] _languageOptions = new bool[4];
+        readonly bool[] _languageOptions = new bool[5];
         readonly bool[] _rngOption = new bool[1];
         #endregion
 
@@ -101,9 +101,9 @@ namespace Godo
         readonly string _directory = Directory.GetCurrentDirectory();
         readonly string _kernelStrings = Directory.GetCurrentDirectory() + "\\Kernel Strings";
         readonly string _kernel2Strings = Directory.GetCurrentDirectory() + "\\Kernel2 Strings";
-        readonly string _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
-        readonly string _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
-        readonly string _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
+        string _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
+        string _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
+        string _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
         readonly string _outputScene = Directory.GetCurrentDirectory() + "\\Output Files\\scene.bin";
         readonly string _outputKernel = Directory.GetCurrentDirectory() + "\\Output Files\\kernel.bin";
         readonly string _outputKernel2 = Directory.GetCurrentDirectory() + "\\Output Files\\kernel2.bin";
@@ -176,23 +176,45 @@ namespace Godo
                     if (chkEnglish.Checked)
                     {
                         _languageOptions[0] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
                     }
                     else if (chkFrench.Checked)
                     {
                         _languageOptions[1] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default French Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default French Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default French Files\\kernel2.bin";
                     }
                     else if (chkGerman.Checked)
                     {
                         _languageOptions[2] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default German Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default German Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default German Files\\kernel2.bin";
                     }
                     else if (chkSpanish.Checked)
                     {
                         _languageOptions[3] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\kernel2.bin";
+                    }
+                    else if (chkJapanese.Checked)
+                    {
+                        _languageOptions[4] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\kernel2.bin";
                     }
                     else
                     {
                         // Default to English if all options are unticked
                         _languageOptions[0] = true;
+                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
+                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
+                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
                     }
                     #endregion
 
@@ -593,6 +615,7 @@ namespace Godo
             chkFrench.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
+            chkJapanese.CheckState = CheckState.Unchecked;
         }
 
         private void chkFrench_CheckedChanged(object sender, EventArgs e)
@@ -600,6 +623,7 @@ namespace Godo
             chkEnglish.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
+            chkJapanese.CheckState = CheckState.Unchecked;
         }
 
         private void chkGerman_CheckedChanged(object sender, EventArgs e)
@@ -607,6 +631,7 @@ namespace Godo
             chkEnglish.CheckState = CheckState.Unchecked;
             chkFrench.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
+            chkJapanese.CheckState = CheckState.Unchecked;
         }
 
         private void chkSpanish_CheckedChanged(object sender, EventArgs e)
@@ -614,6 +639,14 @@ namespace Godo
             chkEnglish.CheckState = CheckState.Unchecked;
             chkFrench.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
+            chkJapanese.CheckState = CheckState.Unchecked;
+        }
+        private void chkJapanese_CheckedChanged_1(object sender, EventArgs e)
+        {
+            chkEnglish.CheckState = CheckState.Unchecked;
+            chkFrench.CheckState = CheckState.Unchecked;
+            chkGerman.CheckState = CheckState.Unchecked;
+            chkSpanish.CheckState = CheckState.Unchecked;
         }
         #endregion
 
@@ -630,5 +663,7 @@ namespace Godo
                 Kernel2TextCompressor.MiscDecompress(compressedMiscFile);
             }
         }
+
+
     }
 }

@@ -7,6 +7,223 @@ namespace Godo.Infrastructure
 {
     public class KernelTextRewriter
     {
+
+        public static void CommandDescriptionRewrite(bool[] languageOptions)
+        {
+            int r = 0; // Current Command ID being written for
+            int e = 0; // Counts byte position of the string being written
+            string commandStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin9";
+
+            //Each command string is stored as a separate array so it can have its length counted quickly
+            byte[][] commandStrings = new byte[32][];
+
+            // Starts with all the 2byte headers for each command; adds on string values later for total size
+
+            // Tracks the actual length used within each string (using FF terminator)
+            int[] stringSizes = new int[32];
+
+            // Tracks the size of the string to create a header offset for it
+            ulong stringSize = 0;
+
+            try
+            {
+                while (r < 32)
+                {
+                    // For space, I'm dummying out the descriptions of the commands with a single symbol
+                    commandStrings[r] = new byte[64];
+
+                    //commandStrings[r][e] = 0xD5; e++;
+                    commandStrings[r][e] = 0xFF; e++;
+                    stringSizes[r] = e;
+                    e = 0;
+                    r++;
+                }
+                r = 0;
+
+                using (var outputStream = File.Create(commandStringsFile))
+                {
+                    outputStream.Position = 0;
+
+                    // Loops until all string headers are written
+                    while (r < 32)
+                    {
+                        if (r != 0)
+                        {
+                            stringSize += (ulong)stringSizes[r - 1];
+                        }
+                        else
+                        {
+                            // First header always points to after the header block
+                            stringSize = 64;
+                        }
+
+                        var stringHead = EndianConvert.GetLittleEndianConvert(stringSize);
+
+                        // Takes the header data, converts it into a stream, and then appends it to the file-in-progress
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(stringHead, 0, 2);
+                        r++;
+                    }
+                    r = 0;
+                    while (r < 32)
+                    {
+                        // Writes in the new Command Description strings
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(commandStrings[r], 0, stringSizes[r]);
+                        r++;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Command Description Rewrite has encountered an issue");
+            }
+        }
+
+        public static void MateriaDescriptionRewrite(bool[] languageOptions)
+        {
+            int r = 0; // Current Materia ID being written for
+            int e = 0; // Counts byte position of the string being written
+            string materiaStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin15";
+
+            //Each command string is stored as a separate array so it can have its length counted quickly
+            byte[][] materiaStrings = new byte[96][];
+
+            // Starts with all the 2byte headers for each command; adds on string values later for total size
+
+            // Tracks the actual length used within each string (using FF terminator)
+            int[] stringSizes = new int[96];
+
+            // Tracks the size of the string to create a header offset for it
+            ulong stringSize = 0;
+
+            try
+            {
+                while (r < 96)
+                {
+                    // For space, I'm dummying out the descriptions of the commands with a single symbol
+                    materiaStrings[r] = new byte[64];
+
+                    //materiaStrings[r][e] = 0xD5; e++;
+                    materiaStrings[r][e] = 0xFF; e++;
+                    stringSizes[r] = e;
+                    e = 0;
+                    r++;
+                }
+                r = 0;
+
+                using (var outputStream = File.Create(materiaStringsFile))
+                {
+                    outputStream.Position = 0;
+
+                    // Loops until all string headers are written
+                    while (r < 96)
+                    {
+                        if (r != 0)
+                        {
+                            stringSize += (ulong)stringSizes[r - 1];
+                        }
+                        else
+                        {
+                            // First header always points to after the header block
+                            stringSize = 192;
+                        }
+
+                        var stringHead = EndianConvert.GetLittleEndianConvert(stringSize);
+
+                        // Takes the header data, converts it into a stream, and then appends it to the file-in-progress
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(stringHead, 0, 2);
+                        r++;
+                    }
+                    r = 0;
+                    while (r < 96)
+                    {
+                        // Writes in the new Materia Description strings
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(materiaStrings[r], 0, stringSizes[r]);
+                        r++;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Materia Description Rewrite has encountered an issue");
+            }
+        }
+
+        public static void KeyItemDescriptionRewrite(bool[] languageOptions)
+        {
+            int r = 0; // Current KeyItem Description ID being written for
+            int e = 0; // Counts byte position of the string being written
+            string materiaStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin16";
+
+            //Each command string is stored as a separate array so it can have its length counted quickly
+            byte[][] materiaStrings = new byte[64][];
+
+            // Starts with all the 2byte headers for each command; adds on string values later for total size
+
+            // Tracks the actual length used within each string (using FF terminator)
+            int[] stringSizes = new int[64];
+
+            // Tracks the size of the string to create a header offset for it
+            ulong stringSize = 0;
+
+            try
+            {
+                while (r < 64)
+                {
+                    // For space, I'm dummying out the descriptions of the commands with a single symbol
+                    materiaStrings[r] = new byte[64];
+
+                    //materiaStrings[r][e] = 0xD5; e++;
+                    materiaStrings[r][e] = 0xFF; e++;
+                    stringSizes[r] = e;
+                    e = 0;
+                    r++;
+                }
+                r = 0;
+
+                using (var outputStream = File.Create(materiaStringsFile))
+                {
+                    outputStream.Position = 0;
+
+                    // Loops until all string headers are written
+                    while (r < 64)
+                    {
+                        if (r != 0)
+                        {
+                            stringSize += (ulong)stringSizes[r - 1];
+                        }
+                        else
+                        {
+                            // First header always points to after the header block
+                            stringSize = 128;
+                        }
+
+                        var stringHead = EndianConvert.GetLittleEndianConvert(stringSize);
+
+                        // Takes the header data, converts it into a stream, and then appends it to the file-in-progress
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(stringHead, 0, 2);
+                        r++;
+                    }
+                    r = 0;
+                    while (r < 64)
+                    {
+                        // Writes in the new Materia Description strings
+                        outputStream.Position = outputStream.Length;
+                        outputStream.Write(materiaStrings[r], 0, stringSizes[r]);
+                        r++;
+                    }
+                }
+            }
+            catch
+            {
+                MessageBox.Show("Key Item Description Rewrite has encountered an issue");
+            }
+        }
+
         public static void WeaponDescriptionRewrite(byte[][] weaponAttributes, bool[] languageOptions)
         {
             int r = 0; // Current weapon ID being written for
@@ -163,13 +380,11 @@ namespace Godo.Infrastructure
                         // Print 2nd digit, with FF7 Unicode adjustment added
                         weaponStrings[r][e] = (byte)(weaponAttributes[r][1 + i * 2] + 0x10); e++;
 
-                        // Adds ', ' to the string if first stat being added
+                        // Adds ', ' to the string
                         if (i == 0)
                         {
-                            weaponStrings[r][e] = 0x0C;
-                            e++;
-                            weaponStrings[r][e] = 0x00;
-                            e++;
+                            weaponStrings[r][e] = 0x0C; e++;
+                            weaponStrings[r][e] = 0x00; e++;
                         }
                         i++;
                     }
@@ -178,10 +393,8 @@ namespace Godo.Infrastructure
                     if (weaponAttributes[r][11] != 0xFF)
                     {
                         // Adds ', ' to the string
-                        weaponStrings[r][e] = 0x0C;
-                        e++;
-                        weaponStrings[r][e] = 0x00;
-                        e++;
+                        weaponStrings[r][e] = 0x0C; e++;
+                        weaponStrings[r][e] = 0x00; e++;
 
                         byte[] statusString = {};
                         if (languageOptions[0])
@@ -339,7 +552,7 @@ namespace Godo.Infrastructure
             }
             catch
             {
-                MessageBox.Show("Weapon Rewrite has encountered an issue");
+                MessageBox.Show("Weapon Description Rewrite has encountered an issue");
             }
         }
 
@@ -594,7 +807,7 @@ namespace Godo.Infrastructure
             }
             catch
             {
-                MessageBox.Show("Armour Rewrite has encountered an issue");
+                MessageBox.Show("Armour Description Rewrite has encountered an issue");
             }
         }
 
@@ -905,7 +1118,7 @@ namespace Godo.Infrastructure
             }
             catch
             {
-                MessageBox.Show("Accessory Rewrite has encountered an issue");
+                MessageBox.Show("Accessory Description Rewrite has encountered an issue");
             }
         }
     }

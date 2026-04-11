@@ -79,6 +79,7 @@
             this.chkSpanish = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnMiscFileDecompress = new System.Windows.Forms.Button();
+            this.chkJapanese = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
             this.flowLayoutPanel4.SuspendLayout();
@@ -492,10 +493,11 @@
             this.flowLayoutPanel3.Controls.Add(this.chkFrench);
             this.flowLayoutPanel3.Controls.Add(this.chkGerman);
             this.flowLayoutPanel3.Controls.Add(this.chkSpanish);
+            this.flowLayoutPanel3.Controls.Add(this.chkJapanese);
             this.flowLayoutPanel3.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.flowLayoutPanel3.Location = new System.Drawing.Point(11, 37);
             this.flowLayoutPanel3.Name = "flowLayoutPanel3";
-            this.flowLayoutPanel3.Size = new System.Drawing.Size(115, 94);
+            this.flowLayoutPanel3.Size = new System.Drawing.Size(116, 116);
             this.flowLayoutPanel3.TabIndex = 32;
             // 
             // chkEnglish
@@ -565,6 +567,17 @@
             this.btnMiscFileDecompress.UseVisualStyleBackColor = true;
             this.btnMiscFileDecompress.Visible = false;
             this.btnMiscFileDecompress.Click += new System.EventHandler(this.btnMiscFileDecompress_Click);
+            // 
+            // chkJapanese
+            // 
+            this.chkJapanese.AutoSize = true;
+            this.chkJapanese.Location = new System.Drawing.Point(3, 95);
+            this.chkJapanese.Name = "chkJapanese";
+            this.chkJapanese.Size = new System.Drawing.Size(101, 17);
+            this.chkJapanese.TabIndex = 4;
+            this.chkJapanese.Text = "Japanese/仮名";
+            this.chkJapanese.UseVisualStyleBackColor = true;
+            this.chkJapanese.CheckedChanged += new System.EventHandler(this.chkJapanese_CheckedChanged_1);
             // 
             // MainForm
             // 
@@ -657,6 +670,7 @@
         private System.Windows.Forms.CheckBox chkSpanish;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnMiscFileDecompress;
+        private System.Windows.Forms.CheckBox chkJapanese;
     }
 }
 
