@@ -25,6 +25,7 @@ namespace Godo.Infrastructure
 
             // Tracks the size of the string to create a header offset for it
             ulong stringSize = 0;
+            byte[] parameterString = {0x1F, 0x1F, 0x1F};
 
             try
             {
@@ -36,59 +37,35 @@ namespace Godo.Infrastructure
 
                     // Can iterate up to 4 times to handle the 4 stat bonuses available for weapons
                     // Currently, only 2 bonuses are being applied
+                    // i must equal 0, 2, 4, 6 to represent the four stats, as the odd numbers are the VALUE of the stat bonus
                     while (i < 2)
                     {
-                        switch (weaponAttributes[r][0 + i * 2])
+                        if (languageOptions[0])
                         {
-                            // STR
-                            case 0:
-                                weaponStrings[r][e] = 0x33; e++;
-                                weaponStrings[r][e] = 0x34; e++;
-                                weaponStrings[r][e] = 0x32; e++;
-                                break;
-
-                            // VIT
-                            case 1:
-                                weaponStrings[r][e] = 0x36; e++;
-                                weaponStrings[r][e] = 0x29; e++;
-                                weaponStrings[r][e] = 0x34; e++;
-                                break;
-
-                            // MAG
-                            case 2:
-                                weaponStrings[r][e] = 0x2D; e++;
-                                weaponStrings[r][e] = 0x21; e++;
-                                weaponStrings[r][e] = 0x27; e++;
-                                break;
-
-                            // SPR
-                            case 3:
-                                weaponStrings[r][e] = 0x33; e++;
-                                weaponStrings[r][e] = 0x30; e++;
-                                weaponStrings[r][e] = 0x32; e++;
-                                break;
-
-                            // DEX
-                            case 4:
-                                weaponStrings[r][e] = 0x24; e++;
-                                weaponStrings[r][e] = 0x25; e++;
-                                weaponStrings[r][e] = 0x38; e++;
-                                break;
-
-                            // LCK
-                            case 5:
-                                weaponStrings[r][e] = 0x2C; e++;
-                                weaponStrings[r][e] = 0x23; e++;
-                                weaponStrings[r][e] = 0x2B; e++;
-                                break;
-
-                            // ???, if this is printed in-game then something's wrong
-                            default:
-                                weaponStrings[r][e] = 0x1F; e++;
-                                weaponStrings[r][e] = 0x1F; e++;
-                                weaponStrings[r][e] = 0x1F; e++;
-                                break;
+                            parameterString = WeaponArmourStrings.EnglishEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
+                        else if (languageOptions[1])
+                        {
+                            parameterString = WeaponArmourStrings.FrenchEquipmentParameterString(weaponAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[2])
+                        {
+                            parameterString = WeaponArmourStrings.GermanEquipmentParameterString(weaponAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[3])
+                        {
+                            parameterString = WeaponArmourStrings.SpanishEquipmentParameterString(weaponAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[4])
+                        {
+                            parameterString = WeaponArmourStrings.JapaneseEquipmentParameterString(weaponAttributes, r, i * 2);
+                        }
+
+                        while (parameterString.Length > c)
+                        {
+                            weaponStrings[r][e] = parameterString[c]; e++; c++;
+                        }
+                        c = 0;
 
                         // Adds '+' to the string
                         weaponStrings[r][e] = 0x0B; e++;
@@ -183,7 +160,7 @@ namespace Godo.Infrastructure
                         weaponStrings[r][e] = 0x00;
                         e++;
 
-                        byte[] statusString = {};
+                        byte[] statusString = { };
                         if (languageOptions[0])
                         {
                             statusString = WeaponArmourStrings.EnglishWeaponArmourStatusString(weaponAttributes, r, 11);
@@ -200,6 +177,10 @@ namespace Godo.Infrastructure
                         {
                             statusString = WeaponArmourStrings.SpanishWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
+                        else if (languageOptions[4])
+                        {
+                            statusString = WeaponArmourStrings.JapaneseWeaponArmourStatusString(weaponAttributes, r, 11);
+                        }
 
                         while (statusString.Length > c)
                         {
@@ -214,11 +195,54 @@ namespace Godo.Infrastructure
                         weaponStrings[r][e] = 0x00; e++;
 
                         // Adds Crit+ to the string
-                        weaponStrings[r][e] = 0x23; e++;
-                        weaponStrings[r][e] = 0x52; e++;
-                        weaponStrings[r][e] = 0x49; e++;
-                        weaponStrings[r][e] = 0x54; e++;
-                        weaponStrings[r][e] = 0x0B; e++;
+                        if (languageOptions[0]) // English
+                        {
+                            weaponStrings[r][e] = 0x23; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
+                        else if (languageOptions[1]) // French
+                        {
+                            weaponStrings[r][e] = 0x23; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
+                        else if (languageOptions[2]) // German
+                        {
+                            weaponStrings[r][e] = 0x2B; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
+                        else if (languageOptions[3]) // Spanish
+                        {
+                            weaponStrings[r][e] = 0x23; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
+                        else if (languageOptions[4]) // Japanese
+                        {
+                            weaponStrings[r][e] = 0x23; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
+                        else // Default to English
+                        {
+                            weaponStrings[r][e] = 0x23; e++;
+                            weaponStrings[r][e] = 0x52; e++;
+                            weaponStrings[r][e] = 0x49; e++;
+                            weaponStrings[r][e] = 0x54; e++;
+                            weaponStrings[r][e] = 0x0B; e++;
+                        }
 
                         if (weaponAttributes[r][8] < 0x0A)
                         {
@@ -328,7 +352,7 @@ namespace Godo.Infrastructure
                         r++;
                     }
                     r = 0;
-                    while(r < 128)
+                    while (r < 128)
                     {
                         // Writes in the new weapon Description strings
                         outputStream.Position = outputStream.Length;
