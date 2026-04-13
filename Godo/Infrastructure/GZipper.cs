@@ -528,6 +528,9 @@ namespace Godo.Infrastructure
                     case 0:
                         //Disabled until later phase
                         //CommandData.RandomiseSection0(uncompressedKernel, challengeOptions);
+
+                        //Rewriting descriptions to make space
+                        KernelTextRewriter.CommandDescriptionRewrite(languageOptions);
                         break;
 
                     case 1:
@@ -567,6 +570,7 @@ namespace Godo.Infrastructure
                         //    statusItemOptions, statusItemParameters,
                         //    challengeOptions,
                         //    rnd);
+                        KernelTextRewriter.KeyItemDescriptionRewrite(languageOptions);
                         break;
 
                     case 5:
@@ -592,6 +596,7 @@ namespace Godo.Infrastructure
 
                     case 8:
                         //MateriaData.RandomiseMateria(uncompressedKernel, materiaOptions, materiaParameters, challengeOptions, rnd);
+                        KernelTextRewriter.MateriaDescriptionRewrite(languageOptions);
                         break;
 
                     // Handles text sections
@@ -656,7 +661,9 @@ namespace Godo.Infrastructure
                             textWrite.Seek(0, SeekOrigin.Begin);
                             textWrite.Read(uncompressedKernel, 4, (int)newTextFile.Length);
                         }
-                        else if (tooBig != true) // Taken from Kernel2
+                        // The 'too big' check has been disabled as it can lead to failure
+                        //else if (tooBig != true) // Taken from Kernel2
+                        else
                         {
                             byte[] sectionHeader = BitConverter.GetBytes(kernel2TextFile.Length);
 
@@ -669,19 +676,19 @@ namespace Godo.Infrastructure
                             textWrite.Seek(0, SeekOrigin.Begin);
                             textWrite.Read(uncompressedKernel, 4, (int)kernel2TextFile.Length);
                         }
-                        else // Taken from Kernel
-                        {
-                            byte[] sectionHeader = BitConverter.GetBytes(uncompressedKernel.Length);
+                        //else // Taken from Kernel
+                        //{
+                        //    byte[] sectionHeader = BitConverter.GetBytes(uncompressedKernel.Length);
 
-                            Array.Resize<byte>(ref uncompressedKernel, (int)kernelTextFile.Length + 4);
-                            FileStream textWrite = new FileStream(kernelTextSection + r, FileMode.Open, FileAccess.Read);
-                            uncompressedKernel[0] = sectionHeader[0];
-                            uncompressedKernel[1] = sectionHeader[1];
-                            uncompressedKernel[2] = sectionHeader[2];
-                            uncompressedKernel[3] = sectionHeader[3];
-                            textWrite.Seek(0, SeekOrigin.Begin);
-                            textWrite.Read(uncompressedKernel, 4, (int)kernelTextFile.Length);
-                        }
+                        //    Array.Resize<byte>(ref uncompressedKernel, (int)kernelTextFile.Length + 4);
+                        //    FileStream textWrite = new FileStream(kernelTextSection + r, FileMode.Open, FileAccess.Read);
+                        //    uncompressedKernel[0] = sectionHeader[0];
+                        //    uncompressedKernel[1] = sectionHeader[1];
+                        //    uncompressedKernel[2] = sectionHeader[2];
+                        //    uncompressedKernel[3] = sectionHeader[3];
+                        //    textWrite.Seek(0, SeekOrigin.Begin);
+                        //    textWrite.Read(uncompressedKernel, 4, (int)kernelTextFile.Length);
+                        //}
 
                         // Issue here when the kernel2 gets too big, something is going awry and we're ending up going
                         // past the array size, resulting in an error. It's likely the 'Too Big' logic knocking the
