@@ -450,17 +450,17 @@ namespace Godo.Helper
             {
                 // Drain
                 case 0:
-                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E, 0x45, 0x52 };
+                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E };
                     break;
 
                 // Null
                 case 1:
-                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4F };
+                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4C };
                     break;
 
                 // Half
                 case 2:
-                    elementTypeString = new byte[] { 0x3C, 0x2D, 0x49, 0x54, 0x41, 0x44 };
+                    elementTypeString = new byte[] { 0x3C, 0x28, 0x41, 0x4C, 0x46 };
                     break;
 
                 /// Error, if this is printed in-game then something's wrong
