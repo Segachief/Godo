@@ -617,9 +617,9 @@ namespace Godo.Helper
                     statusString = new byte[] { 0x37, 0x55, 0x54 };
                     break;
 
-                // Confu/Vwirt
+                // Confu/Verwirr
                 case 6:
-                    statusString = new byte[] { 0x36, 0x57, 0x49, 0x52, 0x54 };
+                    statusString = new byte[] { 0x36, 0x45, 0x52, 0x57, 0x49, 0x52, 0x52 };
                     break;
 
                 // Silence/Stumm
