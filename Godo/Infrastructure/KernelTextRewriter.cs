@@ -259,23 +259,23 @@ namespace Godo.Infrastructure
                     {
                         if (languageOptions[0])
                         {
-                            parameterString = WeaponArmourStrings.EnglishEquipmentParameterString(weaponAttributes, r, i * 2);
+                            parameterString = EquipmentStrings.EnglishEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
                         else if (languageOptions[1])
                         {
-                            parameterString = WeaponArmourStrings.FrenchEquipmentParameterString(weaponAttributes, r, i * 2);
+                            parameterString = EquipmentStrings.FrenchEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
                         else if (languageOptions[2])
                         {
-                            parameterString = WeaponArmourStrings.GermanEquipmentParameterString(weaponAttributes, r, i * 2);
+                            parameterString = EquipmentStrings.GermanEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
                         else if (languageOptions[3])
                         {
-                            parameterString = WeaponArmourStrings.SpanishEquipmentParameterString(weaponAttributes, r, i * 2);
+                            parameterString = EquipmentStrings.SpanishEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
                         else if (languageOptions[4])
                         {
-                            parameterString = WeaponArmourStrings.JapaneseEquipmentParameterString(weaponAttributes, r, i * 2);
+                            parameterString = EquipmentStrings.JapaneseEquipmentParameterString(weaponAttributes, r, i * 2);
                         }
 
                         while (parameterString.Length > c)
@@ -376,23 +376,23 @@ namespace Godo.Infrastructure
                         byte[] statusString = { };
                         if (languageOptions[0])
                         {
-                            statusString = WeaponArmourStrings.EnglishWeaponArmourStatusString(weaponAttributes, r, 11);
+                            statusString = EquipmentStrings.EnglishWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
                         else if (languageOptions[1])
                         {
-                            statusString = WeaponArmourStrings.FrenchWeaponArmourStatusString(weaponAttributes, r, 11);
+                            statusString = EquipmentStrings.FrenchWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
                         else if (languageOptions[2])
                         {
-                            statusString = WeaponArmourStrings.GermanWeaponArmourStatusString(weaponAttributes, r, 11);
+                            statusString = EquipmentStrings.GermanWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
                         else if (languageOptions[3])
                         {
-                            statusString = WeaponArmourStrings.SpanishWeaponArmourStatusString(weaponAttributes, r, 11);
+                            statusString = EquipmentStrings.SpanishWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
                         else if (languageOptions[4])
                         {
-                            statusString = WeaponArmourStrings.JapaneseWeaponArmourStatusString(weaponAttributes, r, 11);
+                            statusString = EquipmentStrings.JapaneseWeaponArmourStatusString(weaponAttributes, r, 11);
                         }
 
                         while (statusString.Length > c)
@@ -597,6 +597,7 @@ namespace Godo.Infrastructure
             int[] stringSizes = new int[32];
 
             // Tracks the size of the string to create a header offset for it
+            byte[] parameterString = { 0x1F, 0x1F, 0x1F };
             ulong stringSize = 0;
 
             try
@@ -606,57 +607,32 @@ namespace Godo.Infrastructure
                     armourStrings[r] = new byte[64];
                     while (i < 2)
                     {
-                        switch (armourAttributes[r][0 + i * 2])
+                        if (languageOptions[0])
                         {
-                            // STR
-                            case 0:
-                                armourStrings[r][e] = 0x33; e++;
-                                armourStrings[r][e] = 0x34; e++;
-                                armourStrings[r][e] = 0x32; e++;
-                                break;
-
-                            // VIT
-                            case 1:
-                                armourStrings[r][e] = 0x36; e++;
-                                armourStrings[r][e] = 0x29; e++;
-                                armourStrings[r][e] = 0x34; e++;
-                                break;
-
-                            // MAG
-                            case 2:
-                                armourStrings[r][e] = 0x2D; e++;
-                                armourStrings[r][e] = 0x21; e++;
-                                armourStrings[r][e] = 0x27; e++;
-                                break;
-
-                            // SPR
-                            case 3:
-                                armourStrings[r][e] = 0x33; e++;
-                                armourStrings[r][e] = 0x30; e++;
-                                armourStrings[r][e] = 0x32; e++;
-                                break;
-
-                            // DEX
-                            case 4:
-                                armourStrings[r][e] = 0x24; e++;
-                                armourStrings[r][e] = 0x25; e++;
-                                armourStrings[r][e] = 0x38; e++;
-                                break;
-
-                            // LCK
-                            case 5:
-                                armourStrings[r][e] = 0x2C; e++;
-                                armourStrings[r][e] = 0x23; e++;
-                                armourStrings[r][e] = 0x2B; e++;
-                                break;
-
-                            // ???, if this is printed in-game then something's wrong
-                            default:
-                                armourStrings[r][e] = 0x1F; e++;
-                                armourStrings[r][e] = 0x1F; e++;
-                                armourStrings[r][e] = 0x1F; e++;
-                                break;
+                            parameterString = EquipmentStrings.EnglishEquipmentParameterString(armourAttributes, r, i * 2);
                         }
+                        else if (languageOptions[1])
+                        {
+                            parameterString = EquipmentStrings.FrenchEquipmentParameterString(armourAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[2])
+                        {
+                            parameterString = EquipmentStrings.GermanEquipmentParameterString(armourAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[3])
+                        {
+                            parameterString = EquipmentStrings.SpanishEquipmentParameterString(armourAttributes, r, i * 2);
+                        }
+                        else if (languageOptions[4])
+                        {
+                            parameterString = EquipmentStrings.JapaneseEquipmentParameterString(armourAttributes, r, i * 2);
+                        }
+
+                        while (parameterString.Length > c)
+                        {
+                            armourStrings[r][e] = parameterString[c]; e++; c++;
+                        }
+                        c = 0;
 
                         // Adds '+' to the string
                         armourStrings[r][e] = 0x0B; e++;
@@ -740,7 +716,6 @@ namespace Godo.Infrastructure
                     // Adds element name to string if it has a value
                     if (armourAttributes[r][8] != 0x00 || armourAttributes[r][9] != 0x00)
                     {
-                        // https://i.imgur.com/XhEFRsb.jpg
                         byte[] elementString = { };
                         byte[] elementTypeString = { };
                         if (languageOptions[0])

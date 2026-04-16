@@ -111,7 +111,7 @@ namespace Godo.Helper
                     elementString = new byte[] { 0x28, 0x49, 0x44, 0x44, 0x45, 0x4E };
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementString = new byte[] { 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -128,47 +128,47 @@ namespace Godo.Helper
                 case 0:
                     break;
 
-                // Fire
+                // Fire/Feu
                 case 1:
-                    elementString = new byte[] { 0x26, 0x49, 0x52, 0x45 };
+                    elementString = new byte[] { 0x26, 0x45, 0x55 };
                     break;
 
-                // Ice
+                // Ice/Glace
                 case 2:
-                    elementString = new byte[] { 0x29, 0x43, 0x45 };
+                    elementString = new byte[] { 0x27, 0x4C, 0x41, 0x43, 0x45 };
                     break;
 
-                // Lightning
+                // Lightning/Foudre
                 case 4:
-                    elementString = new byte[] { 0x22, 0x4F, 0x4C, 0x54 };
+                    elementString = new byte[] { 0x26, 0x4F, 0x55, 0x44, 0x52, 0x45 };
                     break;
 
-                // Earth
+                // Earth/Terre
                 case 8:
-                    elementString = new byte[] { 0x25, 0x41, 0x52, 0x54, 0x48 };
+                    elementString = new byte[] { 0x34, 0x45, 0x52, 0x52, 0x45 };
                     break;
 
                 // Poison
                 case 16:
-                    elementString = new byte[] { 0x22, 0x49, 0x4F };
+                    elementString = new byte[] { 0x30, 0x53, 0x4E };
                     break;
 
-                // Gravity
+                // Gravity/Gravité
                 case 32:
                     elementString = new byte[] { 0x27 };
                     break;
 
-                // Water
+                // Water/Eau
                 case 64:
-                    elementString = new byte[] { 0x37, 0x41, 0x54, 0x45, 0x52 };
+                    elementString = new byte[] { 0x25, 0x41, 0x55 };
                     break;
 
-                // Wind
+                // Wind/Vent
                 case 128:
-                    elementString = new byte[] { 0x37, 0x49, 0x4E, 0x44 };
+                    elementString = new byte[] { 0x36, 0x45, 0x4E, 54 };
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementString = new byte[] { 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -179,47 +179,47 @@ namespace Godo.Helper
                 case 0:
                     break;
 
-                // Holy
+                // Holy/Sacré
                 case 1:
-                    elementString = new byte[] { 0x28, 0x4F, 0x4C, 0x59 };
+                    elementString = new byte[] { 0x33, 0x41, 0x43, 0x52, 0x6E };
                     break;
 
-                // Restorative
+                // Restorative/Restaurateur
                 case 2:
                     elementString = new byte[] { 0x32 };
                     break;
 
-                // Cut
+                // Cut/Tranch
                 case 4:
-                    elementString = new byte[] { 0x23, 0x55, 0x54 };
+                    elementString = new byte[] { 0x34, 0x52, 0x41, 0x4E, 0x43, 0x48 };
                     break;
 
-                // Hit
+                // Hit/Contond
                 case 8:
-                    elementString = new byte[] { 0x28, 0x49, 0x54 };
+                    elementString = new byte[] { 0x26, 0x4F, 0x4E, 0x54, 0x4F, 0x4E, 0x44 };
                     break;
 
-                // Punch
+                // Punch/Perçant
                 case 16:
-                    elementString = new byte[] { 0x30, 0x55, 0x4E, 0x43, 0x48 };
+                    elementString = new byte[] { 0x30, 0x45, 0x52, 0x6D, 0x41, 0x4E, 0x54 };
                     break;
 
-                // Shoot
+                // Shoot/Tiré
                 case 32:
-                    elementString = new byte[] { 0x33, 0x48, 0x4F, 0x4F, 0x54 };
+                    elementString = new byte[] { 0x34, 0x49, 0x52, 0x6E };
                     break;
 
-                // Shout
+                // Shout/Hurl
                 case 64:
-                    elementString = new byte[] { 0x33, 0x48, 0x4F, 0x55, 0x54 };
+                    elementString = new byte[] { 0x28, 0x55, 0x52, 0x4C };
                     break;
 
-                // Hidden
+                // Hidden/Caché
                 case 128:
-                    elementString = new byte[] { 0x28, 0x49, 0x44, 0x44, 0x45, 0x4E };
+                    elementString = new byte[] { 0x23, 0x41, 0x43, 0x48, 0x6E};
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementString = new byte[] { 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -236,47 +236,47 @@ namespace Godo.Helper
                 case 0:
                     break;
 
-                // Fire
+                // Fire/Feur
                 case 1:
-                    elementString = new byte[] { 0x26, 0x49, 0x52, 0x45 };
+                    elementString = new byte[] { 0x26, 0x45, 0x55, 0x52 };
                     break;
 
-                // Ice
+                // Ice/Eis
                 case 2:
-                    elementString = new byte[] { 0x29, 0x43, 0x45 };
+                    elementString = new byte[] { 0x25, 0x49, 0x53 };
                     break;
 
-                // Lightning
+                // Lightning/Blitz
                 case 4:
-                    elementString = new byte[] { 0x22, 0x4F, 0x4C, 0x54 };
+                    elementString = new byte[] { 0x22, 0x4C, 0x49, 0x54, 0x5A };
                     break;
 
-                // Earth
+                // Earth/Erde
                 case 8:
-                    elementString = new byte[] { 0x25, 0x41, 0x52, 0x54, 0x48 };
+                    elementString = new byte[] { 0x25, 0x52, 0x44, 0x45 };
                     break;
 
-                // Poison
+                // Poison/Gift
                 case 16:
-                    elementString = new byte[] { 0x22, 0x49, 0x4F };
+                    elementString = new byte[] { 0x27, 0x49, 0x46, 0x54 };
                     break;
 
-                // Gravity
+                // Gravity/Gravitas
                 case 32:
                     elementString = new byte[] { 0x27 };
                     break;
 
-                // Water
+                // Water/Wasser
                 case 64:
-                    elementString = new byte[] { 0x37, 0x41, 0x54, 0x45, 0x52 };
+                    elementString = new byte[] { 0x37, 0x41, 0x53, 0x53, 0x45, 52 };
                     break;
 
-                // Wind
+                // Wind/Wind
                 case 128:
                     elementString = new byte[] { 0x37, 0x49, 0x4E, 0x44 };
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementString = new byte[] { 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -287,44 +287,44 @@ namespace Godo.Helper
                 case 0:
                     break;
 
-                // Holy
+                // Holy/Holy
                 case 1:
                     elementString = new byte[] { 0x28, 0x4F, 0x4C, 0x59 };
                     break;
 
-                // Restorative
+                // Restorative/Vita
                 case 2:
                     elementString = new byte[] { 0x32 };
                     break;
 
-                // Cut
+                // Cut/Schnitt
                 case 4:
-                    elementString = new byte[] { 0x23, 0x55, 0x54 };
+                    elementString = new byte[] { 0x33, 0x43, 0x48, 0x4E, 0x49, 0x54, 0x54 };
                     break;
 
-                // Hit
+                // Hit/Stumpf
                 case 8:
-                    elementString = new byte[] { 0x28, 0x49, 0x54 };
+                    elementString = new byte[] { 0x33, 0x54, 0x55, 0x4D, 0x50, 0x46 };
                     break;
 
-                // Punch
+                // Punch/Stich
                 case 16:
                     elementString = new byte[] { 0x30, 0x55, 0x4E, 0x43, 0x48 };
                     break;
 
-                // Shoot
+                // Shoot/Schuss
                 case 32:
-                    elementString = new byte[] { 0x33, 0x48, 0x4F, 0x4F, 0x54 };
+                    elementString = new byte[] { 0x33, 0x43, 0x48, 0x55, 0x53, 0x53 };
                     break;
 
-                // Shout
+                // Shout/Ruf
                 case 64:
-                    elementString = new byte[] { 0x33, 0x48, 0x4F, 0x55, 0x54 };
+                    elementString = new byte[] { 0x32, 0x55, 0x46 };
                     break;
 
-                // Hidden
+                // Hidden/Versteckt
                 case 128:
-                    elementString = new byte[] { 0x28, 0x49, 0x44, 0x44, 0x45, 0x4E };
+                    elementString = new byte[] { 0x36, 0x45, 0x52, 0x53, 0x54, 0x45, 0x43, 0x4B, 0x54 };
                     break;
 
                 /// ???, if this is printed in-game then something's wrong
@@ -450,20 +450,20 @@ namespace Godo.Helper
             {
                 // Drain
                 case 0:
-                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E };
+                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E, 0x45, 0x52 };
                     break;
 
                 // Null
                 case 1:
-                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4C };
+                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4F };
                     break;
 
                 // Half
                 case 2:
-                    elementTypeString = new byte[] { 0x3C, 0x28, 0x41, 0x4C, 0x46 };
+                    elementTypeString = new byte[] { 0x3C, 0x2D, 0x49, 0x54, 0x41, 0x44 };
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementTypeString = new byte[] { 0x3C, 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -476,22 +476,22 @@ namespace Godo.Helper
             byte[] elementTypeString;
             switch (attributes[r][att])
             {
-                // Drain
+                // Drain/Vidange
                 case 0:
-                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E };
+                    elementTypeString = new byte[] { 0x3C, 0x36, 0x49, 0x44, 0x41, 0x4E, 0x47, 0x45 };
                     break;
 
-                // Null
+                // Null/Nul
                 case 1:
-                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4C };
+                    elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C };
                     break;
 
-                // Half
+                // Half/Moitié
                 case 2:
-                    elementTypeString = new byte[] { 0x3C, 0x28, 0x41, 0x4C, 0x46 };
+                    elementTypeString = new byte[] { 0x3C, 0x2D, 0x4F, 0x49, 0x54, 0x49, 0x6E };
                     break;
 
-                /// ???, if this is printed in-game then something's wrong
+                /// Error, if this is printed in-game then something's wrong
                 default:
                     elementTypeString = new byte[] { 0x3C, 0x25, 0x52, 0x52, 0x4F, 0x52 };
                     break;
@@ -504,9 +504,9 @@ namespace Godo.Helper
             byte[] elementTypeString;
             switch (attributes[r][att])
             {
-                // Drain
+                // Drain/Abfluss
                 case 0:
-                    elementTypeString = new byte[] { 0x3C, 0x24, 0x52, 0x41, 0x49, 0x4E };
+                    elementTypeString = new byte[] { 0x3C, 0x21, 0x42, 0x46, 0x4C, 0x55, 0x53, 0x53 };
                     break;
 
                 // Null
@@ -514,9 +514,9 @@ namespace Godo.Helper
                     elementTypeString = new byte[] { 0x3C, 0x2E, 0x55, 0x4C, 0x4C };
                     break;
 
-                // Half
+                // Half/Hälfte
                 case 2:
-                    elementTypeString = new byte[] { 0x3C, 0x28, 0x41, 0x4C, 0x46 };
+                    elementTypeString = new byte[] { 0x3C, 0x28, 0x6A, 0x4C, 0x46, 0x54, 0x45 };
                     break;
 
                 /// ???, if this is printed in-game then something's wrong

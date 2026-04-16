@@ -11,7 +11,7 @@ using System.Windows.Forms;
 
 namespace Godo.Helper
 {
-    public class WeaponArmourStrings
+    public class EquipmentStrings
     {
 
         public static byte[] EnglishEquipmentParameterString(byte[][] attributes, int r, int att)
@@ -624,7 +624,7 @@ namespace Godo.Helper
 
                 // Silence/Stumm
                 case 7:
-                    statusString = new byte[] { 0x2D, 0x54, 0x55, 0x4D, 0x4D };
+                    statusString = new byte[] { 0x33, 0x54, 0x55, 0x4D, 0x4D };
                     break;
 
                 // Haste
