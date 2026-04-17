@@ -131,12 +131,12 @@ namespace Godo.Omnichange
 
         public static byte AdjustWeaponStats(byte baseStat, int statModifier, Random rnd)
         {
-            int statUpper = baseStat + 15;
+            int statUpper = baseStat + 10;
             int statLower = baseStat + 5;
             if (statModifier == 1)
             {
-                statUpper += 20;
-                statLower += 15;
+                statUpper += 10;
+                statLower += 5;
             }
             baseStat = (byte)rnd.Next(statLower, statUpper);
             return baseStat;
