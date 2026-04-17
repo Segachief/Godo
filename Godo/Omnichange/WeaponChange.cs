@@ -56,9 +56,9 @@ namespace Godo.Omnichange
                 int powerUpper = basePower + 10;
                 int powerLower = basePower - 10;
                 if (powerModifier == 1)
-                { // Guarantees a higher than original base power
-                    powerUpper += 20;
-                    powerLower += 20;
+                {
+                    powerUpper += 10;
+                    powerLower += 10;
                 }
                 basePower = (byte)rnd.Next(powerLower, powerUpper);
             }
@@ -120,9 +120,9 @@ namespace Godo.Omnichange
             int accuracyUpper = baseAccuracy + 50;
             int accuracyLower = baseAccuracy - 50;
             if (accuracyModifier == 1)
-            { // Guarantees a higher than original base accuracy (except for 255% weapons)
-                accuracyUpper += 50;
-                accuracyLower += 50;
+            {
+                accuracyUpper += 30;
+                accuracyLower += 30;
             }
             baseAccuracy = (byte)rnd.Next(accuracyLower, accuracyUpper);
 
