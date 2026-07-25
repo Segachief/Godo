@@ -1,7 +1,8 @@
-﻿using System;
-using System.Runtime.Remoting.Messaging;
-using Godo.FormsEquipmentData;
+﻿using Godo.FormsEquipmentData;
 using Godo.Helper;
+using System;
+using System.Collections.Generic;
+using System.Runtime.Remoting.Messaging;
 
 namespace Godo.Omnichange
 {
@@ -147,7 +148,7 @@ namespace Godo.Omnichange
             // ToDo; hard option reduces this divisor for higher level enemies
             int divisor = 2;
 
-            var newStat = sceneID / divisor;
+            int newStat = sceneID / divisor;
             if (newStat == 0)
             {
                 newStat = 1;
@@ -160,38 +161,11 @@ namespace Godo.Omnichange
         {
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
-            // Disc 1 - Midgar
-            int newStat = 50;
-
-            // Disc 1 - Reactor 1
-            // Special balancing due to limited party
-            if (sceneID >= 75 && sceneID <= 82)
-            {
-                newStat = 25;
-            }
-
-            // Disc 1 - Leaving Midgar
-            // World Map encounters are located before SceneID 75
-            if (sceneID > 117 || sceneID < 75)
-            {
-                newStat = 75;
-            }
-
-            // Disc 2
-            if (sceneID > 167)
-            {
-                newStat = 100;
-            }
-
-            // Disc 3
-            if (sceneID > 216)
-            {
-                newStat = 125;
-            }
+            int newStat = sceneID + 50;
 
             int statUpper = newStat * 2;
             int statLower = newStat;
-            
+
             if (toughFlag)
             {
                 statUpper += 50;
@@ -202,6 +176,13 @@ namespace Godo.Omnichange
             statLower = Misc.CapIntForByte(statLower);
 
             newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces speed for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
+                newStat = 30;
+            }
+
             return (byte)newStat;
         }
 
@@ -215,23 +196,23 @@ namespace Godo.Omnichange
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
             int newStat;
-            if (sceneID >= 75 && sceneID <= 82)
+
+            int statUpper = 40;
+            int statLower = 0;
+            if (statModifier == 1)
             {
-                // Reactor 1 enemies + MPs on bridge; will be set to 0 Luck to prevent an early difficulty spike
+                statUpper = 120;
+                statLower = 80;
+            }
+
+            newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces 0 Luck for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
                 newStat = 0;
             }
-            else
-            {
-                int statUpper = 20;
-                int statLower = 0;
-                if (statModifier == 1)
-                {
-                    statUpper = 80;
-                    statLower = 40;
-                }
 
-                newStat = (byte)rnd.Next(statLower, statUpper);
-            }
             return (byte)newStat;
         }
 
@@ -240,23 +221,23 @@ namespace Godo.Omnichange
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
             int newStat;
-            if (sceneID >= 75 && sceneID <= 82)
+
+            int statUpper = 40;
+            int statLower = 0;
+            if (statModifier == 1)
             {
-                // Reactor 1 enemies + MPs on bridge; will be set to 0 Evade to prevent an early difficulty spike
+                statUpper = 120;
+                statLower = 80;
+            }
+
+            newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces 0 Evasion for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
                 newStat = 0;
             }
-            else
-            {
-                int statUpper = 20;
-                int statLower = 0;
-                if (statModifier == 1)
-                {
-                    statUpper = 80;
-                    statLower = 40;
-                }
 
-                newStat = (byte)rnd.Next(statLower, statUpper);
-            }
             return (byte)newStat;
         }
 
@@ -264,55 +245,27 @@ namespace Godo.Omnichange
         {
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
-            // Disc 1 - Midgar
-            int newStat = 30;
+            int newStat = sceneID + 30;
 
-            // Disc 1 - Reactor 1
-            // Special balancing due to limited party
-            if(sceneID >= 75 && sceneID <= 82)
-            {
-                newStat = 10;
-            }
-
-            // Disc 1 - Leaving Midgar
-            // World Map encounters are located before SceneID 75
-            if (sceneID > 117 || sceneID < 75)
-            {
-                newStat = 60;
-            }
-
-            // Disc 2
-            if (sceneID > 167)
-            {
-                newStat = 90;
-            }
-
-            // Disc 3
-            if (sceneID > 216)
-            {
-                newStat = 120;
-            }
-
-            int statUpper = newStat * 5;
-            statUpper = statUpper / 4;
+            int statUpper = newStat + 15;
             int statLower = newStat;
-
-            if (statModifier == 1)
-            {
-                statUpper += 30;
-                statLower += 30;
-            }
 
             if (toughFlag)
             {
-                statUpper += 30;
-                statLower += 30;
+                statUpper += 20;
+                statLower += 20;
             }
 
             statUpper = Misc.CapIntForByte(statUpper);
             statLower = Misc.CapIntForByte(statLower);
-          
+
             newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces Strength for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
+                newStat = 30;
+            }
             return (byte)newStat;
         }
 
@@ -320,42 +273,11 @@ namespace Godo.Omnichange
         {
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
-            // Disc 1 - Midgar
-            int newStat = 20;
+            int newStat = sceneID + 40;
 
-            // Disc 1 - Reactor 1
-            // Special balancing due to limited party
-            if(sceneID >= 75 && sceneID <= 82)
-            {
-                newStat = 15;
-            }
-
-            // Disc 1 - Leaving Midgar
-            // World Map encounters are located before SceneID 75
-            if (sceneID > 117 || sceneID < 75)
-            {
-                newStat = 40;
-            }
-
-            // Disc 2
-            if (sceneID > 167)
-            {
-                newStat = 60;
-            }
-
-            // Disc 3
-            if (sceneID > 216)
-            {
-                newStat = 80;
-            }
-
-            int statUpper = newStat * 2;
+            int statUpper = newStat + 40;
             int statLower = newStat;
-            if (statModifier == 1)
-            {
-                statUpper = newStat * 3;
-                statLower = newStat * 2;
-            }
+
             if (toughFlag)
             {
                 statUpper += 40;
@@ -364,8 +286,15 @@ namespace Godo.Omnichange
 
             statUpper = Misc.CapIntForByte(statUpper);
             statLower = Misc.CapIntForByte(statLower);
-          
+
             newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces Defence for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
+                newStat = 40;
+            }
+
             return (byte)newStat;
         }
 
@@ -375,44 +304,10 @@ namespace Godo.Omnichange
 
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
-            // Disc 1 - Midgar
-            int newStat = 20;
+            int newStat = sceneID + 15;
 
-            // Disc 1 - Reactor 1
-            // Special balancing due to limited party
-            if (sceneID >= 75 && sceneID <= 82)
-            {
-                newStat = 5;
-            }
-
-            // Disc 1 - Leaving Midgar
-            // World Map encounters are located before SceneID 75
-            if (sceneID > 117 || sceneID < 75)
-            {
-                newStat = 50;
-            }
-
-            // Disc 2
-            if (sceneID > 167)
-            {
-                newStat = 80;
-            }
-
-            // Disc 3
-            if (sceneID > 216)
-            {
-                newStat = 110;
-            }
-
-            int statUpper = newStat * 5;
-            statUpper = statUpper / 4;
+            int statUpper = newStat + 15;
             int statLower = newStat;
-
-            if (statModifier == 1)
-            {
-                statUpper += 20;
-                statLower += 20;
-            }
 
             if (toughFlag)
             {
@@ -424,6 +319,12 @@ namespace Godo.Omnichange
             statLower = Misc.CapIntForByte(statLower);
 
             newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces Magic for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
+                newStat = 0;
+            }
             return (byte)newStat;
         }
 
@@ -431,42 +332,11 @@ namespace Godo.Omnichange
         {
             sceneID = SceneIdAdjust(sceneID, enemySlot);
 
-            // Disc 1 - Midgar
-            int newStat = 20;
+            int newStat = sceneID + 80;
 
-            // Disc 1 - Reactor 1
-            // Special balancing due to limited party
-            if (sceneID >= 75 && sceneID <= 82)
-            {
-                newStat = 15;
-            }
-
-            // Disc 1 - Leaving Midgar
-            // World Map encounters are located before SceneID 75
-            if (sceneID > 117 || sceneID < 75)
-            {
-                newStat = 40;
-            }
-
-            // Disc 2
-            if (sceneID > 167)
-            {
-                newStat = 60;
-            }
-
-            // Disc 3
-            if (sceneID > 216)
-            {
-                newStat = 80;
-            }
-
-            int statUpper = newStat * 2;
+            int statUpper = newStat + 40;
             int statLower = newStat;
-            if (statModifier == 1)
-            {
-                statUpper = newStat * 3;
-                statLower = newStat * 2;
-            }
+
             if (toughFlag)
             {
                 statUpper += 40;
@@ -477,17 +347,23 @@ namespace Godo.Omnichange
             statLower = Misc.CapIntForByte(statLower);
 
             newStat = (byte)rnd.Next(statLower, statUpper);
+
+            // Forces MDefence for when Cloud is solo
+            if (sceneID >= 1 && sceneID <= 2)
+            {
+                newStat = 80;
+            }
             return (byte)newStat;
         }
 
         public static int AdjustHP(int baseStat, int statModifier, int sceneID, int enemySlot, bool toughFlag, Random rnd)
         {
-            int statUpper = (baseStat * 10) / 8; // +20% Max increase
-            int statLower = baseStat; // No change
+            int statUpper = (baseStat * 3) / 2; // +50% Max increase
+            int statLower = (baseStat * 10) / 8; // +20% Floor
             if (statModifier == 1)
             {
-                statUpper = (baseStat * 3) / 2; // +50% Max Increase
-                statLower = (baseStat * 10) / 8; // +20% floor
+                statUpper = (baseStat * 3); // +150% Max Increase
+                statLower = (baseStat * 2); // +100% Floor
             }
             baseStat = rnd.Next(statLower, statUpper);
             return baseStat;
@@ -518,11 +394,23 @@ namespace Godo.Omnichange
                 FFh - No element
             */
 
-            // 4 elemental properties have been set; rest are cleared)
-            data[o] = (byte)rnd.Next(0, 16); o++;
-            data[o] = (byte)rnd.Next(0, 16); o++;
-            data[o] = (byte)rnd.Next(0, 16); o++;
-            data[o] = (byte)rnd.Next(0, 16); o++;
+            // 4 different elemental properties will be set; rest are cleared
+            List<int> elements = new List<int>();
+            for (int i = 0; i < 4; i++)
+            {
+                int number;
+                do
+                {
+                    number = rnd.Next(0, 15);
+                }
+                while (elements.Contains(number));
+                elements.Add(number);
+            }
+
+            data[o] = (byte)elements[0]; o++;
+            data[o] = (byte)elements[1]; o++;
+            data[o] = (byte)elements[2]; o++;
+            data[o] = (byte)elements[3]; o++;
             data[o] = 255; o++;
             data[o] = 255; o++;
             data[o] = 255; o++;
