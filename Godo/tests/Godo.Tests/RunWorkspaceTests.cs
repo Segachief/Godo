@@ -267,10 +267,14 @@ namespace Godo.Tests
                 _testDirectory,
                 TestRunConfigurations.Create(),
                 generatedAt);
+            const string expectedLanguagePrefix = "GODO1-ENG-";
+            StringAssert.StartsWith(
+                workspace.PortableSeed,
+                expectedLanguagePrefix);
             string expectedSeedName =
                 workspace.PortableSeed.Substring(
                     0,
-                    RunConfigurationSeedCodec.Prefix.Length + 5);
+                    expectedLanguagePrefix.Length + 5);
 
             Assert.AreEqual(
                 expectedSeedName + "-25-07-26-1455",

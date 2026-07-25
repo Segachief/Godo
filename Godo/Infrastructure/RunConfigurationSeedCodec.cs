@@ -31,7 +31,8 @@ namespace Godo.Infrastructure
                 ChecksumLength,
                 compressedPayload.Length);
 
-            return Prefix + Convert.ToBase64String(packet)
+            return Prefix + GetLanguageCode(configuration.Language) + "-" +
+                Convert.ToBase64String(packet)
                 .TrimEnd('=')
                 .Replace('+', '-')
                 .Replace('/', '_');
@@ -51,10 +52,19 @@ namespace Godo.Infrastructure
                 throw InvalidSeed();
             }
 
+            string encodedPayload =
+                trimmedSeed.Substring(Prefix.Length);
+            if (!TryReadLanguagePrefix(
+                encodedPayload,
+                out GameLanguage namedLanguage))
+            {
+                throw InvalidSeed();
+            }
+            encodedPayload = encodedPayload.Substring(4);
+
             try
             {
-                byte[] packet = DecodeBase64Url(
-                    trimmedSeed.Substring(Prefix.Length));
+                byte[] packet = DecodeBase64Url(encodedPayload);
                 if (packet.Length <= ChecksumLength)
                 {
                     throw InvalidSeed();
@@ -73,7 +83,13 @@ namespace Godo.Infrastructure
                     throw InvalidSeed();
                 }
 
-                return Deserialize(payload);
+                RunConfiguration configuration = Deserialize(payload);
+                if (namedLanguage != configuration.Language)
+                {
+                    throw InvalidSeed();
+                }
+
+                return configuration;
             }
             catch (Exception ex) when (
                 ex is ArgumentException ||
@@ -91,6 +107,33 @@ namespace Godo.Infrastructure
             return seed?.Trim().StartsWith(
                 "GODO",
                 StringComparison.OrdinalIgnoreCase) == true;
+        }
+
+        internal static string GetShortSeedName(string portableSeed)
+        {
+            if (string.IsNullOrWhiteSpace(portableSeed) ||
+                !portableSeed.StartsWith(Prefix, StringComparison.Ordinal))
+            {
+                throw new ArgumentException(
+                    "A valid portable seed is required.",
+                    nameof(portableSeed));
+            }
+
+            int payloadOffset = Prefix.Length;
+            string encodedPayload =
+                portableSeed.Substring(payloadOffset);
+            if (!TryReadLanguagePrefix(encodedPayload, out _))
+            {
+                throw new ArgumentException(
+                    "The portable seed does not contain a valid language code.",
+                    nameof(portableSeed));
+            }
+            payloadOffset += 4;
+
+            int nameLength = Math.Min(
+                portableSeed.Length,
+                payloadOffset + 5);
+            return portableSeed.Substring(0, nameLength);
         }
 
         private static byte[] Serialize(RunConfiguration configuration)
@@ -281,6 +324,55 @@ namespace Godo.Infrastructure
         private static bool IsBitSet(byte mask, int bit)
         {
             return (mask & (1 << bit)) != 0;
+        }
+
+        private static string GetLanguageCode(GameLanguage language)
+        {
+            return language switch
+            {
+                GameLanguage.English => "ENG",
+                GameLanguage.German => "DEU",
+                GameLanguage.Spanish => "ESP",
+                GameLanguage.French => "FRA",
+                GameLanguage.Japanese => "JPN",
+                _ => throw new ArgumentOutOfRangeException(
+                    nameof(language),
+                    language,
+                    "The language is not supported.")
+            };
+        }
+
+        private static bool TryReadLanguagePrefix(
+            string encodedPayload,
+            out GameLanguage language)
+        {
+            language = default;
+            if (encodedPayload.Length < 4 ||
+                encodedPayload[3] != '-')
+            {
+                return false;
+            }
+
+            switch (encodedPayload.Substring(0, 3))
+            {
+                case "ENG":
+                    language = GameLanguage.English;
+                    return true;
+                case "DEU":
+                    language = GameLanguage.German;
+                    return true;
+                case "ESP":
+                    language = GameLanguage.Spanish;
+                    return true;
+                case "FRA":
+                    language = GameLanguage.French;
+                    return true;
+                case "JPN":
+                    language = GameLanguage.Japanese;
+                    return true;
+                default:
+                    return false;
+            }
         }
 
         private static byte[] Compress(byte[] payload)

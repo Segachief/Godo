@@ -6,11 +6,12 @@ namespace Godo.Tests
     {
         internal static RunConfiguration Create(
             int seed = 123456789,
-            OptionSettings weapons = null)
+            OptionSettings weapons = null,
+            GameLanguage language = GameLanguage.English)
         {
             return new RunConfiguration(
                 seed: seed,
-                language: GameLanguage.English,
+                language: language,
                 quickOptions: new QuickOptions(
                     true,
                     true,

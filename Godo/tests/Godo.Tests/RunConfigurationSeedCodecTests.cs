@@ -58,6 +58,45 @@ namespace Godo.Tests
         }
 
         [TestMethod]
+        public void PortableSeedIncludesSelectedLanguageCode()
+        {
+            AssertSeedLanguage(GameLanguage.English, "ENG");
+            AssertSeedLanguage(GameLanguage.German, "DEU");
+            AssertSeedLanguage(GameLanguage.Spanish, "ESP");
+            AssertSeedLanguage(GameLanguage.French, "FRA");
+            AssertSeedLanguage(GameLanguage.Japanese, "JPN");
+        }
+
+        [TestMethod]
+        public void PortableSeedRejectsMissingLanguageCode()
+        {
+            string seed = RunConfigurationSeedCodec.Encode(
+                TestRunConfigurations.Create());
+            string untaggedSeed =
+                RunConfigurationSeedCodec.Prefix +
+                seed.Substring(
+                    RunConfigurationSeedCodec.Prefix.Length + 4);
+
+            Assert.ThrowsException<FormatException>(
+                () => RunConfigurationSeedCodec.Decode(untaggedSeed));
+        }
+
+        [TestMethod]
+        public void PortableSeedRejectsLanguageCodeThatDoesNotMatchPayload()
+        {
+            string englishSeed = RunConfigurationSeedCodec.Encode(
+                TestRunConfigurations.Create(
+                    language: GameLanguage.English));
+            string mismatchedSeed =
+                RunConfigurationSeedCodec.Prefix + "JPN-" +
+                englishSeed.Substring(
+                    RunConfigurationSeedCodec.Prefix.Length + 4);
+
+            Assert.ThrowsException<FormatException>(
+                () => RunConfigurationSeedCodec.Decode(mismatchedSeed));
+        }
+
+        [TestMethod]
         public void PortableSeedRejectsCorruptedData()
         {
             string seed = RunConfigurationSeedCodec.Encode(
@@ -116,6 +155,24 @@ namespace Godo.Tests
                 configuration.Challenges,
                 configuration.SpecialHacks
             };
+        }
+
+        private static void AssertSeedLanguage(
+            GameLanguage language,
+            string expectedCode)
+        {
+            RunConfiguration configuration =
+                TestRunConfigurations.Create(language: language);
+            string seed =
+                RunConfigurationSeedCodec.Encode(configuration);
+
+            StringAssert.StartsWith(
+                seed,
+                RunConfigurationSeedCodec.Prefix +
+                expectedCode + "-");
+            Assert.AreEqual(
+                language,
+                RunConfigurationSeedCodec.Decode(seed).Language);
         }
 
         private static void AssertQuickOptionsEqual(

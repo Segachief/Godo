@@ -242,11 +242,9 @@ namespace Godo.Infrastructure
             string portableSeed,
             DateTimeOffset generatedAt)
         {
-            int seedNameLength = Math.Min(
-                portableSeed.Length,
-                RunConfigurationSeedCodec.Prefix.Length + 5);
             string seedName =
-                portableSeed.Substring(0, seedNameLength);
+                RunConfigurationSeedCodec.GetShortSeedName(
+                    portableSeed);
             return seedName + "-" + generatedAt.ToString(
                 "dd-MM-yy-HHmm",
                 CultureInfo.InvariantCulture);
