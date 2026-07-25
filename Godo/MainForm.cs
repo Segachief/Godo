@@ -24,6 +24,19 @@ namespace Godo
     {
         public MainForm()
         {
+            _directory = ResolveRuntimeDirectory();
+            Directory.SetCurrentDirectory(_directory);
+
+            _kernelStrings = Path.Combine(_directory, "Kernel Strings");
+            _kernel2Strings = Path.Combine(_directory, "Kernel2 Strings");
+            _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
+            _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
+            _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
+            _outputScene = Path.Combine(_directory, "Output Files", "scene.bin");
+            _outputKernel = Path.Combine(_directory, "Output Files", "kernel.bin");
+            _outputKernel2 = Path.Combine(_directory, "Output Files", "kernel2.bin");
+            _miscFile = Path.Combine(_directory, "MiscInput", "FIELD.TDB");
+
             InitializeComponent();
         }
 
@@ -52,45 +65,85 @@ namespace Godo
         readonly Challenges _challengesForm = new Challenges();
         readonly SpecialHacks _specialHacksForm = new SpecialHacks();
 
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] spellOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] spellParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] summonOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] summonParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] enemySkillOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] enemySkillParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] attackItemOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] attackItemParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] healItemOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] healItemParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] statusItemOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] statusItemParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] weaponOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] weaponParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] armourOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] armourParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] accessoryOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] accessoryParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] materiaOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] materiaParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] statOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] characterSelectStats { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] statParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] limitOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] characterSelectLimits { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] equipOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] characterSelectEquip { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] equipParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] swapOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] enemyStatOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] enemyStatParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] enemyAttackOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] enemyAttackParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] enemyItemOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] formationOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] balancingOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] balancingParameters { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] challengeOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public bool[] specialHackOptions { get; set; }
+        [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] specialHackParameters { get; set; }
 
         readonly bool[] _languageOptions = new bool[5];
@@ -98,18 +151,61 @@ namespace Godo
         #endregion
 
         // Properties for file access & seed handling
-        readonly string _directory = Directory.GetCurrentDirectory();
-        readonly string _kernelStrings = Directory.GetCurrentDirectory() + "\\Kernel Strings";
-        readonly string _kernel2Strings = Directory.GetCurrentDirectory() + "\\Kernel2 Strings";
-        string _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
-        string _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
-        string _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
-        readonly string _outputScene = Directory.GetCurrentDirectory() + "\\Output Files\\scene.bin";
-        readonly string _outputKernel = Directory.GetCurrentDirectory() + "\\Output Files\\kernel.bin";
-        readonly string _outputKernel2 = Directory.GetCurrentDirectory() + "\\Output Files\\kernel2.bin";
-        readonly string _miscFile = Directory.GetCurrentDirectory() + "\\MiscInput\\FIELD.TDB";
+        readonly string _directory;
+        readonly string _kernelStrings;
+        readonly string _kernel2Strings;
+        string _inputScene;
+        string _inputKernel;
+        string _inputKernel2;
+        readonly string _outputScene;
+        readonly string _outputKernel;
+        readonly string _outputKernel2;
+        readonly string _miscFile;
         Random _rnd = new Random();
         int _seed;
+
+        private static string ResolveRuntimeDirectory()
+        {
+            string currentDirectory = Directory.GetCurrentDirectory();
+            string applicationDirectory = AppContext.BaseDirectory;
+            string applicationParent = Directory.GetParent(applicationDirectory)?.FullName;
+
+            string[] candidates =
+            {
+                currentDirectory,
+                applicationDirectory,
+                applicationParent,
+                Path.Combine(currentDirectory, "bin", "Debug"),
+                Path.Combine(currentDirectory, "bin", "Release")
+            };
+
+            string[] dataDirectories =
+            {
+                "Default Files",
+                "Default French Files",
+                "Default German Files",
+                "Default Spanish Files",
+                "Default Japanese Files"
+            };
+
+            foreach (string candidate in candidates)
+            {
+                if (string.IsNullOrEmpty(candidate))
+                {
+                    continue;
+                }
+
+                foreach (string dataDirectory in dataDirectories)
+                {
+                    if (Directory.Exists(Path.Combine(candidate, dataDirectory)))
+                    {
+                        return Path.GetFullPath(candidate);
+                    }
+                }
+            }
+
+            return currentDirectory;
+        }
 
         private void BtnRandoScene_Click(object sender, EventArgs e)
         {
@@ -176,49 +272,53 @@ namespace Godo
                     if (chkEnglish.Checked)
                     {
                         _languageOptions[0] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
                     }
                     else if (chkFrench.Checked)
                     {
                         _languageOptions[1] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default French Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default French Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default French Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default French Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default French Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default French Files", "kernel2.bin");
                     }
                     else if (chkGerman.Checked)
                     {
                         _languageOptions[2] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default German Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default German Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default German Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default German Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default German Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default German Files", "kernel2.bin");
                     }
                     else if (chkSpanish.Checked)
                     {
                         _languageOptions[3] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Spanish Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default Spanish Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default Spanish Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default Spanish Files", "kernel2.bin");
                     }
                     else if (chkJapanese.Checked)
                     {
                         _languageOptions[4] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Japanese Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default Japanese Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default Japanese Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default Japanese Files", "kernel2.bin");
                     }
                     else
                     {
                         // Default to English if all options are unticked
                         _languageOptions[0] = true;
-                        _inputScene = Directory.GetCurrentDirectory() + "\\Default Files\\scene.bin";
-                        _inputKernel = Directory.GetCurrentDirectory() + "\\Default Files\\kernel.bin";
-                        _inputKernel2 = Directory.GetCurrentDirectory() + "\\Default Files\\kernel2.bin";
+                        _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
+                        _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
+                        _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
                     }
                     #endregion
 
                     //Reset and cleanup for the new run
+                    Directory.CreateDirectory(_kernelStrings);
+                    Directory.CreateDirectory(_kernel2Strings);
+                    Directory.CreateDirectory(Path.GetDirectoryName(_outputScene));
+
                     DirectoryInfo deleteKernelStrings = new DirectoryInfo(_kernelStrings);
                     foreach (FileInfo file in deleteKernelStrings.GetFiles())
                     {
@@ -265,7 +365,7 @@ namespace Godo
                         _rnd);
                     MessageBox.Show("Rando Complete: seed = " + _seed);
 
-                    string seedFile = _directory + "\\FF7RandomSeeds.txt";
+                    string seedFile = Path.Combine(_directory, "FF7RandomSeeds.txt");
                     if (!File.Exists(seedFile))
                     {
                         using (FileStream fs = File.Create(seedFile))
@@ -285,9 +385,9 @@ namespace Godo
                         Misc.DumpLog(r);
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
-                    MessageBox.Show("Error: Randomisation Failed - Check that valid/fresh files are in correct locations; if so, report the bug along with selected parameters and files used.");
+                    MessageBox.Show("Error: Randomisation Failed - Check that valid/fresh files are in correct locations; if so, report the bug along with selected parameters and files used.\n\n" + ex.Message);
                 }
             }
             else

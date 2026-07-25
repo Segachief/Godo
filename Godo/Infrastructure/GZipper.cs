@@ -710,7 +710,14 @@ namespace Godo.Infrastructure
                 {
                     if (r < 9)
                     {
-                        using (var compressionStream = new GZipStream(result, CompressionMode.Compress))
+                        // FF7's inflater can reject otherwise valid compressed Section 2 streams for
+                        // some randomised data. A stored DEFLATE block avoids that compatibility issue.
+                        // This was one of those 'until 6am' kind of investigations
+                        CompressionLevel compressionLevel = r == 2
+                            ? CompressionLevel.NoCompression
+                            : CompressionLevel.Optimal;
+
+                        using (var compressionStream = new GZipStream(result, compressionLevel, true))
                         {
                             compressionStream.Write(uncompressedKernel, 0, uncompressedKernel.Length);
                             compressionStream.Close();
