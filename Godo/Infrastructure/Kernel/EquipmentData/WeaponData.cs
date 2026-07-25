@@ -357,9 +357,11 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #5 (Weapon Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 5 (weapon data) failed to randomise.",
+                    ex);
             }
 
             KernelTextRewriter.WeaponDescriptionRewrite(

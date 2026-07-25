@@ -190,9 +190,11 @@ namespace Godo.Infrastructure.Kernel
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #1 (Attack Data: Spells) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 1 (spell data) failed to randomise.",
+                    ex);
             }
 
             // Need to skip two blank entries
@@ -318,9 +320,11 @@ namespace Godo.Infrastructure.Kernel
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #1 (Attack Data: Summons) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 1 (summon data) failed to randomise.",
+                    ex);
             }
 
             // Enemy Skills
@@ -443,9 +447,11 @@ namespace Godo.Infrastructure.Kernel
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #1 (Attack Data: Enemy Skills) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 1 (enemy skill data) failed to randomise.",
+                    ex);
             }
 
             return data;

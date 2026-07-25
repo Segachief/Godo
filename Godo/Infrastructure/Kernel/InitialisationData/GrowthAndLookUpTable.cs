@@ -480,9 +480,11 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #2 (Growth & Lookup Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 2 (growth and lookup data) failed to randomise.",
+                    ex);
             }
             return data;
         }

@@ -1,6 +1,6 @@
 ﻿using Godo.Helper;
+using System;
 using System.IO;
-using System.Windows.Forms;
 using Godo.Omnichange;
 
 namespace Godo.Infrastructure
@@ -75,9 +75,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Command Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Command description rewrite failed.", ex);
             }
         }
 
@@ -148,9 +148,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Materia Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Materia description rewrite failed.", ex);
             }
         }
 
@@ -221,9 +221,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Key Item Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Key item description rewrite failed.", ex);
             }
         }
 
@@ -579,9 +579,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Weapon Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Weapon description rewrite failed.", ex);
             }
         }
 
@@ -811,9 +811,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Armour Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Armour description rewrite failed.", ex);
             }
         }
 
@@ -1124,9 +1124,9 @@ namespace Godo.Infrastructure
                     }
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Accessory Description Rewrite has encountered an issue");
+                throw new InvalidOperationException("Accessory description rewrite failed.", ex);
             }
         }
     }

@@ -685,9 +685,11 @@ namespace Godo.Infrastructure.Scene
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Enemy Data Section has failed to Randomise: " + error + sceneID);
+                throw new InvalidOperationException(
+                    "Enemy data failed to randomise for scene " + sceneID + " at " + error + ".",
+                    ex);
             }
 
             return data;

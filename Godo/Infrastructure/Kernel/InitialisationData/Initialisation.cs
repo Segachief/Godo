@@ -436,9 +436,11 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
                 
                 #endregion
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #3 (Initial Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 3 (initial data) failed to randomise.",
+                    ex);
             }
             return data;
         }

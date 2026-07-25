@@ -357,9 +357,11 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #6 (Armour Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 6 (armour data) failed to randomise.",
+                    ex);
             }
 
             KernelTextRewriter.ArmourDescriptionRewrite(

@@ -25,7 +25,7 @@ namespace Godo.Indexing
 
             while (r < 256)
             {
-                int bytesRead;
+                int bytesRead = 7808;
                 byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
 
                 using (BinaryReader brg = new BinaryReader(new FileStream(targetScene, FileMode.Open)))
@@ -33,7 +33,7 @@ namespace Godo.Indexing
                     // Calls method to convert little endian values into an integer
                     byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
                     brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
-                    brg.Read(compressedScene, 0, compressedScene.Length);
+                    brg.BaseStream.ReadExactly(compressedScene, 0, compressedScene.Length);
 
                     using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
                     {
@@ -41,7 +41,28 @@ namespace Godo.Indexing
                         {
                             using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                             {
-                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
+                                try
+                                {
+                                    zipInput.ReadExactly(
+                                        uncompressedScene,
+                                        0,
+                                        uncompressedScene.Length);
+                                }
+                                catch (EndOfStreamException ex)
+                                {
+                                    throw new InvalidDataException(
+                                        "The decompressed attack-index scene " + r +
+                                        " was shorter than expected.",
+                                        ex);
+                                }
+
+                                if (zipInput.ReadByte() != -1)
+                                {
+                                    throw new InvalidDataException(
+                                        "The decompressed attack-index scene " + r +
+                                        " was longer than expected.");
+                                }
+
                                 {
                                     /* Step 1: Create an array with all AttackIDs and AttackTypes
                                      * To determine attack type, we check the Impact Effect ID (phys) and Attack Effect ID (mag).

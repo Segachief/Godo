@@ -181,9 +181,11 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #7 (Accessory Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 7 (accessory data) failed to randomise.",
+                    ex);
             }
 
             KernelTextRewriter.AccessoryDescriptionRewrite(

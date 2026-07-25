@@ -149,9 +149,11 @@ namespace Godo.Infrastructure.Kernel
                 }
                 o = 0;
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #8 (Materia Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 8 (materia data) failed to randomise.",
+                    ex);
             }
             return data;
         }

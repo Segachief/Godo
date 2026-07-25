@@ -370,9 +370,11 @@ namespace Godo.Infrastructure
                     // If first enemy ID is null, assume scene is unused; no operation
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Scene ID: " + sceneID + " has failed to randomise; point of error: " + error);
+                throw new InvalidOperationException(
+                    "Scene " + sceneID + " failed to randomise at " + error + ".",
+                    ex);
             }
             return data;
         }

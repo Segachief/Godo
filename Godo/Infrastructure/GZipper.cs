@@ -95,7 +95,7 @@ namespace Godo.Infrastructure
                 using (FileStream stepOne = new FileStream(inputScene, FileMode.Open, FileAccess.Read))
                 {
                     stepOne.Seek(headerOffset, SeekOrigin.Begin);
-                    stepOne.Read(header, 0, 64); // Header never exceeds 64 bytes
+                    stepOne.ReadExactly(header, 0, header.Length);
                 }
 
                 // Max of 16 sections in a header (is usually less however)
@@ -168,7 +168,6 @@ namespace Godo.Infrastructure
 
             while (r < 256)
             {
-                int bytesRead;
                 byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
 
                 using (BinaryReader brg = new BinaryReader(new FileStream(inputScene, FileMode.Open)))
@@ -176,21 +175,13 @@ namespace Godo.Infrastructure
                     // Calls method to convert little endian values into an integer
                     byte[] compressedScene = new byte[jaggedSceneInfo[o][1]]; // Used to hold the compressed scene file, where [o][1] is scene size        
                     brg.BaseStream.Seek(jaggedSceneInfo[o][2], SeekOrigin.Begin); // Starts reading the compressed scene file
-                    brg.Read(compressedScene, 0, compressedScene.Length);
+                    brg.BaseStream.ReadExactly(compressedScene, 0, compressedScene.Length);
 
                     using (MemoryStream inputWrapper = new MemoryStream(compressedScene))
                     {
-                        using (MemoryStream decompressedOutput = new MemoryStream())
+                        using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                         {
-                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
-                            {
-                                while ((bytesRead = zipInput.Read(uncompressedScene, 0, 7808)) != 0)
-                                {
-                                    decompressedOutput.Write(uncompressedScene, 0, bytesRead);
-                                }
-                                zipInput.Close();
-                            }
-                            decompressedOutput.Close();
+                            ReadExactlyAndEnsureEnd(zipInput, uncompressedScene, "scene " + r);
                         }
                         inputWrapper.Close();
                     }
@@ -461,17 +452,11 @@ namespace Godo.Infrastructure
             int o = 0;
 
             // Step 0: Read a kernel2.bin and send it off to unpack + produce unpacked section files
-            using (BinaryReader ker = new BinaryReader(new FileStream(inputKernel2, FileMode.Open)))
-            {
-                // Retrieves and reads the kernel2 into memory
-                FileInfo kernel2Info = new FileInfo(inputKernel2);
-                byte[] compressedKernel2 = new byte[kernel2Info.Length];
-                ker.Read(compressedKernel2, 0, (int)kernel2Info.Length);
-                Kernel2TextCompressor.Kernel2Decompress(
-                    compressedKernel2,
-                    workspace.Kernel2StringsDirectory);
-                // We now have all the Kernel2 sections living within the Kernel2 Strings folder
-            }
+            byte[] compressedKernel2 = File.ReadAllBytes(inputKernel2);
+            Kernel2TextCompressor.Kernel2Decompress(
+                compressedKernel2,
+                workspace.Kernel2StringsDirectory);
+            // We now have all the Kernel2 sections living within the Kernel2 Strings folder
 
             // Step 1: Read the kernel headers
             while (r < 27) // 27 sections in the kernel
@@ -481,13 +466,13 @@ namespace Godo.Infrastructure
                 {
                     stepOne.Seek(headerOffset, SeekOrigin.Begin);
 
-                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    stepOne.ReadExactly(header, 0, 2);
                     compressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
-                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    stepOne.ReadExactly(header, 0, 2);
                     uncompressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
-                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    stepOne.ReadExactly(header, 0, 2);
                     sectionID = EndianConvert.GetLittleEndianInt(header, 0);
 
                     // Stored kernel header information in a jaggy array
@@ -507,7 +492,6 @@ namespace Godo.Infrastructure
             {
                 if(r == 25)
                 { }
-                int bytesRead;
                 int size = jaggedKernelInfo[o][1];
                 int textSize = 0; // Used to keep track of size of text sections for later
                 byte[] uncompressedKernel = new byte[size]; // Used to hold the decompressed kernel section
@@ -528,43 +512,34 @@ namespace Godo.Infrastructure
                     byte[] compressedKernel = new byte[jaggedKernelInfo[o][0]]; // Used to hold the compressed section file, where [o][1] is scene size
 
                     brg.BaseStream.Seek(offset + 6, SeekOrigin.Begin); // Starts reading the compressed section file
-                    brg.Read(compressedKernel, 0, compressedKernel.Length);
+                    brg.BaseStream.ReadExactly(compressedKernel, 0, compressedKernel.Length);
 
                     using (MemoryStream inputWrapper = new MemoryStream(compressedKernel))
                     {
-                        using (MemoryStream decompressedOutput = new MemoryStream())
+                        using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                         {
-                            using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
-                            {
-                                while ((bytesRead = zipInput.Read(uncompressedKernel, 0, size)) != 0)
-                                {
-                                    decompressedOutput.Write(uncompressedKernel, 0, bytesRead);
-
-                                    if (r > 8)
-                                    {
-                                        if (r == 9)
-                                        {
-                                            // Stores the offset where Text sections begin
-                                            // This isn't used anywhere past this point
-                                            offsetTextStart = offset;
-                                        }
-
-                                        // Produces new kernel2 string files for modification
-                                        using (var outputStream = File.Create(kernelTextSection + r))
-                                        {
-                                            outputStream.Position = 0;
-                                            outputStream.Write(uncompressedKernel, 0, bytesRead);
-                                            textSize += bytesRead; // this isn't used
-                                        }
-                                    }
-                                }
-                                zipInput.Close();
-                            }
-                            decompressedOutput.Close();
+                            ReadExactlyAndEnsureEnd(zipInput, uncompressedKernel, "kernel section " + r);
                         }
                         inputWrapper.Close();
                     }
                     brg.Close();
+                }
+
+                if (r > 8)
+                {
+                    if (r == 9)
+                    {
+                        // Stores the offset where Text sections begin
+                        // This isn't used anywhere past this point
+                        offsetTextStart = offset;
+                    }
+
+                    // Produces new kernel2 string files for modification
+                    using (var outputStream = File.Create(kernelTextSection + r))
+                    {
+                        outputStream.Write(uncompressedKernel, 0, uncompressedKernel.Length);
+                        textSize = uncompressedKernel.Length; // this isn't used
+                    }
                 }
 
                 // Sends decompressed kernel data to be randomised per section
@@ -856,6 +831,29 @@ namespace Godo.Infrastructure
                     r++;
                     o++;
                 }
+            }
+        }
+
+        internal static void ReadExactlyAndEnsureEnd(
+            Stream stream,
+            byte[] destination,
+            string dataName)
+        {
+            try
+            {
+                stream.ReadExactly(destination, 0, destination.Length);
+            }
+            catch (EndOfStreamException ex)
+            {
+                throw new InvalidDataException(
+                    "The decompressed " + dataName + " was shorter than expected.",
+                    ex);
+            }
+
+            if (stream.ReadByte() != -1)
+            {
+                throw new InvalidDataException(
+                    "The decompressed " + dataName + " was longer than expected.");
             }
         }
     }

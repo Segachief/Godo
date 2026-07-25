@@ -31,7 +31,7 @@ namespace Godo.Infrastructure
             int r = 9;
 
             ms.Position = 0;
-            ms.Read(uncompressedKernel2, 0, uncompressedKernel2.Length);
+            ms.ReadExactly(uncompressedKernel2, 0, uncompressedKernel2.Length);
 
             while (r < 27)
             {
@@ -93,7 +93,7 @@ namespace Godo.Infrastructure
 
             // Writes the encoded data to a byte array
             compress.Position = 0;
-            compress.Read(data, 4, (int)compress.Length);
+            compress.ReadExactly(data, 4, (int)compress.Length);
 
             // Produces the finished file
             using (var outputStream = File.Create(outputFile))
@@ -128,7 +128,7 @@ namespace Godo.Infrastructure
                 byte[] uncompressedMiscFile = new byte[ms.Length];
 
                 ms.Position = 16;
-                ms.Read(uncompressedMiscFile, 0, 512);
+                ms.ReadExactly(uncompressedMiscFile, 0, 512);
 
                 using (var outputStream = File.Create(miscFileOutput))
                 {

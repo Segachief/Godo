@@ -242,9 +242,11 @@ namespace Godo.Infrastructure.Kernel
                     r++;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                MessageBox.Show("Kernel Section #4 (Item Data) has failed to randomise");
+                throw new InvalidOperationException(
+                    "Kernel section 4 (item data) failed to randomise.",
+                    ex);
             }
             return data;
         }
