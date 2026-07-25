@@ -70,22 +70,14 @@ namespace Godo.Tests
 
             try
             {
-                bool[] interimOptions = Enumerable.Repeat(true, 7).ToArray();
-                bool[] languageOptions = { true, false, false, false, false };
+                RunConfiguration configuration =
+                    TestRunConfigurations.Create(seed);
                 Random random = new Random(seed);
 
                 byte[] kernelLookup = GZipper.PrepareScene(
                     Path.Combine(workspace.RuntimeDirectory, "Default Files", "scene.bin"),
                     Path.Combine(workspace.OutputDirectory, "scene.bin"),
-                    new bool[4],
-                    new bool[16], new int[13],
-                    new bool[9], new int[3],
-                    new bool[6],
-                    new bool[3],
-                    new bool[4], new int[2],
-                    new bool[10],
-                    new bool[5], new int[2],
-                    interimOptions,
+                    configuration,
                     random);
 
                 GZipper.PrepareKernel(
@@ -94,24 +86,7 @@ namespace Godo.Tests
                     Path.Combine(workspace.OutputDirectory, "kernel.bin"),
                     Path.Combine(workspace.OutputDirectory, "kernel2.bin"),
                     kernelLookup,
-                    new bool[5], new int[3],
-                    new bool[5], new int[3],
-                    new bool[5], new int[3],
-                    new bool[3], new int[1],
-                    new bool[3], new int[1],
-                    new bool[2], new int[0],
-                    new bool[14], new int[8],
-                    new bool[13], new int[9],
-                    new bool[6], new int[2],
-                    new bool[4], new int[1],
-                    new bool[18], new int[9], new bool[9],
-                    new bool[21], new bool[9],
-                    new bool[4], new int[1], new bool[9],
-                    new bool[10],
-                    new bool[5], new int[2],
-                    interimOptions,
-                    languageOptions,
-                    new bool[1],
+                    configuration,
                     random);
             }
             finally

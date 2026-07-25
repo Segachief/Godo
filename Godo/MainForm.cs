@@ -145,8 +145,6 @@ namespace Godo
         [DesignerSerializationVisibility(DesignerSerializationVisibility.Hidden)]
         public int[] specialHackParameters { get; set; }
 
-        readonly bool[] _languageOptions = new bool[5];
-        readonly bool[] _rngOption = new bool[1];
         #endregion
 
         // Properties for file access & seed handling
@@ -158,9 +156,6 @@ namespace Godo
         readonly string _outputKernel;
         readonly string _outputKernel2;
         readonly string _miscFile;
-        Random _rnd = new Random();
-        int _seed;
-
         private static string ResolveRuntimeDirectory()
         {
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -248,6 +243,110 @@ namespace Godo
             specialHackParameters = _specialHacksForm.specialHackParameters;
         }
 
+        private RunConfiguration CaptureRunConfiguration(int seed)
+        {
+            return new RunConfiguration(
+                seed: seed,
+                language: GetSelectedLanguage(),
+                quickOptions: new QuickOptions(
+                    weapons: chkWeaponData.Checked,
+                    armour: chkArmourData.Checked,
+                    accessories: chkAccessoryData.Checked,
+                    characterStats: chkCharacterStats.Checked,
+                    startingMateria: chkStartingMateria.Checked,
+                    enemyStats: chkEnemyStats.Checked,
+                    enemyItems: chkEnemyItems.Checked),
+                spells: new OptionSettings(spellOptions, spellParameters),
+                summons: new OptionSettings(summonOptions, summonParameters),
+                enemySkills: new OptionSettings(
+                    enemySkillOptions,
+                    enemySkillParameters),
+                attackItems: new OptionSettings(
+                    attackItemOptions,
+                    attackItemParameters),
+                healItems: new OptionSettings(
+                    healItemOptions,
+                    healItemParameters),
+                statusItems: new OptionSettings(
+                    statusItemOptions,
+                    statusItemParameters),
+                weapons: new OptionSettings(weaponOptions, weaponParameters),
+                armour: new OptionSettings(armourOptions, armourParameters),
+                accessories: new OptionSettings(
+                    accessoryOptions,
+                    accessoryParameters),
+                materia: new OptionSettings(materiaOptions, materiaParameters),
+                characterStats: new OptionSettings(
+                    statOptions,
+                    statParameters,
+                    characterSelectStats),
+                limitBreaks: new OptionSettings(
+                    limitOptions,
+                    selections: characterSelectLimits),
+                startingEquipment: new OptionSettings(
+                    equipOptions,
+                    equipParameters,
+                    characterSelectEquip),
+                modelSwap: new OptionSettings(swapOptions),
+                enemyStats: new OptionSettings(
+                    enemyStatOptions,
+                    enemyStatParameters),
+                enemyAttacks: new OptionSettings(
+                    enemyAttackOptions,
+                    enemyAttackParameters),
+                enemyItems: new OptionSettings(enemyItemOptions),
+                formations: new OptionSettings(formationOptions),
+                balancing: new OptionSettings(
+                    balancingOptions,
+                    balancingParameters),
+                challenges: new OptionSettings(challengeOptions),
+                specialHacks: new OptionSettings(
+                    specialHackOptions,
+                    specialHackParameters));
+        }
+
+        private GameLanguage GetSelectedLanguage()
+        {
+            if (chkFrench.Checked)
+            {
+                return GameLanguage.French;
+            }
+
+            if (chkGerman.Checked)
+            {
+                return GameLanguage.German;
+            }
+
+            if (chkSpanish.Checked)
+            {
+                return GameLanguage.Spanish;
+            }
+
+            if (chkJapanese.Checked)
+            {
+                return GameLanguage.Japanese;
+            }
+
+            return GameLanguage.English;
+        }
+
+        private void ConfigureInputFiles(GameLanguage language)
+        {
+            string inputDirectoryName = language switch
+            {
+                GameLanguage.French => "Default French Files",
+                GameLanguage.German => "Default German Files",
+                GameLanguage.Spanish => "Default Spanish Files",
+                GameLanguage.Japanese => "Default Japanese Files",
+                _ => "Default Files"
+            };
+            string inputDirectory = Path.Combine(_directory, inputDirectoryName);
+
+            _inputScene = Path.Combine(inputDirectory, "scene.bin");
+            _inputKernel = Path.Combine(inputDirectory, "kernel.bin");
+            _inputKernel2 = Path.Combine(inputDirectory, "kernel2.bin");
+        }
+
         private void BtnRandoScene_Click(object sender, EventArgs e)
         {
             if (_directory != null)
@@ -256,145 +355,38 @@ namespace Godo
                 bool workspacePrepared = false;
                 bool runSucceeded = false;
                 ScratchCleanupException finalCleanupFailure = null;
+                RunConfiguration runConfiguration = null;
 
                 try
                 {
+                    int seed;
                     if (txtSeed.Text != "")
                     {
-                        _seed = int.Parse(txtSeed.Text);
-                        _rnd = new Random(_seed);
+                        seed = int.Parse(txtSeed.Text);
                     }
                     else
                     {
-                        _seed = Environment.TickCount;
-                        _rnd = new Random(_seed);
+                        seed = Environment.TickCount;
                     }
 
-                    bool[] interimOptions = new bool[7];
-
-                    #region Quick Options
-
-                    if (chkWeaponData.Checked)
-                    {
-                        interimOptions[0] = true;
-                    }
-
-                    if (chkArmourData.Checked)
-                    {
-                        interimOptions[1] = true;
-                    }
-
-                    if (chkAccessoryData.Checked)
-                    {
-                        interimOptions[2] = true;
-                    }
-
-                    if(chkCharacterStats.Checked)
-                    {
-                        interimOptions[3] = true;
-                    }
-
-                    if(chkStartingMateria.Checked)
-                    {
-                        interimOptions[4] = true;
-                    }
-
-                    if (chkEnemyStats.Checked)
-                    {
-                        interimOptions[5] = true;
-                    }
-
-                    if(chkEnemyItems.Checked)
-                    {
-                        interimOptions[6] = true;
-                    }
-                    #endregion
-
-                    #region Languages
-                    Array.Clear(_languageOptions, 0, _languageOptions.Length);
-
-                    if (chkEnglish.Checked)
-                    {
-                        _languageOptions[0] = true;
-                        _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
-                    }
-                    else if (chkFrench.Checked)
-                    {
-                        _languageOptions[1] = true;
-                        _inputScene = Path.Combine(_directory, "Default French Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default French Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default French Files", "kernel2.bin");
-                    }
-                    else if (chkGerman.Checked)
-                    {
-                        _languageOptions[2] = true;
-                        _inputScene = Path.Combine(_directory, "Default German Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default German Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default German Files", "kernel2.bin");
-                    }
-                    else if (chkSpanish.Checked)
-                    {
-                        _languageOptions[3] = true;
-                        _inputScene = Path.Combine(_directory, "Default Spanish Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default Spanish Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default Spanish Files", "kernel2.bin");
-                    }
-                    else if (chkJapanese.Checked)
-                    {
-                        _languageOptions[4] = true;
-                        _inputScene = Path.Combine(_directory, "Default Japanese Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default Japanese Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default Japanese Files", "kernel2.bin");
-                    }
-                    else
-                    {
-                        // Default to English if all options are unticked
-                        _languageOptions[0] = true;
-                        _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
-                        _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
-                        _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
-                    }
-                    #endregion
+                    runConfiguration = CaptureRunConfiguration(seed);
+                    ConfigureInputFiles(runConfiguration.Language);
+                    Random random = new Random(runConfiguration.Seed);
 
                     // Reset and prepare generated scratch data for the new run.
                     workspace.Prepare();
                     workspacePrepared = true;
 
-                    byte[] kernelLookup = GZipper.PrepareScene(_inputScene, _outputScene,
-                        swapOptions,
-                        enemyStatOptions, enemyStatParameters,
-                        enemyAttackOptions, enemyAttackParameters,
-                        enemyItemOptions,
-                        formationOptions,
-                        balancingOptions, balancingParameters,
-                        challengeOptions,
-                        specialHackOptions, specialHackParameters,
-                        interimOptions,
-                        _rnd);
+                    byte[] kernelLookup = GZipper.PrepareScene(
+                        _inputScene,
+                        _outputScene,
+                        runConfiguration,
+                        random);
                     GZipper.PrepareKernel(
                         _inputKernel, _inputKernel2,
                         _outputKernel, _outputKernel2, kernelLookup,
-                        spellOptions, spellParameters,
-                        summonOptions, summonParameters,
-                        enemySkillOptions, enemySkillParameters,
-                        attackItemOptions, attackItemParameters,
-                        healItemOptions, healItemParameters,
-                        statusItemOptions, statusItemParameters,
-                        weaponOptions, weaponParameters,
-                        armourOptions, armourParameters,
-                        accessoryOptions, accessoryParameters,
-                        materiaOptions, materiaParameters,
-                        statOptions, statParameters, characterSelectStats,
-                        limitOptions, characterSelectLimits,
-                        equipOptions, equipParameters, characterSelectEquip,
-                        challengeOptions,
-                        specialHackOptions, specialHackParameters,
-                        interimOptions,
-                        _languageOptions,
-                        _rngOption,
-                        _rnd);
+                        runConfiguration,
+                        random);
                     string seedFile = Path.Combine(_directory, "FF7RandomSeeds.txt");
                     if (!File.Exists(seedFile))
                     {
@@ -407,7 +399,7 @@ namespace Godo
 
                     using (StreamWriter w = File.AppendText(seedFile))
                     {
-                        Misc.Log(_seed, w);
+                        Misc.Log(runConfiguration.Seed, w);
                     }
 
                     using (StreamReader r = File.OpenText(seedFile))
@@ -452,7 +444,8 @@ namespace Godo
                 }
                 else if (runSucceeded)
                 {
-                    MessageBox.Show("Rando Complete: seed = " + _seed);
+                    MessageBox.Show(
+                        "Rando Complete: seed = " + runConfiguration.Seed);
                 }
             }
             else

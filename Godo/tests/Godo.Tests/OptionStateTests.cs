@@ -1,3 +1,4 @@
+using Godo.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
@@ -148,6 +149,55 @@ namespace Godo.Tests
                             selections.All(selection => !selection),
                             optionFormType.Name + " retained an unchecked character.");
                     }
+                }
+            });
+        }
+
+        [TestMethod]
+        public void CapturedRunConfigurationDoesNotTrackLaterUiChanges()
+        {
+            RunInSta(() =>
+            {
+                string originalCurrentDirectory = Environment.CurrentDirectory;
+                try
+                {
+                    using (MainForm mainForm = new MainForm())
+                    {
+                        mainForm.weaponOptions[0] = true;
+                        GetPrivateCheckBox(
+                            mainForm,
+                            "chkWeaponData").Checked = true;
+                        GetPrivateCheckBox(
+                            mainForm,
+                            "chkFrench").Checked = true;
+
+                        MethodInfo capture = typeof(MainForm).GetMethod(
+                            "CaptureRunConfiguration",
+                            BindingFlags.Instance | BindingFlags.NonPublic);
+                        RunConfiguration configuration =
+                            (RunConfiguration)capture.Invoke(
+                                mainForm,
+                                new object[] { 2468 });
+
+                        mainForm.weaponOptions[0] = false;
+                        GetPrivateCheckBox(
+                            mainForm,
+                            "chkWeaponData").Checked = false;
+                        GetPrivateCheckBox(
+                            mainForm,
+                            "chkEnglish").Checked = true;
+
+                        Assert.AreEqual(2468, configuration.Seed);
+                        Assert.AreEqual(
+                            GameLanguage.French,
+                            configuration.Language);
+                        Assert.IsTrue(configuration.QuickOptions.Weapons);
+                        Assert.IsTrue(configuration.Weapons.Options[0]);
+                    }
+                }
+                finally
+                {
+                    Environment.CurrentDirectory = originalCurrentDirectory;
                 }
             });
         }

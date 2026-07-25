@@ -14,18 +14,29 @@ namespace Godo.Infrastructure
 {
     public class GZipper
     {
-        public static byte[] PrepareScene(string inputScene, string outputScene,
-            bool[] swapOptions,
-            bool[] enemyStatOptions, int[] enemyStatParameters,
-            bool[] enemyAttackOptions, int[] enemyAttackParameters,
-            bool[] enemyItemOptions,
-            bool[] formationOptions,
-            bool[] balancingOptions, int[] balancingParameters,
-            bool[] challengeOptions,
-            bool[] specialHackOptions, int[] specialHackParameters,
-            bool[] interimOptions,
+        public static byte[] PrepareScene(
+            string inputScene,
+            string outputScene,
+            RunConfiguration configuration,
             Random rnd)
         {
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(rnd);
+
+            bool[] swapOptions = configuration.ModelSwap.CopyOptions();
+            bool[] enemyStatOptions = configuration.EnemyStats.CopyOptions();
+            int[] enemyStatParameters = configuration.EnemyStats.CopyParameters();
+            bool[] enemyAttackOptions = configuration.EnemyAttacks.CopyOptions();
+            int[] enemyAttackParameters = configuration.EnemyAttacks.CopyParameters();
+            bool[] enemyItemOptions = configuration.EnemyItems.CopyOptions();
+            bool[] formationOptions = configuration.Formations.CopyOptions();
+            bool[] balancingOptions = configuration.Balancing.CopyOptions();
+            int[] balancingParameters = configuration.Balancing.CopyParameters();
+            bool[] challengeOptions = configuration.Challenges.CopyOptions();
+            bool[] specialHackOptions = configuration.SpecialHacks.CopyOptions();
+            int[] specialHackParameters = configuration.SpecialHacks.CopyParameters();
+            bool[] interimOptions = configuration.QuickOptions.ToArray();
+
             //string sceneDirectory = directory + "\\Target Files\\";   // The folder where scene.bin will be placed
             //string targetScene = sceneDirectory + "scene.bin";   // The target file itself
 
@@ -371,28 +382,51 @@ namespace Godo.Infrastructure
         }
 
         public static void PrepareKernel(
-            string inputKernel, string inputKernel2,
-            string outputKernel, string outputKernel2, byte[] kernelLookup,
-            bool[] spellOptions, int[] spellParameters,
-            bool[] summonOptions, int[] summonParameters,
-            bool[] enemySkillOptions, int[] enemySkillParameters,
-            bool[] attackItemOptions, int[] attackItemParameters,
-            bool[] healItemOptions, int[] healItemParameters,
-            bool[] statusItemOptions, int[] statusItemParameters,
-            bool[] weaponOptions, int[] weaponParameters,
-            bool[] armourOptions, int[] armourParameters,
-            bool[] accessoryOptions, int[] accessoryParameters,
-            bool[] materiaOptions, int[] materiaParameters,
-            bool[] statOptions, int[] statParameters, bool[] characterSelectStats,
-            bool[] limitOptions, bool[] characterSelectLimits,
-            bool[] equipOptions, int[] equipParameters, bool[] characterSelectEquip,
-            bool[] challengeOptions,
-            bool[] specialHackOptions, int[] specialHackParameters,
-            bool[] interimOptions,
-            bool[] languageOptions,
-            bool[] rngOption,
+            string inputKernel,
+            string inputKernel2,
+            string outputKernel,
+            string outputKernel2,
+            byte[] kernelLookup,
+            RunConfiguration configuration,
             Random rnd)
         {
+            ArgumentNullException.ThrowIfNull(configuration);
+            ArgumentNullException.ThrowIfNull(rnd);
+
+            bool[] spellOptions = configuration.Spells.CopyOptions();
+            int[] spellParameters = configuration.Spells.CopyParameters();
+            bool[] summonOptions = configuration.Summons.CopyOptions();
+            int[] summonParameters = configuration.Summons.CopyParameters();
+            bool[] enemySkillOptions = configuration.EnemySkills.CopyOptions();
+            int[] enemySkillParameters = configuration.EnemySkills.CopyParameters();
+            bool[] attackItemOptions = configuration.AttackItems.CopyOptions();
+            int[] attackItemParameters = configuration.AttackItems.CopyParameters();
+            bool[] healItemOptions = configuration.HealItems.CopyOptions();
+            int[] healItemParameters = configuration.HealItems.CopyParameters();
+            bool[] statusItemOptions = configuration.StatusItems.CopyOptions();
+            int[] statusItemParameters = configuration.StatusItems.CopyParameters();
+            bool[] weaponOptions = configuration.Weapons.CopyOptions();
+            int[] weaponParameters = configuration.Weapons.CopyParameters();
+            bool[] armourOptions = configuration.Armour.CopyOptions();
+            int[] armourParameters = configuration.Armour.CopyParameters();
+            bool[] accessoryOptions = configuration.Accessories.CopyOptions();
+            int[] accessoryParameters = configuration.Accessories.CopyParameters();
+            bool[] materiaOptions = configuration.Materia.CopyOptions();
+            int[] materiaParameters = configuration.Materia.CopyParameters();
+            bool[] statOptions = configuration.CharacterStats.CopyOptions();
+            int[] statParameters = configuration.CharacterStats.CopyParameters();
+            bool[] characterSelectStats = configuration.CharacterStats.CopySelections();
+            bool[] limitOptions = configuration.LimitBreaks.CopyOptions();
+            bool[] characterSelectLimits = configuration.LimitBreaks.CopySelections();
+            bool[] equipOptions = configuration.StartingEquipment.CopyOptions();
+            int[] equipParameters = configuration.StartingEquipment.CopyParameters();
+            bool[] characterSelectEquip = configuration.StartingEquipment.CopySelections();
+            bool[] challengeOptions = configuration.Challenges.CopyOptions();
+            bool[] specialHackOptions = configuration.SpecialHacks.CopyOptions();
+            int[] specialHackParameters = configuration.SpecialHacks.CopyParameters();
+            bool[] interimOptions = configuration.QuickOptions.ToArray();
+            bool[] languageOptions = configuration.CreateLanguageOptions();
+            bool[] rngOption = configuration.CreateRngOptions();
 
             // An array of arrays, containing compressed size, uncompressed size, section ID
             int[][] jaggedKernelInfo = new int[27][];
