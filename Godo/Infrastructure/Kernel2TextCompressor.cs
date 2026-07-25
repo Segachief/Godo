@@ -10,8 +10,12 @@ namespace Godo.Infrastructure
 {
     public class Kernel2TextCompressor
     {
-        public static void Kernel2Decompress(byte[] input)
+        public static void Kernel2Decompress(
+            byte[] input,
+            string outputDirectory)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(outputDirectory);
+
             var ms = new MemoryStream();
             var uncompress = new MemoryStream(input);
             uncompress.Position = 4; // Starts at 4th byte to skip header - Kernel2 is one giant LZS file with a single 4byte header giving length
@@ -19,7 +23,7 @@ namespace Godo.Infrastructure
             System.Diagnostics.Debug.WriteLine("FF:Kernel2Decompress:LZS expanded {0} bytes to {1} bytes", input.Length,
                 ms.Length);
 
-            string kernel2StringsOutput = Directory.GetCurrentDirectory() + "\\Kernel2 Strings\\";
+            Directory.CreateDirectory(outputDirectory);
             byte[] uncompressedKernel2 = new byte[ms.Length];
             int uncompressedSize;
             byte[] header = new byte[4];
@@ -31,7 +35,10 @@ namespace Godo.Infrastructure
 
             while (r < 27)
             {
-                using (var outputStream = File.Create(kernel2StringsOutput + "kernel2.bin" + r))
+                string sectionFile = Path.Combine(
+                    outputDirectory,
+                    "kernel2.bin" + r);
+                using (var outputStream = File.Create(sectionFile))
                 {
                     // Writes the kernel2 section using header to get length
                     outputStream.Seek(0, SeekOrigin.Begin);
@@ -60,8 +67,12 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void Kernel2Recompress(byte[] input)
+        public static void Kernel2Recompress(
+            byte[] input,
+            string outputFile)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(outputFile);
+
             // Re-encodes the data as LZSS format
             var ms = new MemoryStream(input);
             var compress = new MemoryStream();
@@ -85,8 +96,7 @@ namespace Godo.Infrastructure
             compress.Read(data, 4, (int)compress.Length);
 
             // Produces the finished file
-            string produceFile = Directory.GetCurrentDirectory() + "\\Output Files\\kernel2.bin";
-            using (var outputStream = File.Create(produceFile))
+            using (var outputStream = File.Create(outputFile))
             {
                 outputStream.Position = 0;
                 outputStream.Write(data, 0, data.Length);

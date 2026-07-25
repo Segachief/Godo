@@ -11,7 +11,14 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class ArmourData
     {
-        public static byte[] RandomiseArmour(byte[] data, bool[] options, int[] parameters, bool[] languageOptions, byte[] startingEquipment, Random rnd)
+        public static byte[] RandomiseArmour(
+            byte[] data,
+            bool[] options,
+            int[] parameters,
+            bool[] languageOptions,
+            byte[] startingEquipment,
+            Random rnd,
+            string textOutputFile)
         {
             #region Section Information
             /* Armour Data
@@ -355,7 +362,10 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 MessageBox.Show("Kernel Section #6 (Armour Data) has failed to randomise");
             }
 
-            KernelTextRewriter.ArmourDescriptionRewrite(armourAttributes, languageOptions);
+            KernelTextRewriter.ArmourDescriptionRewrite(
+                armourAttributes,
+                languageOptions,
+                textOutputFile);
 
             return data;
         }

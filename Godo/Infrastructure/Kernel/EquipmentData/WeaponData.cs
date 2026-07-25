@@ -12,7 +12,15 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class WeaponData
     {
-        public static byte[] RandomiseWeapons(byte[] data, bool[] options, int[] parameters, bool[] languageOptions, byte[] startingEquipment, Random rnd, bool interimOptions)
+        public static byte[] RandomiseWeapons(
+            byte[] data,
+            bool[] options,
+            int[] parameters,
+            bool[] languageOptions,
+            byte[] startingEquipment,
+            Random rnd,
+            bool interimOptions,
+            string textOutputFile)
         {
             #region Section information
             /* Weapon Data
@@ -354,7 +362,10 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 MessageBox.Show("Kernel Section #5 (Weapon Data) has failed to randomise");
             }
 
-            KernelTextRewriter.WeaponDescriptionRewrite(weaponAttributes, languageOptions);
+            KernelTextRewriter.WeaponDescriptionRewrite(
+                weaponAttributes,
+                languageOptions,
+                textOutputFile);
 
             return data;
         }

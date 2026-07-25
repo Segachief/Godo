@@ -8,11 +8,12 @@ namespace Godo.Infrastructure
     public class KernelTextRewriter
     {
 
-        public static void CommandDescriptionRewrite(bool[] languageOptions)
+        public static void CommandDescriptionRewrite(
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current Command ID being written for
             int e = 0; // Counts byte position of the string being written
-            string commandStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin9";
 
             //Each command string is stored as a separate array so it can have its length counted quickly
             byte[][] commandStrings = new byte[32][];
@@ -40,7 +41,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(commandStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 
@@ -80,11 +81,12 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void MateriaDescriptionRewrite(bool[] languageOptions)
+        public static void MateriaDescriptionRewrite(
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current Materia ID being written for
             int e = 0; // Counts byte position of the string being written
-            string materiaStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin15";
 
             //Each command string is stored as a separate array so it can have its length counted quickly
             byte[][] materiaStrings = new byte[96][];
@@ -112,7 +114,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(materiaStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 
@@ -152,11 +154,12 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void KeyItemDescriptionRewrite(bool[] languageOptions)
+        public static void KeyItemDescriptionRewrite(
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current KeyItem Description ID being written for
             int e = 0; // Counts byte position of the string being written
-            string materiaStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin16";
 
             //Each command string is stored as a separate array so it can have its length counted quickly
             byte[][] materiaStrings = new byte[64][];
@@ -184,7 +187,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(materiaStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 
@@ -224,13 +227,15 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void WeaponDescriptionRewrite(byte[][] weaponAttributes, bool[] languageOptions)
+        public static void WeaponDescriptionRewrite(
+            byte[][] weaponAttributes,
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current weapon ID being written for
             int i = 0; // Dealing with 2-digit values in stat bonuses
             int c = 0; // Used for writing the status string
             int e = 0; // Counts byte position of the string being written
-            string weaponStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin12";
 
             //Each weapon string is stored as a separate array so it can have its length counted quickly
             byte[][] weaponStrings = new byte[128][];
@@ -540,7 +545,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(weaponStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 
@@ -580,13 +585,15 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void ArmourDescriptionRewrite(byte[][] armourAttributes, bool[] languageOptions)
+        public static void ArmourDescriptionRewrite(
+            byte[][] armourAttributes,
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current armour ID being written for
             int i = 0; // Dealing with 2-digit values in stat bonuses
             int c = 0; // Used for writing the status string
             int e = 0; // Counts byte position of the string being written
-            string armourStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin13";
 
             //Each armour string is stored as a separate array so it can have its length counted quickly
             byte[][] armourStrings = new byte[32][];
@@ -770,7 +777,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(armourStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 
@@ -810,13 +817,15 @@ namespace Godo.Infrastructure
             }
         }
 
-        public static void AccessoryDescriptionRewrite(byte[][] accessoryAttributes, bool[] languageOptions)
+        public static void AccessoryDescriptionRewrite(
+            byte[][] accessoryAttributes,
+            bool[] languageOptions,
+            string outputFile)
         {
             int r = 0; // Current accessory ID being written for
             int i = 0; // Dealing with 2-digit values in stat bonuses
             int c = 0; // Used for writing the status string
             int e = 0; // Counts byte position of the string being written
-            string accessoryStringsFile = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin14";
 
             //Each accessory string is stored as a separate array so it can have its length counted quickly
             byte[][] accessoryStrings = new byte[32][];
@@ -1081,7 +1090,7 @@ namespace Godo.Infrastructure
                 }
                 r = 0;
 
-                using (var outputStream = File.Create(accessoryStringsFile))
+                using (var outputStream = File.Create(outputFile))
                 {
                     outputStream.Position = 0;
 

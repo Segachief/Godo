@@ -31,9 +31,6 @@ namespace Godo
             _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
             _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
             _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
-            _outputScene = Path.Combine(_directory, "Output Files", "scene.bin");
-            _outputKernel = Path.Combine(_directory, "Output Files", "kernel.bin");
-            _outputKernel2 = Path.Combine(_directory, "Output Files", "kernel2.bin");
             _miscFile = Path.Combine(_directory, "MiscInput", "FIELD.TDB");
 
             InitializeComponent();
@@ -153,9 +150,6 @@ namespace Godo
         string _inputScene;
         string _inputKernel;
         string _inputKernel2;
-        readonly string _outputScene;
-        readonly string _outputKernel;
-        readonly string _outputKernel2;
         readonly string _miscFile;
         private static string ResolveRuntimeDirectory()
         {
@@ -693,7 +687,7 @@ namespace Godo
         {
             if (_directory != null)
             {
-                RunWorkspace workspace = new RunWorkspace(_directory);
+                RunWorkspace workspace = null;
                 bool workspacePrepared = false;
                 bool runSucceeded = false;
                 ScratchCleanupException finalCleanupFailure = null;
@@ -703,8 +697,9 @@ namespace Godo
                 try
                 {
                     runConfiguration = ResolveRunConfiguration(txtSeed.Text);
-                    portableSeed =
-                        RunConfigurationSeedCodec.Encode(runConfiguration);
+                    workspace =
+                        new RunWorkspace(_directory, runConfiguration);
+                    portableSeed = workspace.PortableSeed;
                     ConfigureInputFiles(runConfiguration.Language);
                     Random random = new Random(runConfiguration.Seed);
 
@@ -714,14 +709,16 @@ namespace Godo
 
                     byte[] kernelLookup = GZipper.PrepareScene(
                         _inputScene,
-                        _outputScene,
+                        workspace,
                         runConfiguration,
                         random);
                     GZipper.PrepareKernel(
                         _inputKernel, _inputKernel2,
-                        _outputKernel, _outputKernel2, kernelLookup,
+                        kernelLookup,
+                        workspace,
                         runConfiguration,
                         random);
+                    workspace.PublishOutputs();
                     string seedFile = Path.Combine(_directory, "FF7RandomSeeds.txt");
                     if (!File.Exists(seedFile))
                     {
@@ -781,7 +778,10 @@ namespace Godo
                 {
                     txtSeed.Text = portableSeed;
                     MessageBox.Show(
-                        "Rando Complete. Portable seed:\n\n" + portableSeed);
+                        "Rando Complete. Portable seed:\n\n" +
+                        portableSeed +
+                        "\n\nOutput folder:\n" +
+                        workspace.PublishedOutputDirectory);
                 }
             }
             else

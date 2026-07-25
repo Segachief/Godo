@@ -16,12 +16,14 @@ namespace Godo.Infrastructure
     {
         public static byte[] PrepareScene(
             string inputScene,
-            string outputScene,
+            RunWorkspace workspace,
             RunConfiguration configuration,
             Random rnd)
         {
+            ArgumentNullException.ThrowIfNull(workspace);
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(rnd);
+            workspace.EnsurePrepared();
 
             bool[] swapOptions = configuration.ModelSwap.CopyOptions();
             bool[] enemyStatOptions = configuration.EnemyStats.CopyOptions();
@@ -272,7 +274,8 @@ namespace Godo.Infrastructure
             int headerInt;
             byte[] finalHeader = new byte[64];
 
-            using (var outputStream = File.Create(outputScene))
+            using (var outputStream = File.Create(
+                workspace.SceneOutputFile))
             {
                 int blockCount = 0; // Counts blocks for the kernel lookup table index
                 // Loops until all 255 scenes are assigned to a block
@@ -384,14 +387,15 @@ namespace Godo.Infrastructure
         public static void PrepareKernel(
             string inputKernel,
             string inputKernel2,
-            string outputKernel,
-            string outputKernel2,
             byte[] kernelLookup,
+            RunWorkspace workspace,
             RunConfiguration configuration,
             Random rnd)
         {
+            ArgumentNullException.ThrowIfNull(workspace);
             ArgumentNullException.ThrowIfNull(configuration);
             ArgumentNullException.ThrowIfNull(rnd);
+            workspace.EnsurePrepared();
 
             bool[] spellOptions = configuration.Spells.CopyOptions();
             int[] spellParameters = configuration.Spells.CopyParameters();
@@ -463,7 +467,9 @@ namespace Godo.Infrastructure
                 FileInfo kernel2Info = new FileInfo(inputKernel2);
                 byte[] compressedKernel2 = new byte[kernel2Info.Length];
                 ker.Read(compressedKernel2, 0, (int)kernel2Info.Length);
-                Kernel2TextCompressor.Kernel2Decompress(compressedKernel2);
+                Kernel2TextCompressor.Kernel2Decompress(
+                    compressedKernel2,
+                    workspace.Kernel2StringsDirectory);
                 // We now have all the Kernel2 sections living within the Kernel2 Strings folder
             }
 
@@ -505,9 +511,15 @@ namespace Godo.Infrastructure
                 int size = jaggedKernelInfo[o][1];
                 int textSize = 0; // Used to keep track of size of text sections for later
                 byte[] uncompressedKernel = new byte[size]; // Used to hold the decompressed kernel section
-                string kernelTextSection = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2.bin";
-                string kernel2TextSection = Directory.GetCurrentDirectory() + "\\Kernel2 Strings\\kernel2.bin";
-                string kernelNewTextSection = Directory.GetCurrentDirectory() + "\\Kernel Strings\\kernel2Modified.bin";
+                string kernelTextSection = Path.Combine(
+                    workspace.KernelStringsDirectory,
+                    "kernel2.bin");
+                string kernel2TextSection = Path.Combine(
+                    workspace.Kernel2StringsDirectory,
+                    "kernel2.bin");
+                string kernelNewTextSection = Path.Combine(
+                    workspace.KernelStringsDirectory,
+                    "kernel2Modified.bin");
                 int offsetTextStart = 0;
 
                 using (BinaryReader brg = new BinaryReader(new FileStream(inputKernel, FileMode.Open)))
@@ -563,7 +575,9 @@ namespace Godo.Infrastructure
                         //CommandData.RandomiseSection0(uncompressedKernel, challengeOptions);
 
                         //Rewriting descriptions to make space
-                        KernelTextRewriter.CommandDescriptionRewrite(languageOptions);
+                        KernelTextRewriter.CommandDescriptionRewrite(
+                            languageOptions,
+                            kernelNewTextSection + 9);
                         break;
 
                     case 1:
@@ -603,33 +617,58 @@ namespace Godo.Infrastructure
                         //    statusItemOptions, statusItemParameters,
                         //    challengeOptions,
                         //    rnd);
-                        KernelTextRewriter.KeyItemDescriptionRewrite(languageOptions);
+                        KernelTextRewriter.KeyItemDescriptionRewrite(
+                            languageOptions,
+                            kernelNewTextSection + 16);
                         break;
 
                     case 5:
                         if (interimOptions[0] == true)
                         {
-                            WeaponData.RandomiseWeapons(uncompressedKernel, weaponOptions, weaponParameters, languageOptions, startingEquipment, rnd, interimOptions[0]);
+                            WeaponData.RandomiseWeapons(
+                                uncompressedKernel,
+                                weaponOptions,
+                                weaponParameters,
+                                languageOptions,
+                                startingEquipment,
+                                rnd,
+                                interimOptions[0],
+                                kernelNewTextSection + 12);
                         }
                         break;
 
                     case 6:
                         if (interimOptions[1] == true)
                         {
-                            ArmourData.RandomiseArmour(uncompressedKernel, armourOptions, armourParameters, languageOptions, startingEquipment, rnd);
+                            ArmourData.RandomiseArmour(
+                                uncompressedKernel,
+                                armourOptions,
+                                armourParameters,
+                                languageOptions,
+                                startingEquipment,
+                                rnd,
+                                kernelNewTextSection + 13);
                         }
                         break;
 
                     case 7:
                         if (interimOptions[2] == true)
                         {
-                            AccessoryData.RandomiseAccessories(uncompressedKernel, accessoryOptions, accessoryParameters, languageOptions, rnd);
+                            AccessoryData.RandomiseAccessories(
+                                uncompressedKernel,
+                                accessoryOptions,
+                                accessoryParameters,
+                                languageOptions,
+                                rnd,
+                                kernelNewTextSection + 14);
                         }
                         break;
 
                     case 8:
                         //MateriaData.RandomiseMateria(uncompressedKernel, materiaOptions, materiaParameters, challengeOptions, rnd);
-                        KernelTextRewriter.MateriaDescriptionRewrite(languageOptions);
+                        KernelTextRewriter.MateriaDescriptionRewrite(
+                            languageOptions,
+                            kernelNewTextSection + 15);
                         break;
 
                     // Handles text sections
@@ -729,7 +768,9 @@ namespace Godo.Infrastructure
                 if (r == 26)
                 {
                     Array.Resize(ref textData, indexPosition);
-                    Kernel2TextCompressor.Kernel2Recompress(textData);
+                    Kernel2TextCompressor.Kernel2Recompress(
+                        textData,
+                        workspace.Kernel2OutputFile);
                 }
 
                 byte[] recompressedKernel;
@@ -778,7 +819,8 @@ namespace Godo.Infrastructure
 
 
             // Step 3: Rebuilding the Kernel.bin
-            using (var outputStream = File.Create(outputKernel))
+            using (var outputStream = File.Create(
+                workspace.KernelOutputFile))
             {
                 // Loops until all 27 sections are headered and written
                 while (r < 27)

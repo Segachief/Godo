@@ -10,7 +10,13 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class AccessoryData
     {
-        public static byte[] RandomiseAccessories(byte[] data, bool[] options, int[] parameters, bool[] languageOptions, Random rnd)
+        public static byte[] RandomiseAccessories(
+            byte[] data,
+            bool[] options,
+            int[] parameters,
+            bool[] languageOptions,
+            Random rnd,
+            string textOutputFile)
         {
             #region Section Information
             /* Accessory Data
@@ -180,7 +186,10 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 MessageBox.Show("Kernel Section #7 (Accessory Data) has failed to randomise");
             }
 
-            KernelTextRewriter.AccessoryDescriptionRewrite(accessoryAttributes, languageOptions);
+            KernelTextRewriter.AccessoryDescriptionRewrite(
+                accessoryAttributes,
+                languageOptions,
+                textOutputFile);
 
             return data;
         }

@@ -41,24 +41,41 @@ namespace Godo.Tests
                     sourceDefaultFiles,
                     Path.Combine(testRuntime, "Default Files"));
 
-                Directory.SetCurrentDirectory(testRuntime);
-                RunWorkspace workspace = new RunWorkspace(testRuntime);
+                string unrelatedCurrentDirectory =
+                    Path.Combine(testRuntime, "Unrelated Current Directory");
+                Directory.CreateDirectory(unrelatedCurrentDirectory);
+                Directory.SetCurrentDirectory(unrelatedCurrentDirectory);
                 RunConfiguration firstConfiguration =
                     TestRunConfigurations.Create(123456789);
 
-                RunPipeline(workspace, firstConfiguration);
-                string[] firstHashes = GetOutputHashes(workspace.OutputDirectory);
+                RunWorkspace firstWorkspace =
+                    new RunWorkspace(
+                        testRuntime,
+                        firstConfiguration);
+                RunPipeline(firstWorkspace, firstConfiguration);
+                string[] firstHashes = GetOutputHashes(
+                    firstWorkspace.PublishedOutputDirectory);
 
                 string portableSeed =
                     RunConfigurationSeedCodec.Encode(firstConfiguration);
                 RunConfiguration reproducedConfiguration =
                     RunConfigurationSeedCodec.Decode(portableSeed);
-                RunPipeline(workspace, reproducedConfiguration);
-                string[] secondHashes = GetOutputHashes(workspace.OutputDirectory);
+                RunWorkspace secondWorkspace =
+                    new RunWorkspace(
+                        testRuntime,
+                        reproducedConfiguration);
+                RunPipeline(secondWorkspace, reproducedConfiguration);
+                string[] secondHashes = GetOutputHashes(
+                    secondWorkspace.PublishedOutputDirectory);
 
                 CollectionAssert.AreEqual(firstHashes, secondHashes);
-                Assert.AreEqual(0, Directory.GetFiles(workspace.KernelStringsDirectory).Length);
-                Assert.AreEqual(0, Directory.GetFiles(workspace.Kernel2StringsDirectory).Length);
+                Assert.AreNotEqual(
+                    firstWorkspace.RunDirectory,
+                    secondWorkspace.RunDirectory);
+                Assert.IsFalse(
+                    Directory.Exists(firstWorkspace.RunDirectory));
+                Assert.IsFalse(
+                    Directory.Exists(secondWorkspace.RunDirectory));
             }
             finally
             {
@@ -82,18 +99,18 @@ namespace Godo.Tests
 
                 byte[] kernelLookup = GZipper.PrepareScene(
                     Path.Combine(workspace.RuntimeDirectory, "Default Files", "scene.bin"),
-                    Path.Combine(workspace.OutputDirectory, "scene.bin"),
+                    workspace,
                     configuration,
                     random);
 
                 GZipper.PrepareKernel(
                     Path.Combine(workspace.RuntimeDirectory, "Default Files", "kernel.bin"),
                     Path.Combine(workspace.RuntimeDirectory, "Default Files", "kernel2.bin"),
-                    Path.Combine(workspace.OutputDirectory, "kernel.bin"),
-                    Path.Combine(workspace.OutputDirectory, "kernel2.bin"),
                     kernelLookup,
+                    workspace,
                     configuration,
                     random);
+                workspace.PublishOutputs();
             }
             finally
             {

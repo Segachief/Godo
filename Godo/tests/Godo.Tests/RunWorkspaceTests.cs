@@ -29,59 +29,76 @@ namespace Godo.Tests
         }
 
         [TestMethod]
-        public void PrepareCreatesDirectoriesAndDeletesOnlyGeneratedScratchFiles()
+        public void PrepareCreatesAUniquePrivateRunDirectory()
         {
-            RunWorkspace workspace = new RunWorkspace(_testDirectory);
-            Directory.CreateDirectory(workspace.KernelStringsDirectory);
-            Directory.CreateDirectory(workspace.Kernel2StringsDirectory);
+            RunConfiguration configuration =
+                TestRunConfigurations.Create();
+            DateTime generatedAt =
+                new DateTime(2026, 7, 25, 14, 55, 0);
+            RunWorkspace first =
+                new RunWorkspace(
+                    _testDirectory,
+                    configuration,
+                    generatedAt);
+            RunWorkspace second =
+                new RunWorkspace(
+                    _testDirectory,
+                    configuration,
+                    generatedAt);
 
-            string kernelScratch = Path.Combine(workspace.KernelStringsDirectory, "kernel2.bin9");
-            string modifiedScratch = Path.Combine(workspace.KernelStringsDirectory, "kernel2Modified.bin26");
-            string kernel2Scratch = Path.Combine(workspace.Kernel2StringsDirectory, "kernel2.bin12");
-            string unrelatedFile = Path.Combine(workspace.KernelStringsDirectory, "keep-me.txt");
+            first.Prepare();
+            second.Prepare();
 
-            File.WriteAllText(kernelScratch, "generated");
-            File.WriteAllText(modifiedScratch, "generated");
-            File.WriteAllText(kernel2Scratch, "generated");
-            File.WriteAllText(unrelatedFile, "user data");
-
-            workspace.Prepare();
-
-            Assert.IsTrue(Directory.Exists(workspace.OutputDirectory));
-            Assert.IsFalse(File.Exists(kernelScratch));
-            Assert.IsFalse(File.Exists(modifiedScratch));
-            Assert.IsFalse(File.Exists(kernel2Scratch));
-            Assert.IsTrue(File.Exists(unrelatedFile));
+            Assert.AreNotEqual(first.RunId, second.RunId);
+            Assert.AreNotEqual(first.RunDirectory, second.RunDirectory);
+            Assert.IsTrue(Directory.Exists(first.KernelStringsDirectory));
+            Assert.IsTrue(Directory.Exists(first.Kernel2StringsDirectory));
+            Assert.IsTrue(Directory.Exists(first.OutputDirectory));
+            Assert.AreEqual(
+                first.PublishedOutputDirectory,
+                second.PublishedOutputDirectory);
         }
 
         [TestMethod]
-        public void CleanupScratchFilesSupportsConsecutiveRuns()
+        public void CleanupScratchFilesDeletesOnlyTheOwningRun()
         {
-            RunWorkspace workspace = new RunWorkspace(_testDirectory);
+            RunConfiguration configuration =
+                TestRunConfigurations.Create();
+            RunWorkspace first =
+                new RunWorkspace(_testDirectory, configuration);
+            RunWorkspace second =
+                new RunWorkspace(_testDirectory, configuration);
+            first.Prepare();
+            second.Prepare();
+            string firstScratch =
+                Path.Combine(first.KernelStringsDirectory, "generated.bin");
+            string secondScratch =
+                Path.Combine(second.KernelStringsDirectory, "generated.bin");
+            File.WriteAllText(firstScratch, "first");
+            File.WriteAllText(secondScratch, "second");
+
+            first.CleanupScratchFiles();
+
+            Assert.IsFalse(Directory.Exists(first.RunDirectory));
+            Assert.IsTrue(Directory.Exists(second.RunDirectory));
+            Assert.IsTrue(File.Exists(secondScratch));
+        }
+
+        [TestMethod]
+        public void WorkspaceCannotBePreparedForASecondRun()
+        {
+            RunWorkspace workspace = CreateWorkspace();
             workspace.Prepare();
+            workspace.CleanupScratchFiles();
 
-            for (int run = 0; run < 2; run++)
-            {
-                string kernelScratch = Path.Combine(workspace.KernelStringsDirectory, "kernel2.bin9");
-                string modifiedScratch = Path.Combine(workspace.KernelStringsDirectory, "kernel2Modified.bin12");
-                string kernel2Scratch = Path.Combine(workspace.Kernel2StringsDirectory, "kernel2.bin26");
-
-                File.WriteAllText(kernelScratch, "generated");
-                File.WriteAllText(modifiedScratch, "generated");
-                File.WriteAllText(kernel2Scratch, "generated");
-
-                workspace.CleanupScratchFiles();
-
-                Assert.IsFalse(File.Exists(kernelScratch));
-                Assert.IsFalse(File.Exists(modifiedScratch));
-                Assert.IsFalse(File.Exists(kernel2Scratch));
-            }
+            Assert.ThrowsException<InvalidOperationException>(
+                () => workspace.Prepare());
         }
 
         [TestMethod]
         public void CleanupScratchFilesReportsTheLockedFile()
         {
-            RunWorkspace workspace = new RunWorkspace(_testDirectory);
+            RunWorkspace workspace = CreateWorkspace();
             workspace.Prepare();
             string lockedFile = Path.Combine(workspace.KernelStringsDirectory, "kernel2.bin9");
             File.WriteAllText(lockedFile, "generated");
@@ -99,6 +116,143 @@ namespace Godo.Tests
                 Assert.AreEqual(lockedFile, exception.FilePath);
                 Assert.IsInstanceOfType(exception.InnerException, typeof(IOException));
             }
+        }
+
+        [TestMethod]
+        public void PublishOutputsRequiresACompleteOutputSet()
+        {
+            RunWorkspace workspace = CreateWorkspace();
+            workspace.Prepare();
+            string publishedScene = Path.Combine(
+                workspace.PublishedOutputDirectory,
+                "scene.bin");
+            Directory.CreateDirectory(
+                workspace.PublishedOutputDirectory);
+            File.WriteAllText(publishedScene, "previous");
+            File.WriteAllText(
+                Path.Combine(workspace.OutputDirectory, "scene.bin"),
+                "replacement");
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => workspace.PublishOutputs());
+
+            Assert.AreEqual("previous", File.ReadAllText(publishedScene));
+        }
+
+        [TestMethod]
+        public void PublishOutputsMovesTheCompletedSetToSharedOutput()
+        {
+            RunWorkspace workspace = CreateWorkspace();
+            workspace.Prepare();
+            string[] outputFiles =
+            {
+                "scene.bin",
+                "kernel.bin",
+                "kernel2.bin"
+            };
+
+            foreach (string outputFile in outputFiles)
+            {
+                File.WriteAllText(
+                    Path.Combine(workspace.OutputDirectory, outputFile),
+                    outputFile);
+            }
+
+            workspace.PublishOutputs();
+
+            foreach (string outputFile in outputFiles)
+            {
+                Assert.AreEqual(
+                    outputFile,
+                    File.ReadAllText(Path.Combine(
+                        workspace.PublishedOutputDirectory,
+                        outputFile)));
+                Assert.IsFalse(File.Exists(
+                    Path.Combine(workspace.OutputDirectory, outputFile)));
+            }
+
+            Assert.AreEqual(
+                workspace.PortableSeed,
+                File.ReadAllText(Path.Combine(
+                    workspace.PublishedOutputDirectory,
+                    "seed.txt")));
+        }
+
+        [TestMethod]
+        public void OutputFolderUsesSeedPrefixAndGenerationTimestamp()
+        {
+            DateTime generatedAt =
+                new DateTime(2026, 7, 25, 14, 55, 0);
+            RunWorkspace workspace = new RunWorkspace(
+                _testDirectory,
+                TestRunConfigurations.Create(),
+                generatedAt);
+            string expectedSeedName =
+                workspace.PortableSeed.Substring(
+                    0,
+                    RunConfigurationSeedCodec.Prefix.Length + 5);
+
+            Assert.AreEqual(
+                expectedSeedName + "-25-07-26-1455",
+                workspace.OutputFolderName);
+        }
+
+        [TestMethod]
+        public void PublishOutputsAppendsDuplicateNumber()
+        {
+            DateTime generatedAt =
+                new DateTime(2026, 7, 25, 14, 55, 0);
+            RunConfiguration configuration =
+                TestRunConfigurations.Create();
+            RunWorkspace first = new RunWorkspace(
+                _testDirectory,
+                configuration,
+                generatedAt);
+            RunWorkspace second = new RunWorkspace(
+                _testDirectory,
+                configuration,
+                generatedAt);
+            RunWorkspace third = new RunWorkspace(
+                _testDirectory,
+                configuration,
+                generatedAt);
+
+            PrepareAndStageOutputs(first);
+            PrepareAndStageOutputs(second);
+            PrepareAndStageOutputs(third);
+            first.PublishOutputs();
+            second.PublishOutputs();
+            third.PublishOutputs();
+
+            Assert.IsFalse(first.OutputFolderName.EndsWith(")"));
+            Assert.AreEqual(
+                first.OutputFolderName + "(1)",
+                second.OutputFolderName);
+            Assert.AreEqual(
+                first.OutputFolderName + "(2)",
+                third.OutputFolderName);
+            Assert.IsTrue(
+                Directory.Exists(first.PublishedOutputDirectory));
+            Assert.IsTrue(
+                Directory.Exists(second.PublishedOutputDirectory));
+            Assert.IsTrue(
+                Directory.Exists(third.PublishedOutputDirectory));
+        }
+
+        private RunWorkspace CreateWorkspace()
+        {
+            return new RunWorkspace(
+                _testDirectory,
+                TestRunConfigurations.Create());
+        }
+
+        private static void PrepareAndStageOutputs(
+            RunWorkspace workspace)
+        {
+            workspace.Prepare();
+            File.WriteAllText(workspace.SceneOutputFile, "scene");
+            File.WriteAllText(workspace.KernelOutputFile, "kernel");
+            File.WriteAllText(workspace.Kernel2OutputFile, "kernel2");
         }
     }
 }
