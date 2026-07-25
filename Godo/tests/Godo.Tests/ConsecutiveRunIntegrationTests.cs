@@ -13,7 +13,7 @@ namespace Godo.Tests
     {
         [TestMethod]
         [TestCategory("Integration")]
-        public void PipelineSupportsTwoConsecutiveRunsInTheSameProcess()
+        public void TwoConsecutiveRunsFromRestoredSeedProduceIdenticalOutputHashes()
         {
             string sourceRuntime = Environment.GetEnvironmentVariable("GODO_TEST_RUNTIME");
             if (string.IsNullOrWhiteSpace(sourceRuntime))
@@ -93,6 +93,93 @@ namespace Godo.Tests
             }
         }
 
+        [TestMethod]
+        [TestCategory("Integration")]
+        public void FailedRunLeavesPreviouslyPublishedOutputUnchanged()
+        {
+            string sourceRuntime =
+                Environment.GetEnvironmentVariable("GODO_TEST_RUNTIME");
+            if (string.IsNullOrWhiteSpace(sourceRuntime))
+            {
+                Assert.Inconclusive(
+                    "Set GODO_TEST_RUNTIME to a runtime directory containing Default Files.");
+            }
+
+            string sourceDefaultFiles =
+                Path.Combine(sourceRuntime, "Default Files");
+            if (!Directory.Exists(sourceDefaultFiles))
+            {
+                Assert.Inconclusive(
+                    "GODO_TEST_RUNTIME does not contain a Default Files directory.");
+            }
+
+            string testRuntime = Path.Combine(
+                Path.GetTempPath(),
+                "Godo.Tests",
+                Guid.NewGuid().ToString("N"));
+
+            try
+            {
+                string testDefaultFiles =
+                    Path.Combine(testRuntime, "Default Files");
+                CopyDirectory(sourceDefaultFiles, testDefaultFiles);
+
+                RunConfiguration configuration =
+                    TestRunConfigurations.Create(987654321);
+                DateTimeOffset generatedAt =
+                    new DateTimeOffset(
+                        2026,
+                        7,
+                        25,
+                        14,
+                        55,
+                        0,
+                        TimeSpan.Zero);
+                RunWorkspace successfulWorkspace =
+                    new RunWorkspace(
+                        testRuntime,
+                        configuration,
+                        generatedAt);
+                RunPipeline(successfulWorkspace, configuration);
+                string[] originalPublishedHashes =
+                    GetPublishedTreeHashes(
+                        successfulWorkspace.PublishedOutputDirectory);
+
+                File.WriteAllBytes(
+                    Path.Combine(testDefaultFiles, "scene.bin"),
+                    new byte[63]);
+                RunWorkspace failedWorkspace =
+                    new RunWorkspace(
+                        testRuntime,
+                        configuration,
+                        generatedAt);
+
+                Assert.ThrowsException<EndOfStreamException>(
+                    () => RunPipeline(failedWorkspace, configuration));
+
+                CollectionAssert.AreEqual(
+                    originalPublishedHashes,
+                    GetPublishedTreeHashes(
+                        successfulWorkspace.PublishedOutputDirectory));
+                Assert.AreEqual(
+                    RunWorkspaceState.Cleaned,
+                    failedWorkspace.State);
+                Assert.IsFalse(
+                    Directory.Exists(failedWorkspace.RunDirectory));
+                Assert.AreEqual(
+                    1,
+                    Directory.GetDirectories(
+                        successfulWorkspace.OutputRootDirectory).Length);
+            }
+            finally
+            {
+                if (Directory.Exists(testRuntime))
+                {
+                    Directory.Delete(testRuntime, true);
+                }
+            }
+        }
+
         private static void RunPipeline(
             RunWorkspace workspace,
             RunConfiguration configuration)
@@ -130,6 +217,21 @@ namespace Godo.Tests
             return outputFiles
                 .Select(file => Convert.ToHexString(
                     SHA256.HashData(File.ReadAllBytes(Path.Combine(outputDirectory, file)))))
+                .ToArray();
+        }
+
+        private static string[] GetPublishedTreeHashes(
+            string outputDirectory)
+        {
+            return Directory
+                .GetFiles(outputDirectory)
+                .OrderBy(
+                    file => Path.GetFileName(file),
+                    StringComparer.Ordinal)
+                .Select(file =>
+                    Path.GetFileName(file) + "=" +
+                    Convert.ToHexString(
+                        SHA256.HashData(File.ReadAllBytes(file))))
                 .ToArray();
         }
 

@@ -1,6 +1,7 @@
 using Godo.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -324,6 +325,77 @@ namespace Godo.Tests
         }
 
         [TestMethod]
+        public void SwitchingPortableSeedsRestoresLanguageAndInputFiles()
+        {
+            RunInSta(() =>
+            {
+                string originalCurrentDirectory =
+                    Environment.CurrentDirectory;
+                try
+                {
+                    using (MainForm mainForm = new MainForm())
+                    {
+                        RunConfiguration japaneseConfiguration =
+                            TestRunConfigurations.CreatePopulated();
+                        string japaneseSeed =
+                            RunConfigurationSeedCodec.Encode(
+                                japaneseConfiguration);
+                        RunConfiguration restoredJapanese =
+                            InvokeConfigurationMethod(
+                                mainForm,
+                                "ResolveRunConfiguration",
+                                japaneseSeed);
+                        InvokeVoidMethod(
+                            mainForm,
+                            "ConfigureInputFiles",
+                            restoredJapanese.Language);
+
+                        AssertLanguageSelection(
+                            mainForm,
+                            GameLanguage.Japanese);
+                        AssertInputDirectory(
+                            mainForm,
+                            "Default Japanese Files");
+
+                        RunConfiguration englishConfiguration =
+                            TestRunConfigurations.Create(24680);
+                        string englishSeed =
+                            RunConfigurationSeedCodec.Encode(
+                                englishConfiguration);
+                        RunConfiguration restoredEnglish =
+                            InvokeConfigurationMethod(
+                                mainForm,
+                                "ResolveRunConfiguration",
+                                englishSeed);
+                        InvokeVoidMethod(
+                            mainForm,
+                            "ConfigureInputFiles",
+                            restoredEnglish.Language);
+
+                        AssertLanguageSelection(
+                            mainForm,
+                            GameLanguage.English);
+                        AssertInputDirectory(
+                            mainForm,
+                            "Default Files");
+                        Assert.AreEqual(
+                            englishSeed,
+                            RunConfigurationSeedCodec.Encode(
+                                InvokeConfigurationMethod(
+                                    mainForm,
+                                    "CaptureRunConfiguration",
+                                    restoredEnglish.Seed)));
+                    }
+                }
+                finally
+                {
+                    Environment.CurrentDirectory =
+                        originalCurrentDirectory;
+                }
+            });
+        }
+
+        [TestMethod]
         public void NumericSeedRetainsLegacyCurrentOptionBehaviour()
         {
             RunInSta(() =>
@@ -379,6 +451,57 @@ namespace Godo.Tests
                 fieldName,
                 BindingFlags.Instance | BindingFlags.NonPublic);
             return (CheckBox)field.GetValue(mainForm);
+        }
+
+        private static string GetPrivateString(
+            MainForm mainForm,
+            string fieldName)
+        {
+            FieldInfo field = typeof(MainForm).GetField(
+                fieldName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            return (string)field.GetValue(mainForm);
+        }
+
+        private static void AssertLanguageSelection(
+            MainForm mainForm,
+            GameLanguage expectedLanguage)
+        {
+            Assert.AreEqual(
+                expectedLanguage == GameLanguage.English,
+                GetPrivateCheckBox(mainForm, "chkEnglish").Checked);
+            Assert.AreEqual(
+                expectedLanguage == GameLanguage.French,
+                GetPrivateCheckBox(mainForm, "chkFrench").Checked);
+            Assert.AreEqual(
+                expectedLanguage == GameLanguage.German,
+                GetPrivateCheckBox(mainForm, "chkGerman").Checked);
+            Assert.AreEqual(
+                expectedLanguage == GameLanguage.Spanish,
+                GetPrivateCheckBox(mainForm, "chkSpanish").Checked);
+            Assert.AreEqual(
+                expectedLanguage == GameLanguage.Japanese,
+                GetPrivateCheckBox(mainForm, "chkJapanese").Checked);
+        }
+
+        private static void AssertInputDirectory(
+            MainForm mainForm,
+            string expectedDirectoryName)
+        {
+            string[] inputFiles =
+            {
+                GetPrivateString(mainForm, "_inputScene"),
+                GetPrivateString(mainForm, "_inputKernel"),
+                GetPrivateString(mainForm, "_inputKernel2")
+            };
+
+            foreach (string inputFile in inputFiles)
+            {
+                Assert.AreEqual(
+                    expectedDirectoryName,
+                    new DirectoryInfo(
+                        Path.GetDirectoryName(inputFile)).Name);
+            }
         }
 
         private static void SetAllPublicBooleanArrays(object target, bool value)
@@ -457,6 +580,17 @@ namespace Godo.Tests
             return (RunConfiguration)method.Invoke(
                 mainForm,
                 new[] { argument });
+        }
+
+        private static void InvokeVoidMethod(
+            MainForm mainForm,
+            string methodName,
+            object argument)
+        {
+            MethodInfo method = typeof(MainForm).GetMethod(
+                methodName,
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            method.Invoke(mainForm, new[] { argument });
         }
 
         private static void RunInSta(Action action)
