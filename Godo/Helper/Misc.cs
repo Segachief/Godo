@@ -11,7 +11,7 @@ namespace Godo.Helper
 {
     public class Misc
     {
-        public static void Log(int logMessage, TextWriter w)
+        public static void Log(string logMessage, TextWriter w)
         {
             w.Write("\r\nSeed Entry : ");
             w.WriteLine($"{DateTime.Now.ToLongTimeString()} {DateTime.Now.ToLongDateString()}");

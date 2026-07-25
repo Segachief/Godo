@@ -50,5 +50,71 @@ namespace Godo.Tests
                 challenges: new OptionSettings(new bool[10]),
                 specialHacks: new OptionSettings(new bool[5], new int[2]));
         }
+
+        internal static RunConfiguration CreatePopulated()
+        {
+            return new RunConfiguration(
+                seed: -987654321,
+                language: GameLanguage.Japanese,
+                quickOptions: new QuickOptions(
+                    true,
+                    false,
+                    true,
+                    false,
+                    true,
+                    false,
+                    true),
+                spells: CreateSettings(5, 3, 0, 1),
+                summons: CreateSettings(5, 3, 0, 2),
+                enemySkills: CreateSettings(5, 3, 0, 3),
+                attackItems: CreateSettings(3, 1, 0, 4),
+                healItems: CreateSettings(3, 1, 0, 5),
+                statusItems: CreateSettings(2, 0, 0, 6),
+                weapons: CreateSettings(14, 8, 0, 7),
+                armour: CreateSettings(13, 9, 0, 8),
+                accessories: CreateSettings(6, 2, 0, 9),
+                materia: CreateSettings(4, 1, 0, 10),
+                characterStats: CreateSettings(18, 9, 9, 11),
+                limitBreaks: CreateSettings(21, 0, 9, 12),
+                startingEquipment: CreateSettings(4, 1, 9, 13),
+                modelSwap: CreateSettings(4, 0, 0, 14),
+                enemyStats: CreateSettings(16, 13, 0, 15),
+                enemyAttacks: CreateSettings(9, 3, 0, 16),
+                enemyItems: CreateSettings(6, 0, 0, 17),
+                formations: CreateSettings(3, 0, 0, 18),
+                balancing: CreateSettings(4, 2, 0, 19),
+                challenges: CreateSettings(10, 0, 0, 20),
+                specialHacks: CreateSettings(5, 2, 0, 21),
+                rngOption: true);
+        }
+
+        private static OptionSettings CreateSettings(
+            int optionCount,
+            int parameterCount,
+            int selectionCount,
+            int offset)
+        {
+            bool[] options = new bool[optionCount];
+            int[] parameters = new int[parameterCount];
+            bool[] selections = new bool[selectionCount];
+
+            for (int index = 0; index < options.Length; index++)
+            {
+                options[index] = (index + offset) % 3 == 0;
+            }
+
+            for (int index = 0; index < parameters.Length; index++)
+            {
+                parameters[index] = (index + 1) * offset *
+                    (index % 2 == 0 ? 1 : -1);
+            }
+
+            for (int index = 0; index < selections.Length; index++)
+            {
+                selections[index] = (index + offset) % 2 == 0;
+            }
+
+            return new OptionSettings(options, parameters, selections);
+        }
     }
 }

@@ -43,11 +43,17 @@ namespace Godo.Tests
 
                 Directory.SetCurrentDirectory(testRuntime);
                 RunWorkspace workspace = new RunWorkspace(testRuntime);
+                RunConfiguration firstConfiguration =
+                    TestRunConfigurations.Create(123456789);
 
-                RunPipeline(workspace, 123456789);
+                RunPipeline(workspace, firstConfiguration);
                 string[] firstHashes = GetOutputHashes(workspace.OutputDirectory);
 
-                RunPipeline(workspace, 123456789);
+                string portableSeed =
+                    RunConfigurationSeedCodec.Encode(firstConfiguration);
+                RunConfiguration reproducedConfiguration =
+                    RunConfigurationSeedCodec.Decode(portableSeed);
+                RunPipeline(workspace, reproducedConfiguration);
                 string[] secondHashes = GetOutputHashes(workspace.OutputDirectory);
 
                 CollectionAssert.AreEqual(firstHashes, secondHashes);
@@ -64,15 +70,15 @@ namespace Godo.Tests
             }
         }
 
-        private static void RunPipeline(RunWorkspace workspace, int seed)
+        private static void RunPipeline(
+            RunWorkspace workspace,
+            RunConfiguration configuration)
         {
             workspace.Prepare();
 
             try
             {
-                RunConfiguration configuration =
-                    TestRunConfigurations.Create(seed);
-                Random random = new Random(seed);
+                Random random = new Random(configuration.Seed);
 
                 byte[] kernelLookup = GZipper.PrepareScene(
                     Path.Combine(workspace.RuntimeDirectory, "Default Files", "scene.bin"),

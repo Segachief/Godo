@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -305,6 +306,317 @@ namespace Godo
                     specialHackParameters));
         }
 
+        private void ApplyRunConfigurationToUi(
+            RunConfiguration configuration)
+        {
+            ArgumentNullException.ThrowIfNull(configuration);
+
+            chkWeaponData.Checked = configuration.QuickOptions.Weapons;
+            chkArmourData.Checked = configuration.QuickOptions.Armour;
+            chkAccessoryData.Checked =
+                configuration.QuickOptions.Accessories;
+            chkCharacterStats.Checked =
+                configuration.QuickOptions.CharacterStats;
+            chkStartingMateria.Checked =
+                configuration.QuickOptions.StartingMateria;
+            chkEnemyStats.Checked = configuration.QuickOptions.EnemyStats;
+            chkEnemyItems.Checked = configuration.QuickOptions.EnemyItems;
+
+            CheckBox languageControl = configuration.Language switch
+            {
+                GameLanguage.French => chkFrench,
+                GameLanguage.German => chkGerman,
+                GameLanguage.Spanish => chkSpanish,
+                GameLanguage.Japanese => chkJapanese,
+                _ => chkEnglish
+            };
+            languageControl.Checked = true;
+
+            ApplyOptionSettings(
+                _spellsForm,
+                configuration.Spells,
+                spellOptions,
+                spellParameters,
+                null,
+                "chkAccuracy,chkMPCost,chkBasePower,chkAnimation,chkDamageFormula",
+                "numAccuracy,numMPCost,numBasePower");
+            ApplyOptionSettings(
+                _summonsForm,
+                configuration.Summons,
+                summonOptions,
+                summonParameters,
+                null,
+                "chkAccuracy,chkMPCost,chkBasePower,chkAnimation,chkDamageFormula",
+                "numAccuracy,numMPCost,numBasePower");
+            ApplyOptionSettings(
+                _enemySkillsForm,
+                configuration.EnemySkills,
+                enemySkillOptions,
+                enemySkillParameters,
+                null,
+                "chkAccuracy,chkMPCost,chkBasePower,chkAnimation,chkDamageFormula",
+                "numAccuracy,numMPCost,numBasePower");
+            ApplyOptionSettings(
+                _attackItemsForm,
+                configuration.AttackItems,
+                attackItemOptions,
+                attackItemParameters,
+                null,
+                "chkBasePower,chkAnimation,chkDamageFormula",
+                "numBasePower");
+            ApplyOptionSettings(
+                _healItemsForm,
+                configuration.HealItems,
+                healItemOptions,
+                healItemParameters,
+                null,
+                "chkBasePower,chkAnimation,chkDamageFormula",
+                "numBasePower");
+            ApplyOptionSettings(
+                _statusItemsForm,
+                configuration.StatusItems,
+                statusItemOptions,
+                statusItemParameters,
+                null,
+                "chkAnimation,chkStatuses");
+            ApplyOptionSettings(
+                _weaponsForm,
+                configuration.Weapons,
+                weaponOptions,
+                weaponParameters,
+                null,
+                "chkAccuracy,chkBasePower,chkCriticalHit,chkStatA,chkStatB,chkStatC,chkStatD,chkSlots,chkGrowth,chkEquip,chkElement,chkStatus,chkDamageFormula,chkProperties",
+                "numAccuracy,numBasePower,numCritical,numStatA,numStatB,numStatC,numStatD,numSlots");
+            ApplyOptionSettings(
+                _armourForm,
+                configuration.Armour,
+                armourOptions,
+                armourParameters,
+                null,
+                "chkDefence,chkMagicDefence,chkEvasion,chkMagicEvasion,chkStatA,chkStatB,chkStatC,chkStatD,chkSlots,chkGrowth,chkEquip,chkElement,chkStatus",
+                "numDefence,numMagicDefence,numEvasion,numMagicEvasion,numStatA,numStatB,numStatC,numStatD,numSlots");
+            ApplyOptionSettings(
+                _accessoriesForm,
+                configuration.Accessories,
+                accessoryOptions,
+                accessoryParameters,
+                null,
+                "chkStatA,chkStatB,chkEquip,chkElement,chkStatus,chkSpecial",
+                "numStatA,numStatB");
+            ApplyOptionSettings(
+                _materiaForm,
+                configuration.Materia,
+                materiaOptions,
+                materiaParameters,
+                null,
+                "chkAP,chkStatChanges,chkElement,chkStatus",
+                "numAP");
+            ApplyOptionSettings(
+                _characterStatsForm,
+                configuration.CharacterStats,
+                statOptions,
+                statParameters,
+                characterSelectStats,
+                "chkLevel,chkStrength,chkVitality,chkMagic,chkSpirit,chkDexterity,chkLuck,chkHP,chkMP,chkStrGrow,chkVitGrow,chkMagGrow,chkSprGrow,chkDexGrow,chkLckGrow,chkHPGrow,chkMPGrow,chkEXPGrow",
+                "numLevel,numStrength,numVitality,numMagic,numSpirit,numDexterity,numLuck,numHP,numMP",
+                "chkCloud,chkBarret,chkTifa,chkAeristh,chkRed,chkYuffie,chkYCloud,chkSeph,chkCid");
+            ApplyOptionSettings(
+                _limitBreaksForm,
+                configuration.LimitBreaks,
+                limitOptions,
+                Array.Empty<int>(),
+                characterSelectLimits,
+                "chkID11,chkID12,chkID13,chkID21,chkID22,chkID23,chkID31,chkID32,chkID33,chkUses12,chkUses13,chkUses22,chkUses23,chkUses32,chkUses33,chkKills2,chkKills3,chkGauge1,chkGauge2,chkGauge3,chkGauge4",
+                null,
+                "chkCloud,chkBarret,chkTifa,chkAeristh,chkRed,chkYuffie,chkYCloud,chkSeph,chkCid");
+            ApplyOptionSettings(
+                _startingEquipmentForm,
+                configuration.StartingEquipment,
+                equipOptions,
+                equipParameters,
+                characterSelectEquip,
+                "chkMateria,chkWeapon,chkArmour,chkAccessory",
+                "numMateria",
+                "chkCloud,chkBarret,chkTifa,chkAeristh,chkRed,chkYuffie,chkYCloud,chkSeph,chkCid");
+            ApplyOptionSettings(
+                _swapForm,
+                configuration.ModelSwap,
+                swapOptions,
+                Array.Empty<int>(),
+                null,
+                "chkSafeSwap,chkRiskySwap,chkCrashSwap,chkBossSwap");
+            ApplyOptionSettings(
+                _enemyStatsForm,
+                configuration.EnemyStats,
+                enemyStatOptions,
+                enemyStatParameters,
+                null,
+                "chkLevel,chkStrength,chkVitality,chkMagic,chkSpirit,chkDexterity,chkLuck,chkHP,chkMP,chkEXP,chkGil,chkAP,chkEvade,chkEnemyNames,chkElemAffinity,chkStatusAffinity",
+                "numLevel,numStrength,numVitality,numMagic,numSpirit,numDexterity,numLuck,numHP,numMP,numEXP,numGil,numAP,numEvade");
+            ApplyOptionSettings(
+                _enemyAttacksForm,
+                configuration.EnemyAttacks,
+                enemyAttackOptions,
+                enemyAttackParameters,
+                null,
+                "chkAccuracy,chkMPCost,chkBasePower,chkAnimation,chkDamageFormula,chkAttackName,chkElements,chkAilmentsMild,chkAilmentsAll",
+                "numAccuracy,numMPCost,numBasePower");
+            ApplyOptionSettings(
+                _enemyItemsForm,
+                configuration.EnemyItems,
+                enemyItemOptions,
+                Array.Empty<int>(),
+                null,
+                "chkHeldItem,chkMorph,chkHeldWeapon,chkHeldArmour,chkHeldAccessory,chkRareItem");
+            ApplyOptionSettings(
+                _formationsForm,
+                configuration.Formations,
+                formationOptions,
+                Array.Empty<int>(),
+                null,
+                "chkCameraStandard,chkFirstPerson,chkBG");
+            ApplyOptionSettings(
+                _balancingForm,
+                configuration.Balancing,
+                balancingOptions,
+                balancingParameters,
+                null,
+                "chkStronger,chkWeaker,chkMaxDrop,chkMaxAP",
+                "numStronger,numWeaker");
+            ApplyOptionSettings(
+                _challengesForm,
+                configuration.Challenges,
+                challengeOptions,
+                Array.Empty<int>(),
+                null,
+                "chkNoPhysicals,chkNoLimits,chkNoSpells,chkNoSummons,chkNoItems,chkNoMateria,chkNoExp,chkNoGil,chkNoAP,chkInitialEquip");
+            ApplyOptionSettings(
+                _specialHacksForm,
+                configuration.SpecialHacks,
+                specialHackOptions,
+                specialHackParameters,
+                null,
+                "chkEnemyQuantity,chkDisableEscape,chkPovertyMode,chkSpellspring,chkBossSwarm",
+                "numSwarm,numBossSwarm");
+        }
+
+        private static void ApplyOptionSettings(
+            Form form,
+            OptionSettings settings,
+            bool[] optionTarget,
+            int[] parameterTarget,
+            bool[] selectionTarget,
+            string optionControlNames,
+            string parameterControlNames = null,
+            string selectionControlNames = null)
+        {
+            CopyValues(settings.Options, optionTarget);
+            CopyValues(settings.Parameters, parameterTarget);
+            if (selectionTarget != null)
+            {
+                CopyValues(settings.Selections, selectionTarget);
+            }
+
+            ApplyCheckBoxValues(
+                form,
+                settings.Options,
+                SplitControlNames(optionControlNames));
+            ApplyNumericValues(
+                form,
+                settings.Parameters,
+                SplitControlNames(parameterControlNames));
+            ApplyCheckBoxValues(
+                form,
+                settings.Selections,
+                SplitControlNames(selectionControlNames));
+        }
+
+        private static void CopyValues<T>(
+            IReadOnlyList<T> source,
+            T[] destination)
+        {
+            if (source.Count != destination.Length)
+            {
+                throw new InvalidOperationException(
+                    "The option control mapping is out of date.");
+            }
+
+            for (int index = 0; index < source.Count; index++)
+            {
+                destination[index] = source[index];
+            }
+        }
+
+        private static void ApplyCheckBoxValues(
+            Form form,
+            IReadOnlyList<bool> values,
+            string[] controlNames)
+        {
+            if (values.Count != controlNames.Length)
+            {
+                throw new InvalidOperationException(
+                    "The checkbox mapping is out of date.");
+            }
+
+            for (int index = 0; index < values.Count; index++)
+            {
+                FindControl<CheckBox>(
+                    form,
+                    controlNames[index]).Checked = values[index];
+            }
+        }
+
+        private static void ApplyNumericValues(
+            Form form,
+            IReadOnlyList<int> values,
+            string[] controlNames)
+        {
+            if (values.Count != controlNames.Length)
+            {
+                throw new InvalidOperationException(
+                    "The numeric control mapping is out of date.");
+            }
+
+            for (int index = 0; index < values.Count; index++)
+            {
+                NumericUpDown control =
+                    FindControl<NumericUpDown>(form, controlNames[index]);
+                decimal value = values[index];
+
+                // Older runs can contain zero for an inactive option whose
+                // numeric control has a positive minimum. Keep its displayed
+                // default; the stored run value remains unchanged.
+                if (value >= control.Minimum && value <= control.Maximum)
+                {
+                    control.Value = value;
+                }
+            }
+        }
+
+        private static TControl FindControl<TControl>(
+            Form form,
+            string controlName)
+            where TControl : Control
+        {
+            Control[] controls = form.Controls.Find(controlName, true);
+            if (controls.Length != 1 ||
+                controls[0] is not TControl typedControl)
+            {
+                throw new InvalidOperationException(
+                    "Unable to find option control " + controlName +
+                    " on " + form.GetType().Name + ".");
+            }
+
+            return typedControl;
+        }
+
+        private static string[] SplitControlNames(string controlNames)
+        {
+            return string.IsNullOrEmpty(controlNames)
+                ? Array.Empty<string>()
+                : controlNames.Split(',');
+        }
+
         private GameLanguage GetSelectedLanguage()
         {
             if (chkFrench.Checked)
@@ -347,6 +659,36 @@ namespace Godo
             _inputKernel2 = Path.Combine(inputDirectory, "kernel2.bin");
         }
 
+        private RunConfiguration ResolveRunConfiguration(string seedText)
+        {
+            if (string.IsNullOrWhiteSpace(seedText))
+            {
+                return CaptureRunConfiguration(Environment.TickCount);
+            }
+
+            string trimmedSeed = seedText.Trim();
+            if (RunConfigurationSeedCodec.LooksLikePortableSeed(trimmedSeed))
+            {
+                RunConfiguration configuration =
+                    RunConfigurationSeedCodec.Decode(trimmedSeed);
+                ApplyRunConfigurationToUi(configuration);
+                return configuration;
+            }
+
+            if (int.TryParse(
+                trimmedSeed,
+                NumberStyles.Integer,
+                CultureInfo.InvariantCulture,
+                out int numericSeed))
+            {
+                return CaptureRunConfiguration(numericSeed);
+            }
+
+            throw new FormatException(
+                "Enter a numeric seed or a portable seed beginning with " +
+                RunConfigurationSeedCodec.Prefix + ".");
+        }
+
         private void BtnRandoScene_Click(object sender, EventArgs e)
         {
             if (_directory != null)
@@ -356,20 +698,13 @@ namespace Godo
                 bool runSucceeded = false;
                 ScratchCleanupException finalCleanupFailure = null;
                 RunConfiguration runConfiguration = null;
+                string portableSeed = null;
 
                 try
                 {
-                    int seed;
-                    if (txtSeed.Text != "")
-                    {
-                        seed = int.Parse(txtSeed.Text);
-                    }
-                    else
-                    {
-                        seed = Environment.TickCount;
-                    }
-
-                    runConfiguration = CaptureRunConfiguration(seed);
+                    runConfiguration = ResolveRunConfiguration(txtSeed.Text);
+                    portableSeed =
+                        RunConfigurationSeedCodec.Encode(runConfiguration);
                     ConfigureInputFiles(runConfiguration.Language);
                     Random random = new Random(runConfiguration.Seed);
 
@@ -399,7 +734,7 @@ namespace Godo
 
                     using (StreamWriter w = File.AppendText(seedFile))
                     {
-                        Misc.Log(runConfiguration.Seed, w);
+                        Misc.Log(portableSeed, w);
                     }
 
                     using (StreamReader r = File.OpenText(seedFile))
@@ -444,8 +779,9 @@ namespace Godo
                 }
                 else if (runSucceeded)
                 {
+                    txtSeed.Text = portableSeed;
                     MessageBox.Show(
-                        "Rando Complete: seed = " + runConfiguration.Seed);
+                        "Rando Complete. Portable seed:\n\n" + portableSeed);
                 }
             }
             else
