@@ -7,7 +7,7 @@
       "request": "launch",
       "preLaunchTask": "build Godo (Debug)",
       "program": "${workspaceFolder}/bin/Debug/net10.0-windows/Godo.dll",
-      "cwd": "${workspaceFolder}",
+      "cwd": "${workspaceFolder}/bin/Debug",
       "stopAtEntry": false,
       "justMyCode": true
     }
