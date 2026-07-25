@@ -776,7 +776,7 @@ namespace Godo
                 }
                 else if (runSucceeded)
                 {
-                    txtSeed.Text = portableSeed;
+                    txtSeed.Clear();
                     MessageBox.Show(
                         "Rando Complete. Portable seed:\n\n" +
                         portableSeed +
