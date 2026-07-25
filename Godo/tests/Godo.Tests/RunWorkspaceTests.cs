@@ -2,6 +2,9 @@ using Godo.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.IO;
+using System.Linq;
+using System.Security.Cryptography;
+using System.Text.Json;
 
 namespace Godo.Tests
 {
@@ -55,6 +58,9 @@ namespace Godo.Tests
             Assert.IsTrue(Directory.Exists(first.Kernel2StringsDirectory));
             Assert.IsTrue(Directory.Exists(first.OutputDirectory));
             Assert.AreEqual(
+                RunWorkspaceState.Prepared,
+                first.State);
+            Assert.AreEqual(
                 first.PublishedOutputDirectory,
                 second.PublishedOutputDirectory);
         }
@@ -80,6 +86,9 @@ namespace Godo.Tests
             first.CleanupScratchFiles();
 
             Assert.IsFalse(Directory.Exists(first.RunDirectory));
+            Assert.AreEqual(
+                RunWorkspaceState.Cleaned,
+                first.State);
             Assert.IsTrue(Directory.Exists(second.RunDirectory));
             Assert.IsTrue(File.Exists(secondScratch));
         }
@@ -137,6 +146,9 @@ namespace Godo.Tests
                 () => workspace.PublishOutputs());
 
             Assert.AreEqual("previous", File.ReadAllText(publishedScene));
+            Assert.AreEqual(
+                RunWorkspaceState.Prepared,
+                workspace.State);
         }
 
         [TestMethod]
@@ -160,6 +172,9 @@ namespace Godo.Tests
 
             workspace.PublishOutputs();
 
+            Assert.AreEqual(
+                RunWorkspaceState.Published,
+                workspace.State);
             foreach (string outputFile in outputFiles)
             {
                 Assert.AreEqual(
@@ -176,6 +191,71 @@ namespace Godo.Tests
                 File.ReadAllText(Path.Combine(
                     workspace.PublishedOutputDirectory,
                     "seed.txt")));
+
+            string manifestFile = Path.Combine(
+                workspace.PublishedOutputDirectory,
+                "output-manifest.json");
+            Assert.IsTrue(File.Exists(manifestFile));
+            using JsonDocument manifest =
+                JsonDocument.Parse(File.ReadAllText(manifestFile));
+            Assert.AreEqual(
+                1,
+                manifest.RootElement
+                    .GetProperty("formatVersion")
+                    .GetInt32());
+            Assert.AreEqual(
+                workspace.PortableSeed,
+                manifest.RootElement
+                    .GetProperty("portableSeed")
+                    .GetString());
+            Assert.AreEqual(
+                4,
+                manifest.RootElement
+                    .GetProperty("files")
+                    .GetArrayLength());
+            JsonElement sceneManifest = manifest.RootElement
+                .GetProperty("files")
+                .EnumerateArray()
+                .Single(file =>
+                    file.GetProperty("name").GetString() ==
+                    "scene.bin");
+            string publishedScene = Path.Combine(
+                workspace.PublishedOutputDirectory,
+                "scene.bin");
+            Assert.AreEqual(
+                new FileInfo(publishedScene).Length,
+                sceneManifest.GetProperty("length").GetInt64());
+            Assert.AreEqual(
+                Convert.ToHexString(SHA256.HashData(
+                    File.ReadAllBytes(publishedScene))),
+                sceneManifest.GetProperty("sha256").GetString());
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => workspace.PublishOutputs());
+        }
+
+        [TestMethod]
+        public void PublishOutputsRejectsEmptyFilesWithoutExposure()
+        {
+            RunWorkspace workspace = CreateWorkspace();
+            workspace.Prepare();
+            File.WriteAllBytes(
+                workspace.SceneOutputFile,
+                Array.Empty<byte>());
+            File.WriteAllText(workspace.KernelOutputFile, "kernel");
+            File.WriteAllText(workspace.Kernel2OutputFile, "kernel2");
+
+            Assert.ThrowsException<InvalidOperationException>(
+                () => workspace.PublishOutputs());
+
+            Assert.AreEqual(
+                RunWorkspaceState.Prepared,
+                workspace.State);
+            Assert.IsFalse(
+                Directory.Exists(workspace.PublishedOutputDirectory));
+            Assert.IsFalse(File.Exists(Path.Combine(
+                workspace.OutputDirectory,
+                "output-manifest.json")));
         }
 
         [TestMethod]

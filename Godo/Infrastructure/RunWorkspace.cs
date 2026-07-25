@@ -2,17 +2,26 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 
 namespace Godo.Infrastructure
 {
+    public enum RunWorkspaceState
+    {
+        Created,
+        Prepared,
+        Published,
+        Cleaned
+    }
+
     public sealed class RunWorkspace
     {
-        private bool _hasBeenPrepared;
-
         public RunWorkspace(
             string runtimeDirectory,
             RunConfiguration configuration,
-            DateTime? generatedAt = null)
+            DateTimeOffset? generatedAt = null)
         {
             if (string.IsNullOrWhiteSpace(runtimeDirectory))
             {
@@ -23,7 +32,7 @@ namespace Godo.Infrastructure
             RuntimeDirectory = Path.GetFullPath(runtimeDirectory);
             PortableSeed =
                 RunConfigurationSeedCodec.Encode(configuration);
-            GeneratedAt = generatedAt ?? DateTime.Now;
+            GeneratedAt = generatedAt ?? DateTimeOffset.Now;
             OutputFolderName = CreateOutputFolderName(
                 PortableSeed,
                 GeneratedAt);
@@ -44,8 +53,9 @@ namespace Godo.Infrastructure
 
         public string RuntimeDirectory { get; }
         public string PortableSeed { get; }
-        public DateTime GeneratedAt { get; }
+        public DateTimeOffset GeneratedAt { get; }
         public string OutputFolderName { get; private set; }
+        public RunWorkspaceState State { get; private set; }
         public string RunId { get; }
         public string ScratchRootDirectory { get; }
         public string RunDirectory { get; }
@@ -63,7 +73,7 @@ namespace Godo.Infrastructure
 
         public void Prepare()
         {
-            if (_hasBeenPrepared)
+            if (State != RunWorkspaceState.Created)
             {
                 throw new InvalidOperationException(
                     "A run workspace can only be prepared once.");
@@ -75,14 +85,14 @@ namespace Godo.Infrastructure
             File.WriteAllText(
                 Path.Combine(OutputDirectory, "seed.txt"),
                 PortableSeed);
-            _hasBeenPrepared = true;
+            State = RunWorkspaceState.Prepared;
         }
 
         public void PublishOutputs()
         {
             EnsurePrepared();
 
-            string[] outputFiles =
+            string[] requiredFiles =
             {
                 "scene.bin",
                 "kernel.bin",
@@ -90,7 +100,7 @@ namespace Godo.Infrastructure
                 "seed.txt"
             };
 
-            foreach (string outputFile in outputFiles)
+            foreach (string outputFile in requiredFiles)
             {
                 string stagedFile =
                     Path.Combine(OutputDirectory, outputFile);
@@ -100,8 +110,16 @@ namespace Godo.Infrastructure
                         "The run did not produce the expected output file '" +
                         outputFile + "'.");
                 }
+
+                if (new FileInfo(stagedFile).Length == 0)
+                {
+                    throw new InvalidOperationException(
+                        "The run produced an empty output file '" +
+                        outputFile + "'.");
+                }
             }
 
+            WriteOutputManifest(requiredFiles);
             Directory.CreateDirectory(OutputRootDirectory);
 
             for (int duplicate = 0; ; duplicate++)
@@ -124,6 +142,7 @@ namespace Godo.Infrastructure
                         candidateDirectory);
                     OutputFolderName = candidateName;
                     PublishedOutputDirectory = candidateDirectory;
+                    State = RunWorkspaceState.Published;
                     return;
                 }
                 catch (IOException) when (
@@ -139,6 +158,10 @@ namespace Godo.Infrastructure
         {
             if (!Directory.Exists(RunDirectory))
             {
+                if (State != RunWorkspaceState.Created)
+                {
+                    State = RunWorkspaceState.Cleaned;
+                }
                 return;
             }
 
@@ -181,6 +204,8 @@ namespace Godo.Infrastructure
                 throw cleanupFailure;
             }
 
+            State = RunWorkspaceState.Cleaned;
+
             if (Directory.Exists(ScratchRootDirectory) &&
                 !Directory.EnumerateFileSystemEntries(
                     ScratchRootDirectory).Any())
@@ -205,7 +230,7 @@ namespace Godo.Infrastructure
 
         internal void EnsurePrepared()
         {
-            if (!_hasBeenPrepared ||
+            if (State != RunWorkspaceState.Prepared ||
                 !Directory.Exists(RunDirectory))
             {
                 throw new InvalidOperationException(
@@ -215,7 +240,7 @@ namespace Godo.Infrastructure
 
         private static string CreateOutputFolderName(
             string portableSeed,
-            DateTime generatedAt)
+            DateTimeOffset generatedAt)
         {
             int seedNameLength = Math.Min(
                 portableSeed.Length,
@@ -225,6 +250,45 @@ namespace Godo.Infrastructure
             return seedName + "-" + generatedAt.ToString(
                 "dd-MM-yy-HHmm",
                 CultureInfo.InvariantCulture);
+        }
+
+        private void WriteOutputManifest(string[] requiredFiles)
+        {
+            var files = requiredFiles.Select(outputFile =>
+            {
+                string filePath =
+                    Path.Combine(OutputDirectory, outputFile);
+                FileInfo fileInfo = new FileInfo(filePath);
+                return new
+                {
+                    name = outputFile,
+                    length = fileInfo.Length,
+                    sha256 = Convert.ToHexString(
+                        SHA256.HashData(File.ReadAllBytes(filePath)))
+                };
+            }).ToArray();
+            var manifest = new
+            {
+                formatVersion = 1,
+                portableSeed = PortableSeed,
+                generatedAt = GeneratedAt.ToString(
+                    "O",
+                    CultureInfo.InvariantCulture),
+                files
+            };
+            string manifestJson = JsonSerializer.Serialize(
+                manifest,
+                new JsonSerializerOptions
+                {
+                    WriteIndented = true
+                });
+
+            File.WriteAllText(
+                Path.Combine(
+                    OutputDirectory,
+                    "output-manifest.json"),
+                manifestJson,
+                new UTF8Encoding(false));
         }
     }
 

@@ -76,6 +76,12 @@ namespace Godo.Tests
                     Directory.Exists(firstWorkspace.RunDirectory));
                 Assert.IsFalse(
                     Directory.Exists(secondWorkspace.RunDirectory));
+                Assert.AreEqual(
+                    RunWorkspaceState.Cleaned,
+                    firstWorkspace.State);
+                Assert.AreEqual(
+                    RunWorkspaceState.Cleaned,
+                    secondWorkspace.State);
             }
             finally
             {
