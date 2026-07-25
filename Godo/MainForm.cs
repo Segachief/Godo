@@ -27,8 +27,6 @@ namespace Godo
             _directory = ResolveRuntimeDirectory();
             Directory.SetCurrentDirectory(_directory);
 
-            _kernelStrings = Path.Combine(_directory, "Kernel Strings");
-            _kernel2Strings = Path.Combine(_directory, "Kernel2 Strings");
             _inputScene = Path.Combine(_directory, "Default Files", "scene.bin");
             _inputKernel = Path.Combine(_directory, "Default Files", "kernel.bin");
             _inputKernel2 = Path.Combine(_directory, "Default Files", "kernel2.bin");
@@ -152,8 +150,6 @@ namespace Godo
 
         // Properties for file access & seed handling
         readonly string _directory;
-        readonly string _kernelStrings;
-        readonly string _kernel2Strings;
         string _inputScene;
         string _inputKernel;
         string _inputKernel2;
@@ -211,6 +207,11 @@ namespace Godo
         {
             if (_directory != null)
             {
+                RunWorkspace workspace = new RunWorkspace(_directory);
+                bool workspacePrepared = false;
+                bool runSucceeded = false;
+                ScratchCleanupException finalCleanupFailure = null;
+
                 try
                 {
                     if (txtSeed.Text != "")
@@ -314,21 +315,9 @@ namespace Godo
                     }
                     #endregion
 
-                    //Reset and cleanup for the new run
-                    Directory.CreateDirectory(_kernelStrings);
-                    Directory.CreateDirectory(_kernel2Strings);
-                    Directory.CreateDirectory(Path.GetDirectoryName(_outputScene));
-
-                    DirectoryInfo deleteKernelStrings = new DirectoryInfo(_kernelStrings);
-                    foreach (FileInfo file in deleteKernelStrings.GetFiles())
-                    {
-                        file.Delete();
-                    }
-                    DirectoryInfo deleteKernel2Strings = new DirectoryInfo(_kernel2Strings);
-                    foreach (FileInfo file in deleteKernel2Strings.GetFiles())
-                    {
-                        file.Delete();
-                    }
+                    // Reset and prepare generated scratch data for the new run.
+                    workspace.Prepare();
+                    workspacePrepared = true;
 
                     byte[] kernelLookup = GZipper.PrepareScene(_inputScene, _outputScene,
                         swapOptions,
@@ -363,8 +352,6 @@ namespace Godo
                         _languageOptions,
                         _rngOption,
                         _rnd);
-                    MessageBox.Show("Rando Complete: seed = " + _seed);
-
                     string seedFile = Path.Combine(_directory, "FF7RandomSeeds.txt");
                     if (!File.Exists(seedFile))
                     {
@@ -384,10 +371,45 @@ namespace Godo
                     {
                         Misc.DumpLog(r);
                     }
+
+                    runSucceeded = true;
+                }
+                catch (ScratchCleanupException ex)
+                {
+                    MessageBox.Show(
+                        "Error: Unable to prepare the randomisation workspace.\n\n" +
+                        "File: " + ex.FilePath + "\n" +
+                        (ex.InnerException?.Message ?? ex.Message));
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error: Randomisation Failed - Check that valid/fresh files are in correct locations; if so, report the bug along with selected parameters and files used.\n\n" + ex.Message);
+                }
+                finally
+                {
+                    if (workspacePrepared)
+                    {
+                        try
+                        {
+                            workspace.CleanupScratchFiles();
+                        }
+                        catch (ScratchCleanupException ex)
+                        {
+                            finalCleanupFailure = ex;
+                        }
+                    }
+                }
+
+                if (finalCleanupFailure != null)
+                {
+                    MessageBox.Show(
+                        "Randomisation ended, but temporary files could not be cleaned up.\n\n" +
+                        "File: " + finalCleanupFailure.FilePath + "\n" +
+                        (finalCleanupFailure.InnerException?.Message ?? finalCleanupFailure.Message));
+                }
+                else if (runSucceeded)
+                {
+                    MessageBox.Show("Rando Complete: seed = " + _seed);
                 }
             }
             else

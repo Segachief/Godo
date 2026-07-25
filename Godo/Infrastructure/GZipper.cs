@@ -75,16 +75,15 @@ namespace Godo.Infrastructure
             */
 
             // Entire file is read; offsets and sizes for scenes are extracted and placed in a jagged array (an array of arrays)
-            FileStream fs = new FileStream(inputScene, FileMode.Open, FileAccess.Read);
-            initialSize = fs.Length;
-            fs.Close();
+            initialSize = new FileInfo(inputScene).Length;
             while (headerOffset < initialSize) // 32 blocks of 2000h/8192 bytes each
             {
                 // Opens and reads the default scene.bin
-                FileStream stepOne = new FileStream(inputScene, FileMode.Open, FileAccess.Read);
-                stepOne.Seek(headerOffset, SeekOrigin.Begin);
-                stepOne.Read(header, 0, 64); // Header never exceeds 64 bytes
-                stepOne.Close();
+                using (FileStream stepOne = new FileStream(inputScene, FileMode.Open, FileAccess.Read))
+                {
+                    stepOne.Seek(headerOffset, SeekOrigin.Begin);
+                    stepOne.Read(header, 0, 64); // Header never exceeds 64 bytes
+                }
 
                 // Max of 16 sections in a header (is usually less however)
                 while (r < 16)
@@ -438,26 +437,26 @@ namespace Godo.Infrastructure
             while (r < 27) // 27 sections in the kernel
             {
                 // Opens and reads the headers in the kernel.bin
-                FileStream stepOne = new FileStream(inputKernel, FileMode.Open, FileAccess.Read);
-                stepOne.Seek(headerOffset, SeekOrigin.Begin);
+                using (FileStream stepOne = new FileStream(inputKernel, FileMode.Open, FileAccess.Read))
+                {
+                    stepOne.Seek(headerOffset, SeekOrigin.Begin);
 
-                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                compressedSize = EndianConvert.GetLittleEndianInt(header, 0);
+                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    compressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
-                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                uncompressedSize = EndianConvert.GetLittleEndianInt(header, 0);
+                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    uncompressedSize = EndianConvert.GetLittleEndianInt(header, 0);
 
-                stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
-                sectionID = EndianConvert.GetLittleEndianInt(header, 0);
+                    stepOne.Read(header, 0, 2); // Header never exceeds 64 bytes
+                    sectionID = EndianConvert.GetLittleEndianInt(header, 0);
 
-                // Stored kernel header information in a jaggy array
-                jaggedKernelInfo[o] = new int[] { compressedSize, uncompressedSize, sectionID };
-                stepOne.Close();
+                    // Stored kernel header information in a jaggy array
+                    jaggedKernelInfo[o] = new int[] { compressedSize, uncompressedSize, sectionID };
+                }
 
                 headerOffset += compressedSize + 6;
                 r++;
                 o++;
-                stepOne.Close();
             }
             r = 0;
             o = 0;
@@ -636,45 +635,39 @@ namespace Godo.Infrastructure
                             }
                         }
 
-                        // Allows to detect the size of the file in bytes
-                        FileInfo kernelTextFile = new FileInfo(kernelTextSection + r);
-                        FileInfo kernel2TextFile = new FileInfo(kernel2TextSection + r);
-                        FileInfo newTextFile = new FileInfo(kernelNewTextSection + r);
-
                         // Clears the array in preparation of resizing
                         Array.Clear(uncompressedKernel, 0, uncompressedKernel.Length);
 
                         // Resize array to fit the new header (for kernel2) and write either the original or modified section data
                         if (File.Exists(kernelNewTextSection + r))
                         {
+                            byte[] newText = File.ReadAllBytes(kernelNewTextSection + r);
+
                             // Gets the length of the current section to set as a header
                             // Use the new length from the modified file and not the current data
-                            byte[] sectionHeader = BitConverter.GetBytes(newTextFile.Length);
+                            byte[] sectionHeader = BitConverter.GetBytes(newText.Length);
 
                             // Has to skip 4 bytes because our modified Kernel sections have no 4-byte header
-                            Array.Resize<byte>(ref uncompressedKernel, (int)newTextFile.Length + 4);
-                            FileStream textWrite = new FileStream(kernelNewTextSection + r, FileMode.Open, FileAccess.Read);
+                            Array.Resize<byte>(ref uncompressedKernel, newText.Length + 4);
                             uncompressedKernel[0] = sectionHeader[0];
                             uncompressedKernel[1] = sectionHeader[1];
                             uncompressedKernel[2] = sectionHeader[2];
                             uncompressedKernel[3] = sectionHeader[3];
-                            textWrite.Seek(0, SeekOrigin.Begin);
-                            textWrite.Read(uncompressedKernel, 4, (int)newTextFile.Length);
+                            newText.CopyTo(uncompressedKernel, 4);
                         }
                         // The 'too big' check has been disabled as it can lead to failure
                         //else if (tooBig != true) // Taken from Kernel2
                         else
                         {
-                            byte[] sectionHeader = BitConverter.GetBytes(kernel2TextFile.Length);
+                            byte[] kernel2Text = File.ReadAllBytes(kernel2TextSection + r);
+                            byte[] sectionHeader = BitConverter.GetBytes(kernel2Text.Length);
 
-                            Array.Resize<byte>(ref uncompressedKernel, (int)kernel2TextFile.Length + 4);
-                            FileStream textWrite = new FileStream(kernel2TextSection + r, FileMode.Open, FileAccess.Read);
+                            Array.Resize<byte>(ref uncompressedKernel, kernel2Text.Length + 4);
                             uncompressedKernel[0] = sectionHeader[0];
                             uncompressedKernel[1] = sectionHeader[1];
                             uncompressedKernel[2] = sectionHeader[2];
                             uncompressedKernel[3] = sectionHeader[3];
-                            textWrite.Seek(0, SeekOrigin.Begin);
-                            textWrite.Read(uncompressedKernel, 4, (int)kernel2TextFile.Length);
+                            kernel2Text.CopyTo(uncompressedKernel, 4);
                         }
                         //else // Taken from Kernel
                         //{
