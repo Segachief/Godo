@@ -22,6 +22,8 @@ namespace Godo.FormsItemData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(attackItemOptions, 0, attackItemOptions.Length);
+
             if (chkBasePower.Checked)
             {
                 attackItemOptions[0] = true;

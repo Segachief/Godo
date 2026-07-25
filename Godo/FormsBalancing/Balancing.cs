@@ -22,6 +22,8 @@ namespace Godo.FormsBalancing
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(balancingOptions, 0, balancingOptions.Length);
+
             if (chkStronger.Checked)
             {
                 balancingOptions[0] = true;

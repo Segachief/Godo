@@ -22,6 +22,8 @@ namespace Godo.FormsItemData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(healItemOptions, 0, healItemOptions.Length);
+
             if (chkBasePower.Checked)
             {
                 healItemOptions[0] = true;

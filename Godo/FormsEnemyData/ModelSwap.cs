@@ -21,6 +21,8 @@ namespace Godo.FormsEnemyData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(swapOptions, 0, swapOptions.Length);
+
             if (chkSafeSwap.Checked)
             {
                 swapOptions[0] = true;

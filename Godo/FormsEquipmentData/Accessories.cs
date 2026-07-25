@@ -22,6 +22,8 @@ namespace Godo.FormsEquipmentData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(accessoryOptions, 0, accessoryOptions.Length);
+
             if (chkStatA.Checked)
             {
                 accessoryOptions[0] = true;

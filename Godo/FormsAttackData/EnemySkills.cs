@@ -22,6 +22,8 @@ namespace Godo
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(enemySkillOptions, 0, enemySkillOptions.Length);
+
             // Enemy Skill Data
             if (chkAccuracy.Checked)
             {

@@ -22,6 +22,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(limitOptions, 0, limitOptions.Length);
+
             if (chkID11.Checked)
             {
                 limitOptions[0] = true;
@@ -111,6 +113,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] CharacterSelectArrayBuild()
         {
+            Array.Clear(characterSelectLimits, 0, characterSelectLimits.Length);
+
             if (chkCloud.Checked)
             {
                 characterSelectLimits[0] = true;

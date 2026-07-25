@@ -22,6 +22,8 @@ namespace Godo.FormsEquipmentData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(weaponOptions, 0, weaponOptions.Length);
+
             if (chkAccuracy.Checked)
             {
                 weaponOptions[0] = true;

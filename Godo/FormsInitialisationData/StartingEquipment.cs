@@ -25,6 +25,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(equipOptions, 0, equipOptions.Length);
+
             if (chkMateria.Checked)
             {
                 equipOptions[0] = true;
@@ -52,6 +54,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] CharacterSelectArrayBuild()
         {
+            Array.Clear(characterSelectEquip, 0, characterSelectEquip.Length);
+
             if (chkCloud.Checked)
             {
                 characterSelectEquip[0] = true;

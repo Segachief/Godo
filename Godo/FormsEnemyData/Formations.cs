@@ -20,6 +20,8 @@ namespace Godo.FormsEnemyData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(formationOptions, 0, formationOptions.Length);
+
             if (chkCameraStandard.Checked)
             {
                 formationOptions[0] = true;

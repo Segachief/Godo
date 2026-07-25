@@ -21,6 +21,8 @@ namespace Godo.FormsItemData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(statusItemOptions, 0, statusItemOptions.Length);
+
             if (chkAnimation.Checked)
             {
                 statusItemOptions[0] = true;

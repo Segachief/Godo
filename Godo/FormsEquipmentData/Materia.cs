@@ -22,6 +22,8 @@ namespace Godo.FormsEquipmentData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(materiaOptions, 0, materiaOptions.Length);
+
             if (chkAP.Checked)
             {
                 materiaOptions[0] = true;

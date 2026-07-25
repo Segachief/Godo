@@ -21,6 +21,8 @@ namespace Godo.FormsChallenges
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(challengeOptions, 0, challengeOptions.Length);
+
             // Challenges
             if (chkNoPhysicals.Checked)
             {

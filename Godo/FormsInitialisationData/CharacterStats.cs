@@ -23,6 +23,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(statOptions, 0, statOptions.Length);
+
             if (chkLevel.Checked)
             {
                 statOptions[0] = true;
@@ -114,6 +116,8 @@ namespace Godo.FormsInitialisationData
 
         private bool[] CharacterSelectArrayBuild()
         {
+            Array.Clear(characterSelectStats, 0, characterSelectStats.Length);
+
             if (chkCloud.Checked)
             {
                 characterSelectStats[0] = true;

@@ -22,6 +22,8 @@ namespace Godo.FormsEnemyData
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(enemyAttackOptions, 0, enemyAttackOptions.Length);
+
             if (chkAccuracy.Checked)
             {
                 enemyAttackOptions[0] = true;

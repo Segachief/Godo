@@ -22,6 +22,8 @@ namespace Godo
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(spellOptions, 0, spellOptions.Length);
+
             if (chkAccuracy.Checked)
             {
                 spellOptions[0] = true;

@@ -36,6 +36,7 @@ namespace Godo
             _miscFile = Path.Combine(_directory, "MiscInput", "FIELD.TDB");
 
             InitializeComponent();
+            InitializeOptionState();
         }
 
         // Initialises forms for options selection
@@ -203,6 +204,50 @@ namespace Godo
             return currentDirectory;
         }
 
+        private void InitializeOptionState()
+        {
+            spellOptions = _spellsForm.spellOptions;
+            spellParameters = _spellsForm.spellParameters;
+            summonOptions = _summonsForm.summonOptions;
+            summonParameters = _summonsForm.summonParameters;
+            enemySkillOptions = _enemySkillsForm.enemySkillOptions;
+            enemySkillParameters = _enemySkillsForm.enemySkillParameters;
+            attackItemOptions = _attackItemsForm.attackItemOptions;
+            attackItemParameters = _attackItemsForm.attackItemParameters;
+            healItemOptions = _healItemsForm.healItemOptions;
+            healItemParameters = _healItemsForm.healItemParameters;
+            statusItemOptions = _statusItemsForm.statusItemOptions;
+            statusItemParameters = Array.Empty<int>();
+            weaponOptions = _weaponsForm.weaponOptions;
+            weaponParameters = _weaponsForm.weaponParameters;
+            armourOptions = _armourForm.armourOptions;
+            armourParameters = _armourForm.armourParameters;
+            accessoryOptions = _accessoriesForm.accessoryOptions;
+            accessoryParameters = _accessoriesForm.accessoryParameters;
+            materiaOptions = _materiaForm.materiaOptions;
+            materiaParameters = _materiaForm.materiaParameters;
+            statOptions = _characterStatsForm.statOptions;
+            statParameters = _characterStatsForm.statParameters;
+            characterSelectStats = _characterStatsForm.characterSelectStats;
+            limitOptions = _limitBreaksForm.limitOptions;
+            characterSelectLimits = _limitBreaksForm.characterSelectLimits;
+            equipOptions = _startingEquipmentForm.equipOptions;
+            equipParameters = _startingEquipmentForm.equipParameters;
+            characterSelectEquip = _startingEquipmentForm.characterSelectEquip;
+            swapOptions = _swapForm.swapOptions;
+            enemyStatOptions = _enemyStatsForm.enemyStatOptions;
+            enemyStatParameters = _enemyStatsForm.enemyStatParameters;
+            enemyAttackOptions = _enemyAttacksForm.enemyAttackOptions;
+            enemyAttackParameters = _enemyAttacksForm.enemyAttackParameters;
+            enemyItemOptions = _enemyItemsForm.enemyItemOptions;
+            formationOptions = _formationsForm.formationOptions;
+            balancingOptions = _balancingForm.balancingOptions;
+            balancingParameters = _balancingForm.balancingParameters;
+            challengeOptions = _challengesForm.challengeOptions;
+            specialHackOptions = _specialHacksForm.specialHackOptions;
+            specialHackParameters = _specialHacksForm.specialHackParameters;
+        }
+
         private void BtnRandoScene_Click(object sender, EventArgs e)
         {
             if (_directory != null)
@@ -224,10 +269,6 @@ namespace Godo
                         _seed = Environment.TickCount;
                         _rnd = new Random(_seed);
                     }
-
-                    // Arrays instantiated if options weren't used
-                    formationOptions = new bool[3];
-                    swapOptions = new bool[4];
 
                     bool[] interimOptions = new bool[7];
 
@@ -270,6 +311,8 @@ namespace Godo
                     #endregion
 
                     #region Languages
+                    Array.Clear(_languageOptions, 0, _languageOptions.Length);
+
                     if (chkEnglish.Checked)
                     {
                         _languageOptions[0] = true;
@@ -426,314 +469,155 @@ namespace Godo
 
         private void spellsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _spellsForm.ShowDialog();
             spellOptions = _spellsForm.spellOptions;
             spellParameters = _spellsForm.spellParameters;
-            _spellsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _spellsForm.VisibleChanged += (sender2, e2) =>
-            {
-                spellOptions = _spellsForm.spellOptions;
-                spellParameters = _spellsForm.spellParameters;
-            };
         }
 
         private void summonsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _summonsForm.ShowDialog();
             summonOptions = _summonsForm.summonOptions;
             summonParameters = _summonsForm.summonParameters;
-            _summonsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _summonsForm.VisibleChanged += (sender2, e2) =>
-            {
-                summonOptions = _summonsForm.summonOptions;
-                summonParameters = _summonsForm.summonParameters;
-            };
         }
 
         private void enemySkillsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _enemySkillsForm.ShowDialog();
             enemySkillOptions = _enemySkillsForm.enemySkillOptions;
             enemySkillParameters = _enemySkillsForm.enemySkillParameters;
-            _enemySkillsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _enemySkillsForm.VisibleChanged += (sender2, e2) =>
-            {
-                enemySkillOptions = _enemySkillsForm.enemySkillOptions;
-                enemySkillParameters = _enemySkillsForm.enemySkillParameters;
-            };
         }
 
         private void attackItemsToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _attackItemsForm.ShowDialog();
             attackItemOptions = _attackItemsForm.attackItemOptions;
             attackItemParameters = _attackItemsForm.attackItemParameters;
-            _attackItemsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _attackItemsForm.VisibleChanged += (sender2, e2) =>
-            {
-                attackItemOptions = _attackItemsForm.attackItemOptions;
-                attackItemParameters = _attackItemsForm.attackItemParameters;
-            };
         }
 
         private void healItemsToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _healItemsForm.ShowDialog();
             healItemOptions = _healItemsForm.healItemOptions;
             healItemParameters = _healItemsForm.healItemParameters;
-            _healItemsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _healItemsForm.VisibleChanged += (sender2, e2) =>
-            {
-                healItemOptions = _healItemsForm.healItemOptions;
-                healItemParameters = _healItemsForm.healItemParameters;
-            };
         }
 
         private void statusItemsToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
-            statusItemOptions = _statusItemsForm.statusItemOptions;
             _statusItemsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _statusItemsForm.VisibleChanged += (sender2, e2) =>
-            {
-                statusItemOptions = _statusItemsForm.statusItemOptions;
-            };
+            statusItemOptions = _statusItemsForm.statusItemOptions;
         }
 
         private void weaponsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _weaponsForm.ShowDialog();
             weaponOptions = _weaponsForm.weaponOptions;
             weaponParameters = _weaponsForm.weaponParameters;
-            _weaponsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _weaponsForm.VisibleChanged += (sender2, e2) =>
-            {
-                weaponOptions = _weaponsForm.weaponOptions;
-                weaponParameters = _weaponsForm.weaponParameters;
-            };
         }
 
         private void armourToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _armourForm.ShowDialog();
             armourOptions = _armourForm.armourOptions;
             armourParameters = _armourForm.armourParameters;
-            _armourForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _armourForm.VisibleChanged += (sender2, e2) =>
-            {
-                armourOptions = _armourForm.armourOptions;
-                armourParameters = _armourForm.armourParameters;
-            };
         }
 
         private void accessoriesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _accessoriesForm.ShowDialog();
             accessoryOptions = _accessoriesForm.accessoryOptions;
             accessoryParameters = _accessoriesForm.accessoryParameters;
-            _accessoriesForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _accessoriesForm.VisibleChanged += (sender2, e2) =>
-            {
-                accessoryOptions = _accessoriesForm.accessoryOptions;
-                accessoryParameters = _accessoriesForm.accessoryParameters;
-            };
         }
 
         private void materiaToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _materiaForm.ShowDialog();
             materiaOptions = _materiaForm.materiaOptions;
             materiaParameters = _materiaForm.materiaParameters;
-            _materiaForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _materiaForm.VisibleChanged += (sender2, e2) =>
-            {
-                materiaOptions = _materiaForm.materiaOptions;
-                materiaParameters = _materiaForm.materiaParameters;
-            };
         }
 
         private void characterStatsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _characterStatsForm.ShowDialog();
             statOptions = _characterStatsForm.statOptions;
             statParameters = _characterStatsForm.statParameters;
             characterSelectStats = _characterStatsForm.characterSelectStats;
-            _characterStatsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _characterStatsForm.VisibleChanged += (sender2, e2) =>
-            {
-                statOptions = _characterStatsForm.statOptions;
-                statParameters = _characterStatsForm.statParameters;
-                characterSelectStats = _characterStatsForm.characterSelectStats;
-            };
         }
 
         private void limitBreaksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _limitBreaksForm.ShowDialog();
             limitOptions = _limitBreaksForm.limitOptions;
             characterSelectLimits = _limitBreaksForm.characterSelectLimits;
-            _limitBreaksForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _limitBreaksForm.VisibleChanged += (sender2, e2) =>
-            {
-                limitOptions = _limitBreaksForm.limitOptions;
-                characterSelectLimits = _limitBreaksForm.characterSelectLimits;
-            };
         }
 
         private void startingEquipmentToolStripMenuItem_Click_1(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _startingEquipmentForm.ShowDialog();
             equipOptions = _startingEquipmentForm.equipOptions;
             equipParameters = _startingEquipmentForm.equipParameters;
             characterSelectEquip = _startingEquipmentForm.characterSelectEquip;
-            _startingEquipmentForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _startingEquipmentForm.VisibleChanged += (sender2, e2) =>
-            {
-                equipOptions = _startingEquipmentForm.equipOptions;
-                equipParameters = _startingEquipmentForm.equipParameters;
-            };
         }
 
         private void modelSwapsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
-            swapOptions = _swapForm.swapOptions;
             _swapForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _swapForm.VisibleChanged += (sender2, e2) =>
-            {
-                swapOptions = _swapForm.swapOptions;
-            };
+            swapOptions = _swapForm.swapOptions;
         }
 
         private void enemyStatsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _enemyStatsForm.ShowDialog();
             enemyStatOptions = _enemyStatsForm.enemyStatOptions;
             enemyStatParameters = _enemyStatsForm.enemyStatParameters;
-            _enemyStatsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _enemyStatsForm.VisibleChanged += (sender2, e2) =>
-            {
-                enemyStatOptions = _enemyStatsForm.enemyStatOptions;
-                enemyStatParameters = _enemyStatsForm.enemyStatParameters;
-            };
         }
 
         private void enemyAttacksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _enemyAttacksForm.ShowDialog();
             enemyAttackOptions = _enemyAttacksForm.enemyAttackOptions;
             enemyAttackParameters = _enemyAttacksForm.enemyAttackParameters;
-            _enemyAttacksForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _enemyAttacksForm.VisibleChanged += (sender2, e2) =>
-            {
-                enemyAttackOptions = _enemyAttacksForm.enemyAttackOptions;
-                enemyAttackParameters = _enemyAttacksForm.enemyAttackParameters;
-            };
         }
 
         private void enemyItemsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
-            enemyItemOptions = _enemyItemsForm.enemyItemOptions;
             _enemyItemsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _enemyItemsForm.VisibleChanged += (sender2, e2) =>
-            {
-                enemyItemOptions = _enemyItemsForm.enemyItemOptions;
-            };
+            enemyItemOptions = _enemyItemsForm.enemyItemOptions;
         }
 
         private void formationsToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
-            formationOptions = _formationsForm.formationOptions;
             _formationsForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _formationsForm.VisibleChanged += (sender2, e2) =>
-            {
-                formationOptions = _formationsForm.formationOptions;
-            };
+            formationOptions = _formationsForm.formationOptions;
         }
 
         private void balanceAutoTuningToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _balancingForm.ShowDialog();
             balancingOptions = _balancingForm.balancingOptions;
             balancingParameters = _balancingForm.balancingParameters;
-            _balancingForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _balancingForm.VisibleChanged += (sender2, e2) =>
-            {
-                balancingOptions = _balancingForm.balancingOptions;
-                balancingParameters = _balancingForm.balancingParameters;
-            };
         }
 
         private void restrictionRulesToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
-            challengeOptions = _challengesForm.challengeOptions;
             _challengesForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _challengesForm.VisibleChanged += (sender2, e2) =>
-            {
-                challengeOptions = _challengesForm.challengeOptions;
-            };
+            challengeOptions = _challengesForm.challengeOptions;
         }
 
         private void specialHacksToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            // Initialises Options data to be passed
+            _specialHacksForm.ShowDialog();
             specialHackOptions = _specialHacksForm.specialHackOptions;
             specialHackParameters = _specialHacksForm.specialHackParameters;
-            _specialHacksForm.ShowDialog();
-
-            // Hook: When form is re-hidden, grab its options data
-            _specialHacksForm.VisibleChanged += (sender2, e2) =>
-            {
-                specialHackOptions = _specialHacksForm.specialHackOptions;
-                specialHackParameters = _specialHacksForm.specialHackParameters;
-            };
         }
 
         private void chkEnglish_CheckedChanged(object sender, EventArgs e)
         {
+            if (!chkEnglish.Checked)
+            {
+                return;
+            }
+
             chkFrench.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
@@ -742,6 +626,11 @@ namespace Godo
 
         private void chkFrench_CheckedChanged(object sender, EventArgs e)
         {
+            if (!chkFrench.Checked)
+            {
+                return;
+            }
+
             chkEnglish.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
@@ -750,6 +639,11 @@ namespace Godo
 
         private void chkGerman_CheckedChanged(object sender, EventArgs e)
         {
+            if (!chkGerman.Checked)
+            {
+                return;
+            }
+
             chkEnglish.CheckState = CheckState.Unchecked;
             chkFrench.CheckState = CheckState.Unchecked;
             chkSpanish.CheckState = CheckState.Unchecked;
@@ -758,6 +652,11 @@ namespace Godo
 
         private void chkSpanish_CheckedChanged(object sender, EventArgs e)
         {
+            if (!chkSpanish.Checked)
+            {
+                return;
+            }
+
             chkEnglish.CheckState = CheckState.Unchecked;
             chkFrench.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;
@@ -765,6 +664,11 @@ namespace Godo
         }
         private void chkJapanese_CheckedChanged_1(object sender, EventArgs e)
         {
+            if (!chkJapanese.Checked)
+            {
+                return;
+            }
+
             chkEnglish.CheckState = CheckState.Unchecked;
             chkFrench.CheckState = CheckState.Unchecked;
             chkGerman.CheckState = CheckState.Unchecked;

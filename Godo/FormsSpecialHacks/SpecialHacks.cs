@@ -22,6 +22,8 @@ namespace Godo.FormsSpecialHacks
 
         private bool[] OptionsArrayBuild()
         {
+            Array.Clear(specialHackOptions, 0, specialHackOptions.Length);
+
             // Challenges
             if (chkEnemyQuantity.Checked)
             {
