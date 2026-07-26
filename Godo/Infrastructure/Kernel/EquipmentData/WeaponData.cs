@@ -12,8 +12,8 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class WeaponData
     {
-        public static byte[] RandomiseWeapons(
-            byte[] data,
+        public static KernelSection RandomiseWeapons(
+            KernelSection section,
             bool[] options,
             int[] parameters,
             bool[] languageOptions,
@@ -22,6 +22,10 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
             bool interimOptions,
             string textOutputFile)
         {
+            ArgumentNullException.ThrowIfNull(section);
+            section.EnsureSectionType(KernelSectionType.Weapons);
+            byte[] data = section.Data;
+
             #region Section information
             /* Weapon Data
              * 
@@ -369,7 +373,7 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 languageOptions,
                 textOutputFile);
 
-            return data;
+            return section;
         }
     }
 }

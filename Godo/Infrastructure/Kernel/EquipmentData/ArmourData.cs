@@ -11,8 +11,8 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class ArmourData
     {
-        public static byte[] RandomiseArmour(
-            byte[] data,
+        public static KernelSection RandomiseArmour(
+            KernelSection section,
             bool[] options,
             int[] parameters,
             bool[] languageOptions,
@@ -20,6 +20,10 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
             Random rnd,
             string textOutputFile)
         {
+            ArgumentNullException.ThrowIfNull(section);
+            section.EnsureSectionType(KernelSectionType.Armour);
+            byte[] data = section.Data;
+
             #region Section Information
             /* Armour Data
              * 
@@ -369,7 +373,7 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 languageOptions,
                 textOutputFile);
 
-            return data;
+            return section;
         }
     }
 }

@@ -79,6 +79,7 @@
             this.chkSpanish = new System.Windows.Forms.CheckBox();
             this.label7 = new System.Windows.Forms.Label();
             this.btnMiscFileDecompress = new System.Windows.Forms.Button();
+            this.btnOpenOutputFolder = new System.Windows.Forms.Button();
             this.chkJapanese = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -567,7 +568,17 @@
             this.btnMiscFileDecompress.UseVisualStyleBackColor = true;
             this.btnMiscFileDecompress.Visible = false;
             this.btnMiscFileDecompress.Click += new System.EventHandler(this.btnMiscFileDecompress_Click);
-            // 
+            //
+            // btnOpenOutputFolder
+            //
+            this.btnOpenOutputFolder.Location = new System.Drawing.Point(121, 184);
+            this.btnOpenOutputFolder.Name = "btnOpenOutputFolder";
+            this.btnOpenOutputFolder.Size = new System.Drawing.Size(122, 23);
+            this.btnOpenOutputFolder.TabIndex = 34;
+            this.btnOpenOutputFolder.Text = "Open Output Folder";
+            this.btnOpenOutputFolder.UseVisualStyleBackColor = true;
+            this.btnOpenOutputFolder.Click += new System.EventHandler(this.BtnOpenOutputFolder_Click);
+            //
             // chkJapanese
             // 
             this.chkJapanese.AutoSize = true;
@@ -585,6 +596,7 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.ClientSize = new System.Drawing.Size(817, 231);
+            this.Controls.Add(this.btnOpenOutputFolder);
             this.Controls.Add(this.btnMiscFileDecompress);
             this.Controls.Add(this.label8);
             this.Controls.Add(this.flowLayoutPanel3);
@@ -670,6 +682,7 @@
         private System.Windows.Forms.CheckBox chkSpanish;
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnMiscFileDecompress;
+        private System.Windows.Forms.Button btnOpenOutputFolder;
         private System.Windows.Forms.CheckBox chkJapanese;
     }
 }

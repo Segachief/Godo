@@ -17,7 +17,9 @@ namespace Godo.Infrastructure
     public class SceneProcessing
     {
         // Randomises the Scene.Bin
-        public static byte[] RandomiseScene(byte[] data, byte[] camera, int sceneID,
+        public static SceneSection RandomiseScene(
+            SceneSection scene,
+            byte[] camera,
             bool[] swapOptions,
             bool[] enemyStatOptions, int[] enemyStatParameters,
             bool[] enemyAttackOptions, int[] enemyAttackParameters,
@@ -29,6 +31,10 @@ namespace Godo.Infrastructure
             Random rnd, int[][][] jaggedModelAttackTypes, byte[] initCam, byte[][] jaggedEnemyData,
             bool[] interimOptions)
         {
+            ArgumentNullException.ThrowIfNull(scene);
+            byte[] data = scene.Data;
+            int sceneID = scene.Id;
+
             /* Scene File Breakdown
              * The scene.bin comprises of 256 indvidual 'scene' files in a gzip format. Each scene contains 3 enemies and 4 formations.
              * The size of each scene is the same, as any unused data is padded with FF.
@@ -376,7 +382,7 @@ namespace Godo.Infrastructure
                     "Scene " + sceneID + " failed to randomise at " + error + ".",
                     ex);
             }
-            return data;
+            return scene;
         }
     }
 }

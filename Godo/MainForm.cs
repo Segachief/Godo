@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
@@ -801,6 +802,30 @@ namespace Godo
             _spellsForm.ShowDialog();
             spellOptions = _spellsForm.spellOptions;
             spellParameters = _spellsForm.spellParameters;
+        }
+
+        private void BtnOpenOutputFolder_Click(
+            object sender,
+            EventArgs e)
+        {
+            string outputDirectory =
+                Path.Combine(_directory, "Output Files");
+
+            try
+            {
+                Directory.CreateDirectory(outputDirectory);
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = outputDirectory,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    "Unable to open the output folder.\n\n" +
+                    ex.Message);
+            }
         }
 
         private void summonsToolStripMenuItem_Click(object sender, EventArgs e)

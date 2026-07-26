@@ -168,7 +168,10 @@ namespace Godo.Infrastructure
 
             while (r < 256)
             {
-                byte[] uncompressedScene = new byte[7808]; // Used to hold the decompressed scene file
+                SceneSection scene =
+                    new SceneSection(
+                        r,
+                        new byte[SceneSection.ExpectedLength]);
 
                 using (BinaryReader brg = new BinaryReader(new FileStream(inputScene, FileMode.Open)))
                 {
@@ -181,7 +184,10 @@ namespace Godo.Infrastructure
                     {
                         using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                         {
-                            ReadExactlyAndEnsureEnd(zipInput, uncompressedScene, "scene " + r);
+                            ReadExactlyAndEnsureEnd(
+                                zipInput,
+                                scene.Data,
+                                "scene " + r);
                         }
                         inputWrapper.Close();
                     }
@@ -197,10 +203,8 @@ namespace Godo.Infrastructure
                     initCam = CameraIndex.InitialCamera(formationOptions);
                     randCam = (byte[])listedCameraData[rand];
                 }
-                int sceneID = r;
-
                 // Sends decompressed scene data to be randomised
-                SceneProcessing.RandomiseScene(uncompressedScene, randCam, sceneID,
+                SceneProcessing.RandomiseScene(scene, randCam,
                     swapOptions,
                     enemyStatOptions, enemyStatParameters,
                     enemyAttackOptions, enemyAttackParameters,
@@ -218,7 +222,10 @@ namespace Godo.Infrastructure
                 {
                     using (var compressionStream = new GZipStream(result, CompressionMode.Compress))
                     {
-                        compressionStream.Write(uncompressedScene, 0, uncompressedScene.Length);
+                        compressionStream.Write(
+                            scene.Data,
+                            0,
+                            scene.Data.Length);
                         compressionStream.Close();
                     }
                     recompressedScene = result.ToArray();
@@ -494,7 +501,12 @@ namespace Godo.Infrastructure
                 { }
                 int size = jaggedKernelInfo[o][1];
                 int textSize = 0; // Used to keep track of size of text sections for later
-                byte[] uncompressedKernel = new byte[size]; // Used to hold the decompressed kernel section
+                KernelSection kernelSection =
+                    new KernelSection(
+                        r,
+                        jaggedKernelInfo[o][2],
+                        size,
+                        new byte[size]);
                 string kernelTextSection = Path.Combine(
                     workspace.KernelStringsDirectory,
                     "kernel2.bin");
@@ -518,7 +530,10 @@ namespace Godo.Infrastructure
                     {
                         using (GZipStream zipInput = new GZipStream(inputWrapper, CompressionMode.Decompress, true))
                         {
-                            ReadExactlyAndEnsureEnd(zipInput, uncompressedKernel, "kernel section " + r);
+                            ReadExactlyAndEnsureEnd(
+                                zipInput,
+                                kernelSection.Data,
+                                "kernel section " + r);
                         }
                         inputWrapper.Close();
                     }
@@ -537,8 +552,11 @@ namespace Godo.Infrastructure
                     // Produces new kernel2 string files for modification
                     using (var outputStream = File.Create(kernelTextSection + r))
                     {
-                        outputStream.Write(uncompressedKernel, 0, uncompressedKernel.Length);
-                        textSize = uncompressedKernel.Length; // this isn't used
+                        outputStream.Write(
+                            kernelSection.Data,
+                            0,
+                            kernelSection.Data.Length);
+                        textSize = kernelSection.Data.Length; // this isn't used
                     }
                 }
 
@@ -567,7 +585,7 @@ namespace Godo.Infrastructure
                         break;
 
                     case 2:
-                        GrowthAndLookUpTable.RandomiseSection2(uncompressedKernel,
+                        GrowthAndLookUpTable.RandomiseSection2(kernelSection,
                             statOptions, characterSelectStats,
                             limitOptions, characterSelectLimits,
                             challengeOptions,
@@ -577,7 +595,7 @@ namespace Godo.Infrastructure
                         break;
 
                     case 3:
-                        Initialisation.RandomiseInitialisation(uncompressedKernel,
+                        Initialisation.RandomiseInitialisation(kernelSection,
                             statOptions, statParameters, characterSelectStats,
                             equipOptions, equipParameters, characterSelectEquip,
                             languageOptions, startingEquipment,
@@ -601,7 +619,7 @@ namespace Godo.Infrastructure
                         if (interimOptions[0] == true)
                         {
                             WeaponData.RandomiseWeapons(
-                                uncompressedKernel,
+                                kernelSection,
                                 weaponOptions,
                                 weaponParameters,
                                 languageOptions,
@@ -616,7 +634,7 @@ namespace Godo.Infrastructure
                         if (interimOptions[1] == true)
                         {
                             ArmourData.RandomiseArmour(
-                                uncompressedKernel,
+                                kernelSection,
                                 armourOptions,
                                 armourParameters,
                                 languageOptions,
@@ -630,7 +648,7 @@ namespace Godo.Infrastructure
                         if (interimOptions[2] == true)
                         {
                             AccessoryData.RandomiseAccessories(
-                                uncompressedKernel,
+                                kernelSection,
                                 accessoryOptions,
                                 accessoryParameters,
                                 languageOptions,
@@ -684,8 +702,6 @@ namespace Godo.Infrastructure
                         }
 
                         // Clears the array in preparation of resizing
-                        Array.Clear(uncompressedKernel, 0, uncompressedKernel.Length);
-
                         // Resize array to fit the new header (for kernel2) and write either the original or modified section data
                         if (File.Exists(kernelNewTextSection + r))
                         {
@@ -696,12 +712,11 @@ namespace Godo.Infrastructure
                             byte[] sectionHeader = BitConverter.GetBytes(newText.Length);
 
                             // Has to skip 4 bytes because our modified Kernel sections have no 4-byte header
-                            Array.Resize<byte>(ref uncompressedKernel, newText.Length + 4);
-                            uncompressedKernel[0] = sectionHeader[0];
-                            uncompressedKernel[1] = sectionHeader[1];
-                            uncompressedKernel[2] = sectionHeader[2];
-                            uncompressedKernel[3] = sectionHeader[3];
-                            newText.CopyTo(uncompressedKernel, 4);
+                            byte[] replacement =
+                                new byte[newText.Length + 4];
+                            sectionHeader.CopyTo(replacement, 0);
+                            newText.CopyTo(replacement, 4);
+                            kernelSection.ReplaceTextData(replacement);
                         }
                         // The 'too big' check has been disabled as it can lead to failure
                         //else if (tooBig != true) // Taken from Kernel2
@@ -710,12 +725,11 @@ namespace Godo.Infrastructure
                             byte[] kernel2Text = File.ReadAllBytes(kernel2TextSection + r);
                             byte[] sectionHeader = BitConverter.GetBytes(kernel2Text.Length);
 
-                            Array.Resize<byte>(ref uncompressedKernel, kernel2Text.Length + 4);
-                            uncompressedKernel[0] = sectionHeader[0];
-                            uncompressedKernel[1] = sectionHeader[1];
-                            uncompressedKernel[2] = sectionHeader[2];
-                            uncompressedKernel[3] = sectionHeader[3];
-                            kernel2Text.CopyTo(uncompressedKernel, 4);
+                            byte[] replacement =
+                                new byte[kernel2Text.Length + 4];
+                            sectionHeader.CopyTo(replacement, 0);
+                            kernel2Text.CopyTo(replacement, 4);
+                            kernelSection.ReplaceTextData(replacement);
                         }
                         //else // Taken from Kernel
                         //{
@@ -734,9 +748,10 @@ namespace Godo.Infrastructure
                         // Issue here when the kernel2 gets too big, something is going awry and we're ending up going
                         // past the array size, resulting in an error. It's likely the 'Too Big' logic knocking the
                         // headers out or something when it dips in for regular sections
-                        uncompressedKernel.CopyTo(textData, indexPosition);
-                        indexPosition += uncompressedKernel.Length;
-                        jaggedKernelInfo[o][1] = uncompressedKernel.Length - 4;
+                        kernelSection.Data.CopyTo(textData, indexPosition);
+                        indexPosition += kernelSection.Data.Length;
+                        jaggedKernelInfo[o][1] =
+                            kernelSection.Data.Length - 4;
                         break;
                 }
 
@@ -762,7 +777,10 @@ namespace Godo.Infrastructure
 
                         using (var compressionStream = new GZipStream(result, compressionLevel, true))
                         {
-                            compressionStream.Write(uncompressedKernel, 0, uncompressedKernel.Length);
+                            compressionStream.Write(
+                                kernelSection.Data,
+                                0,
+                                kernelSection.Data.Length);
                             compressionStream.Close();
                         }
                     }
@@ -770,7 +788,10 @@ namespace Godo.Infrastructure
                     {
                         using (var compressionStream = new GZipStream(result, CompressionMode.Compress))
                         {
-                            compressionStream.Write(uncompressedKernel, 4, uncompressedKernel.Length - 4);
+                            compressionStream.Write(
+                                kernelSection.Data,
+                                4,
+                                kernelSection.Data.Length - 4);
                             compressionStream.Close();
                         }
                     }

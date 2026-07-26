@@ -13,7 +13,8 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
     public class GrowthAndLookUpTable
     {
         // Section 2: Battle & Growth Data + Kernel Lookup Table
-        public static byte[] RandomiseSection2(byte[] data,
+        public static KernelSection RandomiseSection2(
+            KernelSection section,
             bool[] statOptions, bool[] characterSelectStats,
             bool[] limitOptions, bool[] characterSelectLimits,
             bool[] challengeOptions,
@@ -22,6 +23,11 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
             Random rnd, byte[] kernelLookup,
             bool characterStatChange)
         {
+            ArgumentNullException.ThrowIfNull(section);
+            section.EnsureSectionType(
+                KernelSectionType.BattleAndGrowth);
+            byte[] data = section.Data;
+
             #region Section Info
             /* Contains the following:
             * 1) General Data for 9 Characters (59 * 9)
@@ -486,7 +492,7 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
                     "Kernel section 2 (growth and lookup data) failed to randomise.",
                     ex);
             }
-            return data;
+            return section;
         }
     }
 }

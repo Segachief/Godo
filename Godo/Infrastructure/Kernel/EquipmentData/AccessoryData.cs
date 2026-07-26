@@ -10,14 +10,19 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
 {
     public class AccessoryData
     {
-        public static byte[] RandomiseAccessories(
-            byte[] data,
+        public static KernelSection RandomiseAccessories(
+            KernelSection section,
             bool[] options,
             int[] parameters,
             bool[] languageOptions,
             Random rnd,
             string textOutputFile)
         {
+            ArgumentNullException.ThrowIfNull(section);
+            section.EnsureSectionType(
+                KernelSectionType.Accessories);
+            byte[] data = section.Data;
+
             #region Section Information
             /* Accessory Data
              * 
@@ -193,7 +198,7 @@ namespace Godo.Infrastructure.Kernel.EquipmentData
                 languageOptions,
                 textOutputFile);
 
-            return data;
+            return section;
         }
     }
 }

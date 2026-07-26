@@ -48,6 +48,23 @@ namespace Godo.Tests
         }
 
         [TestMethod]
+        public void MainFormProvidesAnOpenOutputFolderButton()
+        {
+            RunInSta(() =>
+            {
+                using MainForm mainForm = new MainForm();
+                FieldInfo field = typeof(MainForm).GetField(
+                    "btnOpenOutputFolder",
+                    BindingFlags.Instance | BindingFlags.NonPublic);
+                Button button = (Button)field.GetValue(mainForm);
+
+                Assert.AreSame(mainForm, button.Parent);
+                Assert.IsTrue(button.Enabled);
+                Assert.AreEqual("Open Output Folder", button.Text);
+            });
+        }
+
+        [TestMethod]
         public void LanguageSelectionRemainsMutuallyExclusive()
         {
             RunInSta(() =>

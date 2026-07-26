@@ -26,12 +26,18 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
         // Cid Record: 0x00420
         #endregion
 
-        public static byte[] RandomiseInitialisation(byte[] data,
+        public static KernelSection RandomiseInitialisation(
+            KernelSection section,
             bool[] statOptions, int[] statParameters, bool[] characterSelectStats,
             bool[] equipOptions, int[] equipParameters, bool[] characterSelectEquip,
             bool[] languageOptions, byte[]startingEquipment,
             Random rnd, bool characterStatChange, bool startingMateriaChange)
         {
+            ArgumentNullException.ThrowIfNull(section);
+            section.EnsureSectionType(
+                KernelSectionType.InitialData);
+            byte[] data = section.Data;
+
             try
             {
                 #region Initialisation Data (kernel.3) struct
@@ -442,7 +448,7 @@ namespace Godo.Infrastructure.Kernel.InitialisationData
                     "Kernel section 3 (initial data) failed to randomise.",
                     ex);
             }
-            return data;
+            return section;
         }
     }
 }
