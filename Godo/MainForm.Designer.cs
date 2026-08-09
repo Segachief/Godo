@@ -80,6 +80,8 @@
             this.label7 = new System.Windows.Forms.Label();
             this.btnMiscFileDecompress = new System.Windows.Forms.Button();
             this.btnOpenOutputFolder = new System.Windows.Forms.Button();
+            this.btnInstallDirectoryRemaster = new System.Windows.Forms.Button();
+            this.lblRemasterInstallDirectory = new System.Windows.Forms.Label();
             this.chkJapanese = new System.Windows.Forms.CheckBox();
             this.flowLayoutPanel1.SuspendLayout();
             this.flowLayoutPanel2.SuspendLayout();
@@ -579,6 +581,25 @@
             this.btnOpenOutputFolder.UseVisualStyleBackColor = true;
             this.btnOpenOutputFolder.Click += new System.EventHandler(this.BtnOpenOutputFolder_Click);
             //
+            // btnInstallDirectoryRemaster
+            //
+            this.btnInstallDirectoryRemaster.Location = new System.Drawing.Point(15, 220);
+            this.btnInstallDirectoryRemaster.Name = "btnInstallDirectoryRemaster";
+            this.btnInstallDirectoryRemaster.Size = new System.Drawing.Size(178, 23);
+            this.btnInstallDirectoryRemaster.TabIndex = 35;
+            this.btnInstallDirectoryRemaster.Text = "Install Directory - Remaster";
+            this.btnInstallDirectoryRemaster.UseVisualStyleBackColor = true;
+            this.btnInstallDirectoryRemaster.Click += new System.EventHandler(this.BtnInstallDirectoryRemaster_Click);
+            //
+            // lblRemasterInstallDirectory
+            //
+            this.lblRemasterInstallDirectory.AutoEllipsis = true;
+            this.lblRemasterInstallDirectory.Location = new System.Drawing.Point(199, 225);
+            this.lblRemasterInstallDirectory.Name = "lblRemasterInstallDirectory";
+            this.lblRemasterInstallDirectory.Size = new System.Drawing.Size(603, 18);
+            this.lblRemasterInstallDirectory.TabIndex = 36;
+            this.lblRemasterInstallDirectory.Text = "Remaster install: Not configured";
+            //
             // chkJapanese
             // 
             this.chkJapanese.AutoSize = true;
@@ -595,7 +616,9 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
-            this.ClientSize = new System.Drawing.Size(817, 231);
+            this.ClientSize = new System.Drawing.Size(817, 258);
+            this.Controls.Add(this.lblRemasterInstallDirectory);
+            this.Controls.Add(this.btnInstallDirectoryRemaster);
             this.Controls.Add(this.btnOpenOutputFolder);
             this.Controls.Add(this.btnMiscFileDecompress);
             this.Controls.Add(this.label8);
@@ -683,6 +706,8 @@
         private System.Windows.Forms.Label label7;
         private System.Windows.Forms.Button btnMiscFileDecompress;
         private System.Windows.Forms.Button btnOpenOutputFolder;
+        private System.Windows.Forms.Button btnInstallDirectoryRemaster;
+        private System.Windows.Forms.Label lblRemasterInstallDirectory;
         private System.Windows.Forms.CheckBox chkJapanese;
     }
 }

@@ -36,6 +36,7 @@ namespace Godo
 
             InitializeComponent();
             InitializeOptionState();
+            RestoreRemasterInstallDirectory();
         }
 
         // Initialises forms for options selection
@@ -152,6 +153,7 @@ namespace Godo
         string _inputKernel;
         string _inputKernel2;
         readonly string _miscFile;
+        RemasterInstallLayout _remasterInstallLayout;
         private static string ResolveRuntimeDirectory()
         {
             string currentDirectory = Directory.GetCurrentDirectory();
@@ -825,6 +827,112 @@ namespace Godo
                 MessageBox.Show(
                     "Unable to open the output folder.\n\n" +
                     ex.Message);
+            }
+        }
+
+        private void RestoreRemasterInstallDirectory()
+        {
+            string savedRoot = Properties.Settings.Default.RemasterInstallRoot;
+            if (RemasterInstallLayout.TryCreate(
+                savedRoot,
+                out RemasterInstallLayout layout,
+                out _))
+            {
+                SetRemasterInstallLayout(layout);
+                return;
+            }
+
+            _remasterInstallLayout = null;
+            lblRemasterInstallDirectory.Text =
+                string.IsNullOrWhiteSpace(savedRoot)
+                    ? "Remaster install: Not configured"
+                    : "Remaster install: Saved directory unavailable";
+        }
+
+        private bool TrySetRemasterInstallDirectory(
+            string rootDirectory,
+            bool persist,
+            out string errorMessage)
+        {
+            if (!RemasterInstallLayout.TryCreate(
+                rootDirectory,
+                out RemasterInstallLayout layout,
+                out errorMessage))
+            {
+                return false;
+            }
+
+            SetRemasterInstallLayout(layout);
+            if (persist)
+            {
+                Properties.Settings.Default.RemasterInstallRoot =
+                    layout.RootDirectory;
+                Properties.Settings.Default.Save();
+            }
+
+            return true;
+        }
+
+        private void SetRemasterInstallLayout(RemasterInstallLayout layout)
+        {
+            _remasterInstallLayout = layout;
+            lblRemasterInstallDirectory.Text =
+                "Remaster install: " + layout.RootDirectory;
+        }
+
+        private void BtnInstallDirectoryRemaster_Click(
+            object sender,
+            EventArgs e)
+        {
+            using var folderDialog = new FolderBrowserDialog
+            {
+                Description =
+                    "Select the Final Fantasy VII Remaster installation folder.",
+                UseDescriptionForTitle = true,
+                ShowNewFolderButton = false
+            };
+
+            string initialDirectory =
+                _remasterInstallLayout?.RootDirectory ??
+                Properties.Settings.Default.RemasterInstallRoot;
+            if (Directory.Exists(initialDirectory))
+            {
+                folderDialog.SelectedPath = initialDirectory;
+            }
+
+            if (folderDialog.ShowDialog(this) != DialogResult.OK)
+            {
+                return;
+            }
+
+            try
+            {
+                if (!TrySetRemasterInstallDirectory(
+                    folderDialog.SelectedPath,
+                    persist: true,
+                    out string errorMessage))
+                {
+                    MessageBox.Show(
+                        this,
+                        errorMessage,
+                        "Invalid Remaster installation",
+                        MessageBoxButtons.OK,
+                        MessageBoxIcon.Warning);
+                }
+            }
+            catch (Exception ex) when (
+                ex is IOException ||
+                ex is UnauthorizedAccessException ||
+                ex is System.Configuration.ConfigurationErrorsException)
+            {
+                MessageBox.Show(
+                    this,
+                    "The Remaster directory was selected for this session, " +
+                    "but Godo could not save it for the next launch.\n\n" +
+                    ex.Message,
+                    "Unable to save directory",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
             }
         }
 

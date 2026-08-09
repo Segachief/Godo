@@ -26,5 +26,20 @@ namespace Godo.Properties
                 return defaultInstance;
             }
         }
+
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string RemasterInstallRoot
+        {
+            get
+            {
+                return ((string)(this["RemasterInstallRoot"]));
+            }
+            set
+            {
+                this["RemasterInstallRoot"] = value;
+            }
+        }
     }
 }
